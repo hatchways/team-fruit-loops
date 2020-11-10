@@ -10,18 +10,6 @@ const pingRouter = require("./routes/ping");
 
 const { json, urlencoded } = express;
 
-var app = express();
-
-app.use(logger("dev"));
-app.use(json());
-app.use(urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(join(__dirname, "public")));
-
-app.use("/", indexRouter);
-app.use("/ping", pingRouter);
-
-
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URL, {
     useUnifiedTopology: true,
@@ -36,6 +24,17 @@ mongoose.connect(process.env.MONGODB_URL, {
 mongoose.connection.on('connected', () => {
     console.log('Connected to MongoDB');
 });
+
+var app = express();
+
+app.use(logger("dev"));
+app.use(json());
+app.use(urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(express.static(join(__dirname, "public")));
+
+app.use("/", indexRouter);
+app.use("/ping", pingRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => next(createError(404)));
