@@ -1,32 +1,10 @@
 const fs = require('fs');
+const shuffle = require('../utils/shuffle');
 
 // read word list from the file and store words in an array
-const file = './nounlist.txt';
+const file = __dirname + '/nounlist.txt';
 const data = fs.readFileSync(file, 'utf8');
 const wordList = data.trim().split(/\s+/);
-
-/**
- * Used Fisher–Yates shuffle method to shuffle a given array.
- * Return an array with given size.
- *
- * @param {array} array The array to be shuffled
- * @param {number} size Number of elements to be shuffled
- * @returns {array} Shuffled array with given size
- */
-const shuffle = (array, size = array.length) => {
-  // force size to be size of array if it is larger than the size of array.
-  if (size > array.length) size = array.length;
-
-  // swap arr[i] and arr[j] in every iteration where j is random from 0 to i.
-  for (let i = array.length - 1; i >= array.length - size; i--) {
-    let j = Math.floor(Math.random() * (i + 1));
-    let tmp = array[i];
-    array[i] = array[j];
-    array[j] = tmp;
-  }
-
-  return array.slice(array.length - size, array.length);
-}
 
 /**
  * Used Fisher–Yates shuffle method to shuffle a given array and
@@ -40,34 +18,25 @@ const shuffle = (array, size = array.length) => {
                    identity of the word.
  */
 const generateCards = (size = 25, blue = 8, red = 8, black = 1) => {
-  const colorList = [];
   if (blue + red + black > size) {
-    throw 'Invalid number of blue, red or black cards.'
+    throw new Error('Invalid number of blue, red or black cards.');
   }
 
-  for (let i = 0; i < blue; i++) {
-    colorList.push("blue");
-  }
-
-  for (let i = 0; i < red; i++) {
-    colorList.push("red");
-  }
-
-  for (let i = 0; i < black; i++) {
-    colorList.push("black");
-  }
-
-  for (let i = 0; i < size - (blue + red + black); i++) {
-    colorList.push("white");
-  }
+  //
+  const identityList = [
+    ...Array(blue).fill('blue'),
+    ...Array(red).fill('red'),
+    ...Array(black).fill('black'),
+    ...Array(size - blue - red - black).fill('white')
+  ];
 
   // shuffle words and identities, then associate each word with an identity.
-  const shuffledwordList = shuffle(wordList, size);
-  const shuffledColorList = shuffle(colorList);
+  const shuffledWordList = shuffle(wordList, size);
+  const shuffledIdentityList = shuffle(identityList);
   const cards = {};
 
   for (let i = 0; i < size; i++) {
-    cards[shuffledwordList[i]] = shuffledColorList[i];
+    cards[shuffledWordList[i]] = shuffledIdentityList[i];
   }
 
   return cards;
