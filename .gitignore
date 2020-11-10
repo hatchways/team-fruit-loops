@@ -3,7 +3,6 @@
 # dependencies
 node_modules/
 
-
 # production
 /build/
 
@@ -18,13 +17,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-
-#TODO add .env to your gitignore
-
 .editorconfig
 .vscode/settings.json
 client/.env
 server/.env
-**/.env
-**/node_modules/
-.editorconfig
