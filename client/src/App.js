@@ -1,11 +1,10 @@
 import React from "react";
 import { MuiThemeProvider, CssBaseline, Toolbar } from "@material-ui/core";
-import { BrowserRouter, Route } from "react-router-dom";
+import { BrowserRouter, Route, Redirect, Switch } from "react-router-dom";
 
 import { theme } from "./themes/theme";
 
 import Navbar from "./pages/Navbar";
-import LandingPage from "./pages/Landing";
 import Chat from "./pages/Chat.js";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
@@ -19,10 +18,12 @@ function App() {
       <Navbar />
       <Toolbar />
       <BrowserRouter>
-        <Route path="/" exact component={LandingPage} />
-        <Route path="/signup" component={Signup} />
-        <Route path="/login" component={Login} />
-        <Route path="/chat" component={Chat}/>
+        <Switch>
+          <Redirect exact from="/" to="/signup" />
+          <Route path="/signup" component={Signup} />
+          <Route path="/login" component={Login} />
+          <Route path="/chat" component={Chat}/>
+        </Switch>
       </BrowserRouter>
     </MuiThemeProvider>
   );
