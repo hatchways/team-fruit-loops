@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 import {
   Button,
@@ -45,34 +45,54 @@ const useStyles = makeStyles((theme) => ({
 export default function Login() {
   const classes = useStyles();
 
+  const [values, setValues] = useState({
+    email: "",
+    password: "",
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setValues({ ...values, [name]: value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+  };
+
   return (
     <Container component="main" maxWidth="xs">
       <div className={classes.root}>
         <Typography variant="h5">Sign in</Typography>
         <hr className={classes.underline} />
-        <form className={classes.form}>
+        <form className={classes.form} onSubmit={handleSubmit}>
           <Typography variant="subtitle1">Email:</Typography>
           <TextField
+            id="email"
+            name="email"
+            type="email"
             variant="outlined"
             margin="normal"
             required
             fullWidth
-            id="email"
             placeholder="johndoe@gmail.com"
-            name="email"
             autoFocus
+            onChange={(event) => {
+              handleInputChange(event);
+            }}
           />
           <Typography variant="subtitle1">Password:</Typography>
           <TextField
+            id="password"
+            name="password"
+            type="password"
             variant="outlined"
             margin="normal"
             required
             fullWidth
-            name="password"
-            type="password"
-            id="password"
+            onChange={(event) => {
+              handleInputChange(event);
+            }}
           />
-          <Link href="#">Forgot your password?</Link>
           <br />
           <Button
             type="submit"

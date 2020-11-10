@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 import {
   Button,
@@ -45,12 +45,44 @@ const useStyles = makeStyles((theme) => ({
 export default function Signup() {
   const classes = useStyles();
 
+  const [values, setValues] = useState({
+    name: "",
+    email: "",
+    password1: "",
+    password2: "",
+  });
+
+  const [errorPassword1, setErrorPassword1] = useState("");
+  const [errorPassword2, setErrorPassword2] = useState("");
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setValues({ ...values, [name]: value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    // Validation portion
+    values["password1"].length < 6
+      ? setErrorPassword1("Password must be at least 6 characters.")
+      : setErrorPassword1("");
+
+    values["password2"] !== values["password1"]
+      ? setErrorPassword2("Paswords must match.")
+      : setErrorPassword2("");
+
+    // Validation passed
+    if (errorPassword1 !== "" && errorPassword2 !== "") {
+    }
+  };
+
   return (
     <Container component="main" maxWidth="xs">
       <div className={classes.root}>
         <Typography variant="h5">Sign Up</Typography>
         <hr className={classes.underline} />
-        <form className={classes.form}>
+        <form className={classes.form} onSubmit={handleSubmit}>
           <Typography variant="subtitle1">Name:</Typography>
           <TextField
             id="name"
@@ -61,16 +93,23 @@ export default function Signup() {
             fullWidth
             placeholder="Enter your name"
             autoFocus
+            onChange={(event) => {
+              handleInputChange(event);
+            }}
           />
           <Typography variant="subtitle1">Email:</Typography>
           <TextField
             id="email"
             name="email"
+            type="email"
             variant="outlined"
             margin="normal"
             required
             fullWidth
             placeholder="Enter your email"
+            onChange={(event) => {
+              handleInputChange(event);
+            }}
           />
           <Typography variant="subtitle1">Password:</Typography>
           <TextField
@@ -78,10 +117,31 @@ export default function Signup() {
             margin="normal"
             required
             fullWidth
-            name="password"
+            name="password1"
             type="password"
-            id="password"
+            id="password1"
             placeholder="Enter your password"
+            onChange={(event) => {
+              handleInputChange(event);
+            }}
+            error={errorPassword1 !== ""}
+            helperText={errorPassword1}
+          />{" "}
+          <Typography variant="subtitle1">Confirm Password:</Typography>
+          <TextField
+            variant="outlined"
+            margin="normal"
+            required
+            fullWidth
+            name="password2"
+            type="password"
+            id="password2"
+            placeholder="Enter your password"
+            onChange={(event) => {
+              handleInputChange(event);
+            }}
+            error={errorPassword2 !== ""}
+            helperText={errorPassword2}
           />
           <br />
           <Button
