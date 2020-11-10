@@ -4,6 +4,7 @@ import { BrowserRouter, Route } from "react-router-dom";
 
 import { theme } from "./themes/theme";
 import LandingPage from "./pages/Landing";
+import NewMatch from "./pages/NewMatch";
 
 import "./App.css";
 
@@ -11,7 +12,8 @@ function App() {
   return (
     <MuiThemeProvider theme={theme}>
       <BrowserRouter>
-        <Route path="/" component={LandingPage} />
+        <Route exact path="/new" component={NewMatch} />
+        <Route exact path="/" component={LandingPage} />
       </BrowserRouter>
     </MuiThemeProvider>
   );
