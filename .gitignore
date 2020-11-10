@@ -27,3 +27,4 @@ client/.env
 server/.env
 **/.env
 **/node_modules/
+.editorconfig
