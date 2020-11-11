@@ -25,5 +25,3 @@ yarn-error.log*
 .vscode/settings.json
 client/.env
 server/.env
-server/.env
-server/.env
