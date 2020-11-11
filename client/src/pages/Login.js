@@ -42,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Login() {
+const Login = () => {
   const classes = useStyles();
 
   const [values, setValues] = useState({
@@ -108,4 +108,6 @@ export default function Login() {
       </div>
     </Container>
   );
-}
+};
+
+export default Login;
