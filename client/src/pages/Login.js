@@ -10,6 +10,8 @@ import {
 
 import { makeStyles } from "@material-ui/core/styles";
 
+const axios = require("axios");
+
 const useStyles = makeStyles((theme) => ({
   root: {
     marginTop: theme.spacing(8),
@@ -57,6 +59,15 @@ const Login = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    axios
+      .post("/login", values)
+      .then((res) => {
+        // TODO: Success logic
+      })
+      .catch((err) => {
+        // TODO: Error logic
+      });
   };
 
   return (

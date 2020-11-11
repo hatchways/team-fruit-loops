@@ -10,6 +10,8 @@ import {
 
 import { makeStyles } from "@material-ui/core/styles";
 
+const axios = require("axios");
+
 const useStyles = makeStyles((theme) => ({
   root: {
     marginTop: theme.spacing(8),
@@ -48,12 +50,12 @@ const Signup = () => {
   const [values, setValues] = useState({
     name: "",
     email: "",
-    password1: "",
-    password2: "",
+    password: "",
+    confirmPassword: "",
   });
 
-  const [errorPassword1, setErrorPassword1] = useState("");
-  const [errorPassword2, setErrorPassword2] = useState("");
+  const [errorPassword, setErrorPassword] = useState("");
+  const [errorConfirmPassword, setErrorConfirmPassword] = useState("");
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -64,16 +66,24 @@ const Signup = () => {
     e.preventDefault();
 
     // Validation portion
-    values["password1"].length < 6
-      ? setErrorPassword1("Password must be at least 6 characters.")
-      : setErrorPassword1("");
+    values["password"].length < 6
+      ? setErrorPassword("Password must be at least 6 characters.")
+      : setErrorPassword("");
 
-    values["password2"] !== values["password1"]
-      ? setErrorPassword2("Paswords must match.")
-      : setErrorPassword2("");
+    values["confirmPassword"] !== values["password"]
+      ? setErrorConfirmPassword("Paswords must match.")
+      : setErrorConfirmPassword("");
 
     // Validation passed
-    if (errorPassword1 !== "" && errorPassword2 !== "") {
+    if (errorPassword === "" && errorConfirmPassword === "") {
+      axios
+        .post("/register", values)
+        .then((res) => {
+          // TODO: Success logic
+        })
+        .catch((err) => {
+          // TODO: Error logic
+        });
     }
   };
 
@@ -117,15 +127,15 @@ const Signup = () => {
             margin="normal"
             required
             fullWidth
-            name="password1"
+            name="password"
             type="password"
-            id="password1"
+            id="password"
             placeholder="Enter your password"
             onChange={(event) => {
               handleInputChange(event);
             }}
-            error={errorPassword1 !== ""}
-            helperText={errorPassword1}
+            error={errorPassword !== ""}
+            helperText={errorPassword}
           />{" "}
           <Typography variant="subtitle1">Confirm Password:</Typography>
           <TextField
@@ -133,15 +143,15 @@ const Signup = () => {
             margin="normal"
             required
             fullWidth
-            name="password2"
+            name="confirmPassword"
             type="password"
-            id="password2"
-            placeholder="Enter your password"
+            id="confirmPassword"
+            placeholder="Confirm your password"
             onChange={(event) => {
               handleInputChange(event);
             }}
-            error={errorPassword2 !== ""}
-            helperText={errorPassword2}
+            error={errorConfirmPassword !== ""}
+            helperText={errorConfirmPassword}
           />
           <br />
           <Button
