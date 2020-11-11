@@ -106,34 +106,28 @@ const NewGame = withStyles(styles)(({ classes }) => {
   );
 });
 
-const Content = withStyles(styles)(({ classes }) => {
-  return (
-    <CardContent>
-      <Container>
-        <Grid container spacing={1}>
-          <JoinGame/>
-          <Grid item xs={1}>
-            <Container>
-              <Divider orientation="vertical" className={classes.vertDiv} flexItem />
-            </Container>
-          </Grid>
-          <NewGame/>
-        </Grid>
-      </Container>
-    </CardContent>
-  );
-});
-
-const NewMatch = withStyles(styles)(({ classes }) => {
+const Match = withStyles(styles)(({ classes }) => {
   return (
     <Container>
       <Card>
         <CardHeader className={classes.centered} title="Welcome"/>
         <Divider className={classes.divider} variant="middle"/>
-        <Content/>
+        <CardContent>
+          <Container>
+            <Grid container spacing={1}>
+              <JoinGame/>
+              <Grid item xs={1}>
+                <Container>
+                  <Divider orientation="vertical" className={classes.vertDiv} flexItem />
+                </Container>
+              </Grid>
+              <NewGame/>
+            </Grid>
+          </Container>
+        </CardContent>
       </Card>
     </Container>
   );
 });
 
-export default NewMatch;
+export default Match;
