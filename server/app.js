@@ -15,9 +15,9 @@ const app = express();
 
 // Connect to MongoDB
 mongoose.connect(mongoURL, {
-    useUnifiedTopology: true,
-    useNewUrlParser: true,
-    useCreateIndex: true
+  useUnifiedTopology: true,
+  useNewUrlParser: true,
+  useCreateIndex: true
 })
 .catch(error => {
   console.log(`Error connecting to MongoDB: ${error}`);
@@ -25,7 +25,7 @@ mongoose.connect(mongoURL, {
 });
 
 mongoose.connection.on('connected', () => {
-    console.log('Connected to MongoDB');
+  console.log('Connected to MongoDB');
 });
 
 
