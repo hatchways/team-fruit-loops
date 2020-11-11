@@ -10,6 +10,7 @@ const pingRouter = require("./routes/ping");
 
 const { json, urlencoded } = express;
 
+const app = express();
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URL, {
     useUnifiedTopology: true,
@@ -25,7 +26,6 @@ mongoose.connection.on('connected', () => {
     console.log('Connected to MongoDB');
 });
 
-var app = express();
 
 app.use(logger("dev"));
 app.use(json());
