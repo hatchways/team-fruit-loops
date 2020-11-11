@@ -42,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Signup() {
+const Signup = () => {
   const classes = useStyles();
 
   const [values, setValues] = useState({
@@ -158,4 +158,6 @@ export default function Signup() {
       </div>
     </Container>
   );
-}
+};
+
+export default Signup;

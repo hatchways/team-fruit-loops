@@ -3,7 +3,7 @@ const express = require("express");
 const { join } = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const indexRouter = require("./routes/index");
 const pingRouter = require("./routes/ping");
@@ -13,23 +13,24 @@ const loginRouter = require("./routes/login");
 
 const { json, urlencoded } = express;
 
-// Connect to MongoDB
-mongoose
-  .connect(process.env.MONGODB_URL, {
-    useUnifiedTopology: true,
-    useNewUrlParser: true,
-    useCreateIndex: true,
-  })
-  .catch((error) => {
-    console.log(`Error connecting to MongoDB: ${error}`);
-    process.exit(1);
-  });
+const mongoURL = process.env.MONGODB_URL || "";
+const app = express();
 
-mongoose.connection.on("connected", () => {
-  console.log("Connected to MongoDB");
+// Connect to MongoDB
+mongoose.connect(mongoURL, {
+  useUnifiedTopology: true,
+  useNewUrlParser: true,
+  useCreateIndex: true
+})
+.catch(error => {
+  console.log(`Error connecting to MongoDB: ${error}`);
+  process.exit(1);
 });
 
-var app = express();
+mongoose.connection.on('connected', () => {
+  console.log('Connected to MongoDB');
+});
+
 
 app.use(logger("dev"));
 app.use(json());
