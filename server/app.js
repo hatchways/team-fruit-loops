@@ -38,8 +38,6 @@ mongoose.connection.on('connected', () => {
     console.log('Connected to MongoDB');
 });
 
-var app = express();
-
 app.use(logger("dev"));
 app.use(json());
 app.use(urlencoded({ extended: false }));
