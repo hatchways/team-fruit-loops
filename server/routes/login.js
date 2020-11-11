@@ -3,7 +3,7 @@ const router = express.Router();
 
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { createJWT } = require("../utils/auth");
+const { createAccessToken } = require("../utils/auth");
 
 const User = require("../models/User");
 
@@ -26,20 +26,20 @@ router.post("/", function (req, res, next) {
                 .json({ errors: [{ password: "Incorrect password" }] });
             }
 
-            let access_token = createJWT(user.email, user._id, 3600);
+            // Correct credentials have been provided
+            const access_token = createAccessToken(user.email, user._id, "15s");
 
             jwt.verify(
               access_token,
-              process.env.TOKEN_SECRET,
+              process.env.ACCESS_TOKEN_SECRET,
               (err, decoded) => {
                 if (err) {
-                  res.status(500).json({ errors: err });
+                  res.status(403).json({ errors: err });
                 }
                 if (decoded) {
                   return res.status(200).json({
-                    success: true,
                     token: access_token,
-                    message: user,
+                    user: user,
                   });
                 }
               }

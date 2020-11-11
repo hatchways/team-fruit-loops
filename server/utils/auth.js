@@ -1,14 +1,19 @@
-// Create and return JsonWebToken as string
-
 const jwt = require("jsonwebtoken");
 
-exports.createJWT = (email, userId, duration) => {
+exports.createAccessToken = (email, userId, duration) => {
   const payload = {
     email,
     userId,
-    duration,
   };
-  return jwt.sign(payload, process.env.TOKEN_SECRET, {
+  return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
     expiresIn: duration,
   });
+};
+
+exports.createRefreshToken = (email, userId) => {
+  const payload = {
+    email,
+    userId,
+  };
+  return jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET);
 };

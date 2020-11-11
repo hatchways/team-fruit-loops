@@ -6,7 +6,7 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 
 router.post("/", function (req, res, next) {
-  let { name, email, password, confirm_password } = req.body;
+  let { name, email, password, confirmPassword } = req.body;
 
   // First check to make sure all fields are valid
   let errors = [];
@@ -27,13 +27,13 @@ router.post("/", function (req, res, next) {
     errors.push({ password: "minimum six characters" });
   }
 
-  if (!confirm_password) {
+  if (!confirmPassword) {
     errors.push({
-      confirm_password: "required",
+      confirmPassword: "required",
     });
   }
 
-  if (password != confirm_password) {
+  if (password != confirmPassword) {
     errors.push({ password: "mismatch" });
   }
 
