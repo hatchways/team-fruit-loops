@@ -24,7 +24,8 @@ app.use("/ping", pingRouter);
 app.use('/game', gameRouter);
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URL, {
+const mongoURL = process.env.MONGODB_URL || "";
+mongoose.connect(mongoURL, {
     useUnifiedTopology: true,
     useNewUrlParser: true,
     useCreateIndex: true
