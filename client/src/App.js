@@ -5,6 +5,7 @@ import { BrowserRouter, Route } from "react-router-dom";
 import { theme } from "./themes/theme";
 import LandingPage from "./pages/Landing";
 import Match from "./pages/Match";
+import Game from "./pages/Game";
 
 import "./App.css";
 
@@ -13,6 +14,7 @@ function App() {
     <MuiThemeProvider theme={theme}>
       <BrowserRouter>
         <Route exact path="/match" component={Match} />
+        <Route exact path="/game" component={Game} />
         <Route exact path="/" component={LandingPage} />
       </BrowserRouter>
     </MuiThemeProvider>
