@@ -1,20 +1,16 @@
 const dictionary = require('./dictionary/dictionary');
 const shuffle = require('./utils/shuffle');
+const role = require('./role');
 
-// Initialzie game with 4 players and roles are randomly assigned
-const initGame = (playerList) => {
+// Initialize game with 4 players and roles are randomly assigned
+const initGame = () => {
   const gameState = {
     cards: dictionary.generateCards(),
     blueCardNum: 8,
     redCardNum: 8,
     whiteCardNum: 8,
     blackCardNum: 1,
-    playerList: new Set(playerList),
-    redSpy: undefined,
-    redGuessers: [],
     redPoints: 0,
-    blueSpy: undefined,
-    blueGuessers: [],
     bluePoints: 0,
     turn: 'blue',
     guessNum: 0,
@@ -24,31 +20,94 @@ const initGame = (playerList) => {
     boardState: {},
   };
 
-  const shuffledPlayerList = shuffle(Array.from(gameState.playerList));
-  gameState.redSpy = shuffledPlayerList[0];
-  gameState.blueSpy = shuffledPlayerList[1];
-  gameState.redGuessers.push(shuffledPlayerList[2]);
-  gameState.blueGuessers.push(shuffledPlayerList[3]);
-
-  for (let key in gameState.cards) {
-    gameState.boardState[key] = {
-      status: 'covered',
-    }
-  }
+  for (let key in gameState.cards)
+    gameState.boardState[key] = { status: 'covered' };
 
   return gameState;
 }
 
-// Game constructor with 4 players
-function Game(playerList) {
-  if (playerList.length !== 4)
-    throw new Error('Number of players must be 4');
+const isReady = (gameState) => {
+  return (
+    gameState.waitingList.length === 0 &&
+    gameState.blueSpy !== undefined &&
+    gameState.redSpy !== undefined &&
+    gameState.blueGuessers.length !== 0 &&
+    gameState.redGuessers.length !== 0
+  );
+}
 
-  this.gameState = initGame(playerList);
+// Game constructor with 4 players. Initialize players info of game state.
+function Game(playerList) {
+  if (playerList.length < 4)
+    throw new Error('Number of players must be at least 4');
+
+  this.gameState = {
+    playerList: new Set(playerList),
+    waitingList: playerList,
+    redSpy: undefined,
+    redGuessers: [],
+    blueSpy: undefined,
+    blueGuessers: [],
+    isReady: false,
+    isStart: false,
+  };
+}
+
+Game.prototype.assignRole = function(player, newRole) {
+  const waitingList = this.gameState.waitingList;
+  if (!this.gameState.playerList.has(player))
+    throw new Error(`Failed to assign role: ${player} is an invalid player.`);
+  if (!waitingList.includes(player))
+    throw new Error(`Failed to assign role: ${player} has been assigned.`);
+
+  switch(newRole) {
+    case role.RED.SPY:
+      if (this.gameState.redSpy !== undefined)
+        throw new Error(`${newRole} has been assigned.`);
+      else
+        this.gameState.redSpy = player;
+      break;
+
+    case role.RED.GUESSER:
+      this.gameState.redGuessers.push(player);
+      break;
+
+    case role.BLUE.SPY:
+      if (this.gameState.blueSpy !== undefined)
+        throw new Error(`${newRole} has been assigned.`);
+      else
+        this.gameState.blueSpy = player;
+      break;
+
+    case role.BLUE.GUESSER:
+      this.gameState.blueGuessers.push(player);
+      break;
+
+    default:
+      throw new Error(`Failed to assign role: ${newRole} is invalid.`);
+  }
+  this.gameState.waitingList.splice(waitingList.indexOf(player), 1);
+  this.gameState.isReady = isReady(this.gameState);
+  return this.gameState;
+}
+
+// Initialize game state and start game
+Game.prototype.start = function() {
+  if (!this.gameState.isReady)
+    throw new Error('Role assignment is not finished yet.');
+  if (this.gameState.isStart)
+    throw new Error('Game has already started.');
+
+  Object.assign(this.gameState, initGame());
+  this.gameState.isStart = true;
+  return this.gameState;
 }
 
 // A guesser's next move
 Game.prototype.guesserNextMove = function(player, word) {
+  if (!this.gameState.isStart || this.gameState.isEnd)
+    throw new Error('Game is not started yet');
+
   const turn = this.gameState.turn;
   if (turn === 'red' && !this.gameState.redGuessers.includes(player))
     throw new Error(`${player} is not a guesser from team red.`);
@@ -59,10 +118,8 @@ Game.prototype.guesserNextMove = function(player, word) {
   if (this.gameState.hint === undefined)
     throw new Error('A guesser must wait until a spy gives hints.');
 
-  const wordIdentity = this.gameState.cards[word];
   this.gameState.boardState[word].status = this.gameState.cards[word];
-
-  switch(wordIdentity) {
+  switch(this.gameState.cards[word]) {
     // if select a black card, ends game and the opponent wins.
     case 'black':
       this.gameState.isEnd = true;
@@ -106,6 +163,8 @@ Game.prototype.guesserNextMove = function(player, word) {
 
 // A spy's next move
 Game.prototype.spyNextMove = function(player, hint, hintNum) {
+  if (!this.gameState.isStart || this.gameState.isEnd)
+    throw new Error('Game is not started yet');
   if (this.gameState.turn === 'red' && player !== this.gameState.redSpy)
     throw new Error(`${player} is not a red spy.`);
 
@@ -124,6 +183,9 @@ Game.prototype.spyNextMove = function(player, hint, hintNum) {
 }
 
 Game.prototype.endTurn = function() {
+  if (!this.gameState.isStart || this.gameState.isEnd)
+    throw new Error('Game is not started yet');
+
   this.gameState.turn = this.gameState.turn === 'red' ? 'blue' : 'red';
   this.gameState.guessNum = 0;
   this.gameState.hint = undefined;
@@ -135,7 +197,10 @@ Game.prototype.isEnd = function() {
 }
 
 Game.prototype.restart = function () {
-  this.gameState = initGame(Array.from(this.gameState.playerList));
+  if (!this.gameState.isStart)
+    throw new Error('Game is not started yet');
+
+  Object.assign(this.gameState, initGame());
   return this.gameState;
 }
 
