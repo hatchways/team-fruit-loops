@@ -26,9 +26,9 @@ app.use('/game', gameRouter);
 // Connect to MongoDB
 const mongoURL = process.env.MONGODB_URL || "";
 mongoose.connect(mongoURL, {
-    useUnifiedTopology: true,
-    useNewUrlParser: true,
-    useCreateIndex: true
+  useUnifiedTopology: true,
+  useNewUrlParser: true,
+  useCreateIndex: true
 })
 .catch(error => {
   console.log(`Error connecting to MongoDB: ${error}`);
@@ -36,7 +36,7 @@ mongoose.connect(mongoURL, {
 });
 
 mongoose.connection.on('connected', () => {
-    console.log('Connected to MongoDB');
+  console.log('Connected to MongoDB');
 });
 
 app.use(logger("dev"));
