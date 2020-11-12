@@ -39,7 +39,7 @@ const isReady = (gameState) => {
 // Game constructor. Initialize players info of game state.
 function Game(creator) {
   this.gameState = {
-    playerList: new Set([creator]),
+    playerList: [creator],
     waitingList: [creator],
     redSpy: undefined,
     redGuessers: [],
@@ -51,17 +51,17 @@ function Game(creator) {
 }
 
 Game.prototype.join = function(player) {
-  if (this.gameState.playerList.has(player))
+  if (this.gameState.playerList.includes(player))
     throw new Error(`${player} has already joined in the game.`);
 
-  this.gameState.playerList.add(player);
+  this.gameState.playerList.push(player);
   this.gameState.waitingList.push(player);
   return this.gameState;
 }
 
 Game.prototype.assignRole = function(player, newRole) {
   const waitingList = this.gameState.waitingList;
-  if (!this.gameState.playerList.has(player))
+  if (!this.gameState.playerList.includes(player))
     throw new Error(`Failed to assign role: ${player} is an invalid player.`);
   if (!waitingList.includes(player))
     throw new Error(`Failed to assign role: ${player} has been assigned.`);
