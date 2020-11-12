@@ -14,16 +14,14 @@ router.post("/", function (req, res, next) {
     .then((user) => {
       if (!user) {
         return res.status(404).json({
-          errors: [{ user: "User not found" }],
+          errors: "User not found",
         });
       } else {
         bcrypt
           .compare(password, user.password)
           .then((isMatch) => {
             if (!isMatch) {
-              return res
-                .status(400)
-                .json({ errors: [{ password: "Incorrect password" }] });
+              return res.status(400).json({ errors: "Incorrect password" });
             }
 
             // Correct credentials have been provided; create JWT

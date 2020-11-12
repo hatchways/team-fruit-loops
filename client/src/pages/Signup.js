@@ -67,6 +67,7 @@ const Signup = () => {
   const [errorConfirmPassword, setErrorConfirmPassword] = useState("");
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackBarMessage] = useState("");
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -86,17 +87,23 @@ const Signup = () => {
       : setErrorConfirmPassword("");
 
     // Validation passed
-    if (errorPassword === "" && errorConfirmPassword === "") {
+    if (
+      errorPassword === "" &&
+      errorConfirmPassword === "" &&
+      values["confirmPassword"] === values["password"]
+    ) {
       axios
         .post("/register", values)
         .then((res) => {
           // TODO: Success logic
+          // ISSUE: Logic never reaches this block even with account success
           history.push("/profile");
         })
         .catch((err) => {
-          // TODO: Error logic
+          setSnackBarMessage(err.response.data.errors);
           setSnackbarOpen(true);
-        });
+        })
+        .then(() => {});
     }
   };
 
@@ -197,7 +204,7 @@ const Signup = () => {
         onClose={handleSnackbar}
       >
         <Alert onClose={handleSnackbar} severity="error">
-          Invalid credentials
+          {snackbarMessage}
         </Alert>
       </Snackbar>
     </Container>
