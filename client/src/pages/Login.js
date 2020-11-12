@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useHistory } from "react-router-dom";
 
 import {
   Button,
@@ -46,6 +47,7 @@ const useStyles = makeStyles((theme) => ({
 
 const Login = () => {
   const classes = useStyles();
+  let history = useHistory();
 
   const [values, setValues] = useState({
     email: "",
@@ -64,6 +66,7 @@ const Login = () => {
       .post("/login", values)
       .then((res) => {
         // TODO: Success logic
+        history.push("/profile");
       })
       .catch((err) => {
         // TODO: Error logic

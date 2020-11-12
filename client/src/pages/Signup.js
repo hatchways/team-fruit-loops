@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useHistory } from "react-router-dom";
 
 import {
   Button,
@@ -6,11 +7,18 @@ import {
   Link,
   Typography,
   Container,
+  Snackbar,
 } from "@material-ui/core";
+
+import MuiAlert from "@material-ui/lab/Alert";
 
 import { makeStyles } from "@material-ui/core/styles";
 
 const axios = require("axios");
+
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -46,6 +54,7 @@ const useStyles = makeStyles((theme) => ({
 
 const Signup = () => {
   const classes = useStyles();
+  let history = useHistory();
 
   const [values, setValues] = useState({
     name: "",
@@ -56,6 +65,8 @@ const Signup = () => {
 
   const [errorPassword, setErrorPassword] = useState("");
   const [errorConfirmPassword, setErrorConfirmPassword] = useState("");
+
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -80,11 +91,21 @@ const Signup = () => {
         .post("/register", values)
         .then((res) => {
           // TODO: Success logic
+          history.push("/profile");
         })
         .catch((err) => {
           // TODO: Error logic
+          setSnackbarOpen(true);
         });
     }
+  };
+
+  const handleSnackbar = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setSnackbarOpen(false);
   };
 
   return (
@@ -166,6 +187,19 @@ const Signup = () => {
           </Typography>
         </form>
       </div>
+      <Snackbar
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "right",
+        }}
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={handleSnackbar}
+      >
+        <Alert onClose={handleSnackbar} severity="error">
+          Invalid credentials
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };

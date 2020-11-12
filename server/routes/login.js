@@ -26,7 +26,7 @@ router.post("/", function (req, res, next) {
                 .json({ errors: [{ password: "Incorrect password" }] });
             }
 
-            // Correct credentials have been provided
+            // Correct credentials have been provided; create JWT
             const access_token = createAccessToken(user.email, user._id, "15s");
 
             jwt.verify(
@@ -37,6 +37,9 @@ router.post("/", function (req, res, next) {
                   res.status(403).json({ errors: err });
                 }
                 if (decoded) {
+                  // Save the JWT token in a cookie
+                  res.cookie("token", access_token, { httpOnly: true });
+
                   return res.status(200).json({
                     token: access_token,
                     user: user,

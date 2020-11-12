@@ -5,7 +5,7 @@ const router = express.Router();
 
 const { authenticateToken } = require("../controllers/auth");
 
-router.get("/", authenticateToken, function (req, res) {
+router.get("/", authenticateToken, (req, res) => {
   res.sendStatus(200);
 });
 

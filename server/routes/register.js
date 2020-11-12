@@ -5,7 +5,11 @@ const bcrypt = require("bcryptjs");
 
 const User = require("../models/User");
 
+const axios = require("axios");
+
 router.post("/", function (req, res, next) {
+  console.log("POST request");
+
   let { name, email, password, confirmPassword } = req.body;
 
   // First check to make sure all fields are valid
@@ -64,7 +68,10 @@ router.post("/", function (req, res, next) {
           user
             .save()
             .then((response) => {
-              res.status(201).json({ success: [{ response: response }] });
+              // Successfully created user
+              console.log("Account created.");
+
+              // TODO - Automatically log in
             })
             .catch((err) => {
               res.status(500).json({

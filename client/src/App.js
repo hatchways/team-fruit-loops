@@ -7,6 +7,7 @@ import { theme } from "./themes/theme";
 import Navbar from "./pages/Navbar";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
+import Profile from "./pages/Profile";
 
 import "./App.css";
 
@@ -21,6 +22,7 @@ function App() {
           <Redirect exact from="/" to="/signup" />
           <Route path="/signup" component={Signup} />
           <Route path="/login" component={Login} />
+          <Route path="/profile" component={Profile} />
         </Switch>
       </BrowserRouter>
     </MuiThemeProvider>
