@@ -1,43 +1,46 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 
-import { Button } from "@material-ui/core";
+import { Button, Typography } from "@material-ui/core";
 
 const axios = require("axios");
 
 const Profile = () => {
-//   useEffect(() => {
-//     axios
-//       .get("/profile", {
-//         headers: {
-//           authorization:
-//             "Bearer <<token>>",
-//         },
-//       })
-//       .then((res) => {
-//         console.log("good");
-//       })
-//       .catch((err) => {
-//         console.log("bad");
-//       });
-//   });
+  const [values, setValues] = useState({
+    name: "",
+    email: "",
+  });
+
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    axios
+      .get("/profile")
+      .then((res) => {
+        setValues({
+          name: res.data.name,
+          email: res.data.email,
+        });
+      })
+      .catch((err) => {
+        logout();
+      });
+  }, []);
 
   let history = useHistory();
 
   const logout = () => {
     axios
       .get("/logout")
-      .then((res) => {
-        console.log("Successfully logged out.");
-      })
-      .catch((err) => {
-        console.log("Error: ", err);
-      })
+      .then((res) => {})
+      .catch((err) => {})
       .finally(() => history.push("/login"));
   };
 
   return (
     <>
+      <Typography>{"Welcome " + values["name"]}</Typography>
+      <br />
       <Button variant="contained" onClick={logout}>
         Logout
       </Button>

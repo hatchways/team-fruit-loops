@@ -26,8 +26,14 @@ router.post("/", function (req, res, next) {
               return res.status(400).json({ errors: "Invalid credentials" });
             }
 
+            const payload = {
+              id: user._id,
+              name: user.name,
+              email: user.email,
+            };
+
             // Correct credentials have been provided; create JWT
-            const access_token = createAccessToken(user.email, user._id, "15s");
+            const access_token = createAccessToken(payload, "15s");
 
             jwt.verify(
               access_token,
