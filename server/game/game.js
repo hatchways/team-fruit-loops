@@ -38,6 +38,9 @@ const isReady = (gameState) => {
 
 // Game constructor. Initialize players info of game state.
 function Game(creator) {
+  if (player === undefined)
+    throw new Error('Player is not provided.');
+    
   this.gameState = {
     playerList: [creator],
     waitingList: [creator],
@@ -51,6 +54,9 @@ function Game(creator) {
 }
 
 Game.prototype.join = function(player) {
+  if (player === undefined)
+    throw new Error('Player is not provided.');
+
   if (this.gameState.playerList.includes(player))
     throw new Error(`${player} has already joined in the game.`);
 
