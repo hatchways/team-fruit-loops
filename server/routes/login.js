@@ -13,15 +13,17 @@ router.post("/", function (req, res, next) {
   User.findOne({ email: email })
     .then((user) => {
       if (!user) {
+        // For security purposes, do not reveal in login that a user does not
+        // exist in the database
         return res.status(404).json({
-          errors: "User not found",
+          errors: "Invalid credentials",
         });
       } else {
         bcrypt
           .compare(password, user.password)
           .then((isMatch) => {
             if (!isMatch) {
-              return res.status(400).json({ errors: "Incorrect password" });
+              return res.status(400).json({ errors: "Invalid credentials" });
             }
 
             // Correct credentials have been provided; create JWT
