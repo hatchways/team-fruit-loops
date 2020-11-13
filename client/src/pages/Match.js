@@ -1,131 +1,159 @@
-import React from 'react';
+import React, { useState }from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import {
-  Container, Card, CardHeader, CardContent, Divider,
-  Grid, Typography, Box, Button, TextField,
+  Container, Card, CardContent, Divider,
+  Grid, Typography, Button, TextField,
 } from '@material-ui/core';
 
 const styles = theme => ({
-  centered: {
+  header: {
     textAlign: "center",
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(0),
   },
-  vert: {
-    height: "60%",
+  card: {
+    marginTop: theme.spacing(3),
   },
-  divider: {
+  hDivider: {
     height: "1px",
     backgroundColor: "rgb(72, 172, 122)",
-    border: "none",
-    marginLeft: "47%",
-    marginRight: "47%",
+    marginLeft: theme.spacing(33),
+    marginRight: theme.spacing(33),
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+  },
+  vDivider: {
+    width: "1px",
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(2),
   },
   join: {
-    width: "51%",
+    textAlign: "left",
+    marginLeft: theme.spacing(3),
+    fontWeight: "bold",
+  },
+  game: {
+    whiteSpace: "nowrap",
+    backgroundColor: "rgb(75, 75, 75)",
+    width: "100%",
+    color: "white",
+  },
+  random: {
+    whiteSpace: "nowrap",
+    backgroundColor: "rgb(75, 75, 75)",
+    color: "white",
+    width: "50%",
+  },
+  new: {
+    fontWeight: "bold",
+    height: theme.spacing(0),
+  },
+  form: {
+    marginLeft: theme.spacing(3),
+    marginRight: theme.spacing(5),
   },
   or: {
-    textAlign: "center",
-    width: "100%",
+    fontWeight: "bold",
+    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(1),
   },
-  centerBtn: {
-    display: "flex",
-    justifyContent: "center",
+  public: {
+    marginTop: theme.spacing(1),
   },
-  gameBtn: {
-    display: "flex",
-    flexDirection: "column",
+  private: {
+    marginTop: theme.spacing(1),
   },
-  vertDiv: {
-    width: "1px",
-    height: "40vh",
+});
+
+const join = (id, type) => e => {
+  switch (type) {
+  case "join":
+    console.log("join: ", id);
+    break;
+  case "random":
+    console.log("random");
+    break;
+  case "public":
+    console.log("public");
+    break;
+  case "private":
+    console.log("private");
+    break;
+  default:
+    console.log("unknown case: ", type);
   }
-});
-
-const GameIDInput = withStyles(styles)(({ classes }) => {
-  return (
-    <Grid container className={classes.centerBtn} xs={12}>
-      <form>
-        <TextField
-          placeholder="Enter Game ID"
-          InputProps={{
-            endAdornment: (
-              <Button className={classes.join} variant="outlined">Join Game</Button>
-            )
-          }}>
-        </TextField>
-      </form>
-    </Grid>
-  );
-});
-
-const JoinGame = withStyles(styles)(({ classes }) => {
-  return (
-    <Grid container item xs={8}>
-      <Grid item xs={12}>
-        <Typography component="h1">
-          <Box fontWeight="fontWeightBold">
-            Join a Game:
-          </Box>
-        </Typography>
-      </Grid>
-      <GameIDInput/>
-      <Grid container xs={12}>
-        <Grid item xs={12}>
-          <Typography component="h1">
-            <Box fontWeight="fontWeightBold" className={classes.or}>Or</Box>
-          </Typography>
-        </Grid>
-      </Grid>
-      <Grid container xs={12} className={classes.centerBtn}>
-        <Grid item xs={6} className={classes.centerBtn}>
-          <Button variant="outlined">Join Random</Button>
-        </Grid>
-      </Grid>
-    </Grid>
-  );
-});
-
-const NewGame = withStyles(styles)(({ classes }) => {
-  return (
-    <Grid item xs={3}>
-      <Container>
-        <Typography component="h1">
-          <Box fontWeight="fontWeightBold">
-            New Game:
-          </Box>
-        </Typography>
-        <div className={classes.gameBtn}>
-          <div>
-            <Button variant="outlined">Public</Button>
-          </div>
-          <div>
-            <Button variant="outlined">Private</Button>
-          </div>
-        </div>
-      </Container>
-    </Grid>
-  );
-});
+};
 
 const Match = withStyles(styles)(({ classes }) => {
+  const [id, setID] = useState("");
+
   return (
     <Container>
-      <Card>
-        <CardHeader className={classes.centered} title="Welcome"/>
-        <Divider className={classes.divider} variant="middle"/>
-        <CardContent>
-          <Container>
-            <Grid container spacing={1}>
-              <JoinGame/>
-              <Grid item xs={1}>
-                <Container>
-                  <Divider orientation="vertical" className={classes.vertDiv} flexItem />
-                </Container>
+       <Card className={classes.card}>
+         <CardContent>
+            <Typography variant="h3" className={classes.header}>
+              Welcome
+            </Typography>
+            <Divider className={classes.hDivider} variant="middle"/>
+            <Grid container align="center">
+              <Grid item xs={8}>
+                <Typography variant="h6" className={classes.join}>
+                  Join a Game:
+                </Typography>
+                <form className={classes.form}>
+                  <TextField
+                    fullWidth
+                    onChange={({ target: { value }}) => setID(value)}
+                    variant="outlined"
+                    className={classes.text}
+                    placeholder="Enter Game ID"
+                    InputProps={{
+                      endAdornment: (
+                        <Button
+                          onClick={join(id, "join")}
+                          className={classes.game}
+                          variant="outlined">
+                          Join Game
+                        </Button>
+                      )
+                    }}>
+                  </TextField>
+                </form>
+                <Typography variant="h6" className={classes.or}>
+                  Or
+                </Typography>
+                <Button
+                  onClick={join(id, "random")}
+                  className={classes.random}
+                  variant="outlined">
+                  Join Random
+                </Button>
               </Grid>
-              <NewGame/>
+              <Grid item xs={1}>
+                <Divider orientation="vertical" className={classes.vDivider}/>
+              </Grid>
+              <Grid item container xs={3}>
+                <Typography variant="h6" className={classes.new}>
+                  New Game:
+                </Typography>
+                <Grid item container direction="column" xs={6}>
+                  <Button
+                    onClick={join(id, "public")}
+                    className={classes.public}
+                    variant="outlined">
+                    Public
+                  </Button>
+                  <Button
+                    onClick={join(id, "private")}
+                    className={classes.private}
+                    variant="outlined">
+                    Private
+                  </Button>
+                </Grid>
+              </Grid>
             </Grid>
-          </Container>
-        </CardContent>
-      </Card>
+         </CardContent>
+       </Card>
     </Container>
   );
 });
