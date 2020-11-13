@@ -2,12 +2,32 @@ const Game = require('../game/game');
 const { v4: uuidv4 } = require('uuid');
 const globalState = {};
 
-const ping = (req, res) => {
-  const {id} = req.params;
+const validateGameId = (req, res, next) => {
+  const id = req.params.id;
   if (globalState[id] === undefined)
     return res.status(404).json({error: `game id ${id} not found`});
 
-  return res.status(200).json({gameState: globalState[id].gameEngine.gameState});
+  res.locals.game = globalState[id].gameEngine;
+  next();
+}
+
+const execute = (req, res) => {
+  const method = res.locals.method;
+  const params = res.locals.params;
+  if (res.locals.method === undefined || res.locals.params === undefined)
+    next();
+
+  try {
+    const gameState = method.apply(res.locals.game, params);
+    return res.status(200).json({gameState: gameState});
+  }
+  catch (e) {
+    return res.status(400).json({error: e.message});
+  }
+}
+
+const ping = (req, res) => {
+  return res.status(200).json({gameState: globalState[req.params.id].gameEngine.gameState});
 }
 
 const create = (req, res) => {
@@ -23,107 +43,57 @@ const create = (req, res) => {
   }
 }
 
-const join = (req, res) => {
-  const {id} = req.params;
+const join = (req, res, next) => {
   const {player} = req.body;
-  if (globalState[id] === undefined)
-    return res.status(404).json({error: `game id ${id} not found`});
-
-  const game = globalState[id].gameEngine;
-  try {
-    const gameState = game.join(player);
-    return res.status(200).json({gameState: gameState});
-  }
-  catch (e) {
-    return res.status(400).json({error: e.message});
-  }
+  res.locals.method = res.locals.game.join;
+  res.locals.params = [player];
+  next();
 }
 
-const assign = (req, res) => {
-  const {id} = req.params;
+const assign = (req, res, next) => {
   const {player, role} = req.body;
-  if (globalState[id] === undefined)
-    return res.status(404).json({error: `game id ${id} not found`});
-
-  const game = globalState[id].gameEngine;
-  try {
-    const gameState = game.assignRole(player, role);
-    return res.status(200).json({gameState: gameState});
-  }
-  catch (e) {
-    return res.status(400).json({error: e.message});
-  }
+  res.locals.method = res.locals.game.assignRole;
+  res.locals.params = [player, role];
+  next();
 }
 
-const start = (req, res) => {
-  const {id} = req.params;
-  if (globalState[id] === undefined)
-    return res.status(404).json({error: `game id ${id} not found`});
-
-  const game = globalState[id].gameEngine;
-  try {
-    const gameState = game.start();
-    return res.status(200).json({gameState: gameState});
-  }
-  catch (e) {
-    return res.status(400).json({error: e.message});
-  }
+const start = (req, res, next) => {
+  res.locals.method = res.locals.game.start;
+  res.locals.params = [];
+  next();
 }
 
-const nextMove = (req, res) => {
-  const {id} = req.params;
+const nextMove = (req, res, next) => {
   const {player, hint, word} = req.body;
-  if (globalState[id] === undefined)
-    return res.status(404).json({error: `game id ${id} not found`});
-
-  const game = globalState[id].gameEngine;
-  try {
-    let gameState;
-    if (hint !== undefined)
-      gameState = game.spyNextMove(player, hint.word, hint.times);
-    else if (word !== undefined)
-      gameState = game.guesserNextMove(player, word);
-    else
-      throw new Error('Next move is not provided.')
-
-    return res.status(200).json({gameState: gameState})
+  if (hint !== undefined) {
+    res.locals.method = res.locals.game.spyNextMove;
+    res.locals.params = [player, hint.word, hint.times];
   }
-  catch (e) {
-    return res.status(400).json({error: e.message});
+  else if (word !== undefined) {
+    res.locals.method = res.locals.game.guesserNextMove;
+    res.locals.params = [player, word];
   }
+  else {
+    throw new Error('Next move is not provided.');
+  }
+
+  next();
 }
 
-const endTurn = (req, res) => {
-  const {id} = req.params;
-  if (globalState[id] === undefined)
-    return res.status(404).json({error: `game id ${id} not found`});
-
-  const game = globalState[id].gameEngine;
-  try {
-    const gameState = game.endTurn();
-    return res.status(200).json({gameState: gameState});
-  }
-  catch (e) {
-    return res.status(400).json({error: e.message});
-  }
+const endTurn = (req, res, next) => {
+  res.locals.method = res.locals.game.endTurn;
+  res.locals.params = [];
+  next();
 }
 
-const restart = (req, res) => {
-  const {id} = req.params;
-  if (globalState[id] === undefined)
-    return res.status(404).json({error: `game id ${id} not found`});
-
-  const game = globalState[id].gameEngine;
-  try {
-    const gameState = game.restart();
-    return res.status(200).json({gameState: gameState});
-  }
-  catch (e) {
-    return res.status(400).json({error: e.message});
-  }
+const restart = (req, res, next) => {
+  res.locals.method = res.locals.game.restart;
+  res.locals.params = [];
+  next();
 }
 
 module.exports = {
+  validateGameId,
   ping,
   create,
   join,
@@ -132,4 +102,5 @@ module.exports = {
   nextMove,
   endTurn,
   restart,
+  execute,
 }

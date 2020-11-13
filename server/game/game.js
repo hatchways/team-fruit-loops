@@ -38,9 +38,9 @@ const isReady = (gameState) => {
 
 // Game constructor. Initialize players info of game state.
 function Game(creator) {
-  if (player === undefined)
+  if (creator === undefined)
     throw new Error('Player is not provided.');
-    
+
   this.gameState = {
     playerList: [creator],
     waitingList: [creator],
