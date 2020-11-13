@@ -95,9 +95,16 @@ const Signup = () => {
       axios
         .post("/register", values)
         .then((res) => {
-          // TODO: Success logic
-          // ISSUE: Logic never reaches this block even with account success
-          history.push("/profile");
+          // After registering, automatically log in
+          axios
+            .post("/login", values)
+            .then((res) => {
+              history.push("/profile");
+            })
+            .catch((err) => {
+              setSnackBarMessage(err.response.data.errors);
+              setSnackbarOpen(true);
+            });
         })
         .catch((err) => {
           setSnackBarMessage(err.response.data.errors);
@@ -131,9 +138,7 @@ const Signup = () => {
             fullWidth
             placeholder="Enter your name"
             autoFocus
-            onChange={(event) => {
-              handleInputChange(event);
-            }}
+            onChange={handleInputChange}
           />
           <Typography variant="subtitle1">Email:</Typography>
           <TextField
@@ -145,9 +150,7 @@ const Signup = () => {
             required
             fullWidth
             placeholder="Enter your email"
-            onChange={(event) => {
-              handleInputChange(event);
-            }}
+            onChange={handleInputChange}
           />
           <Typography variant="subtitle1">Password:</Typography>
           <TextField
@@ -159,9 +162,7 @@ const Signup = () => {
             type="password"
             id="password"
             placeholder="Enter your password"
-            onChange={(event) => {
-              handleInputChange(event);
-            }}
+            onChange={handleInputChange}
             error={errorPassword !== ""}
             helperText={errorPassword}
           />{" "}
@@ -175,9 +176,7 @@ const Signup = () => {
             type="password"
             id="confirmPassword"
             placeholder="Confirm your password"
-            onChange={(event) => {
-              handleInputChange(event);
-            }}
+            onChange={handleInputChange}
             error={errorConfirmPassword !== ""}
             helperText={errorConfirmPassword}
           />

@@ -110,9 +110,7 @@ const Login = () => {
             fullWidth
             placeholder="johndoe@gmail.com"
             autoFocus
-            onChange={(event) => {
-              handleInputChange(event);
-            }}
+            onChange={handleInputChange}
           />
           <Typography variant="subtitle1">Password:</Typography>
           <TextField
@@ -123,9 +121,7 @@ const Login = () => {
             margin="normal"
             required
             fullWidth
-            onChange={(event) => {
-              handleInputChange(event);
-            }}
+            onChange={handleInputChange}
           />
           <br />
           <Button

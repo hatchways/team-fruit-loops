@@ -1,4 +1,4 @@
-// Test page for account validation
+// Check to see if a user is logged in and authenticated
 
 const express = require("express");
 const router = express.Router();
@@ -9,8 +9,6 @@ router.get("/", authenticateToken, (req, res) => {
   let user = req.user;
 
   if (user) {
-    console.log(user);
-
     res.status(200).json(user);
   } else {
     res.sendStatus(403);

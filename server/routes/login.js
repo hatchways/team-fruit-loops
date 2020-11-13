@@ -33,7 +33,7 @@ router.post("/", function (req, res, next) {
             };
 
             // Correct credentials have been provided; create JWT
-            const access_token = createAccessToken(payload, "15s");
+            const access_token = createAccessToken(payload, "10m");
 
             jwt.verify(
               access_token,
@@ -44,7 +44,10 @@ router.post("/", function (req, res, next) {
                 }
                 if (decoded) {
                   // Save the JWT token in a cookie
-                  res.cookie("token", access_token, { httpOnly: true });
+                  res.cookie("token", access_token, {
+                    httpOnly: true,
+                    sameSite: "strict",
+                  });
 
                   return res.status(200).json({
                     token: access_token,

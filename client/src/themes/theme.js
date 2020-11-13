@@ -9,6 +9,7 @@ export const theme = createMuiTheme({
       fontWeight: "bold",
       textAlign: "right",
       color: "black",
+      letterSpacing: "0.2em",
     },
     subtitle1: {
       fontWeight: "bold",

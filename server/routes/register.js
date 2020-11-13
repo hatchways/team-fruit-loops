@@ -63,8 +63,6 @@ router.post("/", function (req, res, next) {
             .save()
             .then(() => {
               // Successfully created user
-
-              // TODO - Automatically log in
               res.sendStatus(201);
             })
             .catch((err) => {
