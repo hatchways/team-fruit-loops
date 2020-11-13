@@ -8,6 +8,7 @@ import Navbar from "./pages/Navbar";
 // import LandingPage from "./pages/Landing";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
+import WebSocketExample from "./pages/WebSocketExample.js";
 
 import "./App.css";
 
@@ -22,6 +23,7 @@ function App() {
           {/* Using 'exact' keyword here screws up the /ping page; may require fixing */}
           {/* <Route path="/" exact component={LandingPage} /> */}
           <Redirect exact from="/" to="/signup" />
+          <Route path="/ws" component={WebSocketExample} />
           <Route path="/signup" component={Signup} />
           <Route path="/login" component={Login} />
         </Switch>

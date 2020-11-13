@@ -16,7 +16,8 @@
     "mongodb": "^3.6.3",
     "mongoose": "^5.10.13",
     "morgan": "~1.9.1",
-    "nodemon": "^1.19.1"
+    "nodemon": "^1.19.1",
+    "socket.io": "^3.0.1"
   },
   "devDependencies": {
     "chai": "^4.2.0",
