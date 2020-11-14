@@ -9,7 +9,8 @@ const WebSocketExample = () => {
   useEffect(() => {
     const socket = socketIOClient(Endpoint);
     console.log("Connected to web socket endpoint: ", Endpoint);
-    socket.on("Date", data => setDate(data));
+    socket.on("ServerDate", data => setDate(data));
+    socket.emit("ClientDate", new Date());
     //disconnect from socket when component dismounts
     return () => {
       console.log("Disconnected from web socket");
