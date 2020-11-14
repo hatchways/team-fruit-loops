@@ -14,11 +14,13 @@ const validateGameId = (req, res, next) => {
 const execute = (req, res) => {
   const method = res.locals.method;
   const params = res.locals.params;
+  const io = req.app.get('socketio');
   if (res.locals.method === undefined || res.locals.params === undefined)
     next();
 
   try {
     const gameState = method.apply(res.locals.game, params);
+    io.to(req.params.id).emit('update', gameState);
     return res.status(200).json({gameState: gameState});
   }
   catch (e) {
