@@ -22,19 +22,8 @@ app.set("port", port);
  */
 
 const server = http.createServer(app);
-const io = require('socket.io')(server);
-
+const io = require('../socket/socket')(server);
 app.set("socketio", io);
-io.on('connection', function(socket) {
-  console.log(`${socket.id} connected.`);
-  socket.on('join', (gameId) => {
-    socket.join(gameId);
-  });
-
-  socket.on('chat', (gameId, user, message) => {
-      io.to(gameId).emit('chat_message', user, message});
-  });
-})
 
 /**
  * Listen on provided port, on all network interfaces.
