@@ -1,14 +1,12 @@
 #!/usr/bin/env node
 
-/* Sets up the environment variables from your .env file*/
-require("dotenv").config();
-
 /**
  * Module dependencies.
  */
 
 const app = require("../app");
 const http = require("http");
+const socketio = require("../socket/socket");
 
 /**
  * Get port from environment and store in Express.
@@ -22,8 +20,7 @@ app.set("port", port);
  */
 
 const server = http.createServer(app);
-const io = require('../socket/socket')(server);
-app.set("socketio", io);
+app.set("socketio", socketio(server));
 
 /**
  * Listen on provided port, on all network interfaces.

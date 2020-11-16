@@ -24,3 +24,5 @@ yarn-error.log*
 .editorconfig
 .vscode/settings.json
 client/.env
+server/.env
+server/.env
