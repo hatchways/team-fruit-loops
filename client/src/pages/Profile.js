@@ -1,15 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { makeStyles } from "@material-ui/core/styles";
 import { useHistory } from "react-router-dom";
 
-import {
-  Button,
-  TextField,
-  Link,
-  Typography,
-  Container,
-  Snackbar,
-} from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { Button, TextField, Typography, Container } from "@material-ui/core";
+
+import UploadImage from "../components/uploadImage";
 
 const axios = require("axios");
 
@@ -47,8 +42,10 @@ const Profile = () => {
   let history = useHistory();
 
   const [values, setValues] = useState({
+    id: "",
     name: "",
     email: "",
+    imageUrl: "",
   });
 
   const logout = () => {
@@ -64,8 +61,10 @@ const Profile = () => {
       .get("/profile")
       .then((res) => {
         setValues({
+          id: res.data.id,
           name: res.data.name,
           email: res.data.email,
+          imageUrl: res.data.imageUrl,
         });
       })
       .catch((err) => {
@@ -98,6 +97,8 @@ const Profile = () => {
                   value={values["email"]}
                   disabled
                 />
+                <Typography variant="subtitle1">Profile Picture:</Typography>
+                <UploadImage values={values} />
                 <br />
                 <Button
                   variant="contained"
