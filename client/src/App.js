@@ -8,6 +8,8 @@ import Navbar from "./pages/Navbar";
 import Chat from "./pages/Chat.js";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
+import Match from "./pages/Match";
+import Game from "./pages/Game";
 
 import "./App.css";
 
@@ -22,6 +24,8 @@ function App() {
           <Redirect exact from="/" to="/signup" />
           <Route path="/signup" component={Signup} />
           <Route path="/login" component={Login} />
+          <Route exact path="/match" component={Match} />
+          <Route exact path="/game" component={Game} />
           <Route path="/chat" component={Chat}/>
         </Switch>
       </BrowserRouter>
