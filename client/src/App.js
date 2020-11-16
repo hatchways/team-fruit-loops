@@ -4,6 +4,8 @@ import { BrowserRouter, Route, Redirect, Switch } from "react-router-dom";
 
 import { theme } from "./themes/theme";
 
+import PrivateRoute from "./components/PrivateRoute";
+
 import Navbar from "./pages/Navbar";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
@@ -22,7 +24,7 @@ function App() {
           <Redirect exact from="/" to="/signup" />
           <Route path="/signup" component={Signup} />
           <Route path="/login" component={Login} />
-          <Route path="/profile" component={Profile} />
+          <PrivateRoute path="/profile" component={Profile} />
         </Switch>
       </BrowserRouter>
     </MuiThemeProvider>

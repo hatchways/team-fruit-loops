@@ -4,7 +4,7 @@ import { useHistory } from "react-router-dom";
 
 import { Button, TextField, Typography, Container } from "@material-ui/core";
 
-import UploadImage from "../components/uploadImage";
+import UploadImage from "../components/UploadImage";
 
 const axios = require("axios");
 
