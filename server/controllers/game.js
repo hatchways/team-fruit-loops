@@ -35,6 +35,7 @@ const ping = (req, res) => {
 const create = (req, res) => {
   const {player} = req.body;
   const id = uuidv4();
+
   try {
     const game = new Game(player);
     globalState[id] = {gameEngine: game, id: id}
@@ -62,6 +63,13 @@ const assign = (req, res, next) => {
 const start = (req, res, next) => {
   res.locals.method = res.locals.game.start;
   res.locals.params = [];
+
+  const io = req.app.get('socketio');
+  const game = req.locals.game;
+  setInterval(() => {
+    game.timerCountDown();
+    io.emit('timer', game.gameState.timer);
+  }, 1000);
   next();
 }
 
