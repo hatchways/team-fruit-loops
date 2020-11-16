@@ -11,7 +11,24 @@ const gameRouter = require("./routes/game");
 
 const { json, urlencoded } = express;
 
-var app = express();
+const mongoURL = process.env.MONGODB_URL || "";
+const app = express();
+
+// Connect to MongoDB
+mongoose.connect(mongoURL, {
+  useUnifiedTopology: true,
+  useNewUrlParser: true,
+  useCreateIndex: true
+})
+.catch(error => {
+  console.log(`Error connecting to MongoDB: ${error}`);
+  process.exit(1);
+});
+
+mongoose.connection.on('connected', () => {
+  console.log('Connected to MongoDB');
+});
+
 
 app.use(logger("dev"));
 app.use(json());
@@ -38,6 +55,8 @@ mongoose.connect(mongoURL, {
 mongoose.connection.on('connected', () => {
   console.log('Connected to MongoDB');
 });
+// catch 404 and forward to error handler
+app.use((req, res, next) => next(createError(404)));
 
 app.use(logger("dev"));
 app.use(json());
