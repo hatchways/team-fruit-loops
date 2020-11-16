@@ -3,6 +3,9 @@
 # dependencies
 node_modules/
 
+# .env files
+**/.env
+
 # production
 /build/
 
@@ -19,6 +22,3 @@ yarn-debug.log*
 yarn-error.log*
 
 .editorconfig
-.vscode/settings.json
-client/.env
-server/.env

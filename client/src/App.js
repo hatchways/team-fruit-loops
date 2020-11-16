@@ -5,7 +5,7 @@ import { BrowserRouter, Route, Redirect, Switch } from "react-router-dom";
 import { theme } from "./themes/theme";
 
 import Navbar from "./pages/Navbar";
-import Chat from "./pages/Chat.js";
+// import LandingPage from "./pages/Landing";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 
@@ -19,10 +19,11 @@ function App() {
       <Toolbar />
       <BrowserRouter>
         <Switch>
+          {/* Using 'exact' keyword here screws up the /ping page; may require fixing */}
+          {/* <Route path="/" exact component={LandingPage} /> */}
           <Redirect exact from="/" to="/signup" />
           <Route path="/signup" component={Signup} />
           <Route path="/login" component={Login} />
-          <Route path="/chat" component={Chat}/>
         </Switch>
       </BrowserRouter>
     </MuiThemeProvider>
