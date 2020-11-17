@@ -9,6 +9,11 @@ const indexRouter = require("./routes/index");
 const pingRouter = require("./routes/ping");
 const gameRouter = require("./routes/game");
 
+const registerRouter = require("./routes/register");
+const loginRouter = require("./routes/login");
+const logoutRouter = require("./routes/logout");
+const profileRouter = require("./routes/profile");
+
 const { json, urlencoded } = express;
 
 const app = express();
@@ -22,6 +27,11 @@ app.use(express.static(join(__dirname, "public")));
 app.use("/", indexRouter);
 app.use("/ping", pingRouter);
 app.use('/game', gameRouter);
+
+app.use("/register", registerRouter);
+app.use("/login", loginRouter);
+app.use("/logout", logoutRouter);
+app.use("/profile", profileRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => next(createError(404)));

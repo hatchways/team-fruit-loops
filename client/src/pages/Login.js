@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useHistory } from "react-router-dom";
 
 import {
   Button,
@@ -6,9 +7,18 @@ import {
   Link,
   Typography,
   Container,
+  Snackbar,
 } from "@material-ui/core";
 
+import MuiAlert from "@material-ui/lab/Alert";
+
 import { makeStyles } from "@material-ui/core/styles";
+
+const axios = require("axios");
+
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -44,11 +54,15 @@ const useStyles = makeStyles((theme) => ({
 
 const Login = () => {
   const classes = useStyles();
+  let history = useHistory();
 
   const [values, setValues] = useState({
     email: "",
     password: "",
   });
+
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackBarMessage] = useState("");
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -57,6 +71,26 @@ const Login = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    axios
+      .post("/login", values)
+      .then((res) => {
+        // TODO: Success logic
+        history.push("/profile");
+      })
+      .catch((err) => {
+        // TODO: Error logic
+        setSnackBarMessage(err.response.data.errors);
+        setSnackbarOpen(true);
+      });
+  };
+
+  const handleSnackbar = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setSnackbarOpen(false);
   };
 
   return (
@@ -76,9 +110,7 @@ const Login = () => {
             fullWidth
             placeholder="johndoe@gmail.com"
             autoFocus
-            onChange={(event) => {
-              handleInputChange(event);
-            }}
+            onChange={handleInputChange}
           />
           <Typography variant="subtitle1">Password:</Typography>
           <TextField
@@ -89,9 +121,7 @@ const Login = () => {
             margin="normal"
             required
             fullWidth
-            onChange={(event) => {
-              handleInputChange(event);
-            }}
+            onChange={handleInputChange}
           />
           <br />
           <Button
@@ -106,6 +136,19 @@ const Login = () => {
           </Typography>
         </form>
       </div>
+      <Snackbar
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "right",
+        }}
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={handleSnackbar}
+      >
+        <Alert onClose={handleSnackbar} severity="error">
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };
