@@ -36,14 +36,14 @@ const isReady = (gameState) => {
   );
 }
 
-// Game constructor with 4 players. Initialize players info of game state.
-function Game(playerList) {
-  if (playerList.length < 4)
-    throw new Error('Number of players must be at least 4');
+// Game constructor. Initialize players info of game state.
+function Game(creator) {
+  if (creator === undefined)
+    throw new Error('Player is not provided.');
 
   this.gameState = {
-    playerList: new Set(playerList),
-    waitingList: playerList,
+    playerList: [creator],
+    waitingList: [creator],
     redSpy: undefined,
     redGuessers: [],
     blueSpy: undefined,
@@ -53,9 +53,21 @@ function Game(playerList) {
   };
 }
 
+Game.prototype.join = function(player) {
+  if (player === undefined)
+    throw new Error('Player is not provided.');
+
+  if (this.gameState.playerList.includes(player))
+    throw new Error(`${player} has already joined in the game.`);
+
+  this.gameState.playerList.push(player);
+  this.gameState.waitingList.push(player);
+  return this.gameState;
+}
+
 Game.prototype.assignRole = function(player, newRole) {
   const waitingList = this.gameState.waitingList;
-  if (!this.gameState.playerList.has(player))
+  if (!this.gameState.playerList.includes(player))
     throw new Error(`Failed to assign role: ${player} is an invalid player.`);
   if (!waitingList.includes(player))
     throw new Error(`Failed to assign role: ${player} has been assigned.`);
