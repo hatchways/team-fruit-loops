@@ -103,6 +103,49 @@ Game.prototype.assignRole = function(player, newRole) {
   return this.gameState;
 }
 
+Game.prototype.unassignRole = function(player, oldRole) {
+  const redGuessersList = this.gameState.redGuessers;
+  const blueGuessersList = this.gameState.blueGuessers;
+  if (!this.gameState.playerList.includes(player))
+    throw new Error(`Failed to assign role: ${player} is an invalid player.`);
+
+  switch(oldRole) {
+    case role.RED.SPY:
+      if (this.gameState.redSpy !== player)
+        throw new Error(`${player} was not a ${role.RED.SPY}.`);
+      else
+        this.gameState.redSpy = undefined;
+      break;
+
+    case role.RED.GUESSER:
+      if (!redGuessersList.includes(player))
+        throw new Error(`${player} was not a ${role.RED.GUESSER}.`);
+      else
+        this.gameState.redGuessers.splice(redGuessersList.indexOf(player), 1);
+      break;
+
+    case role.BLUE.SPY:
+      if (this.gameState.blueSpy !== player)
+        throw new Error(`${player} was not a ${role.BLUE.SPY}.`);
+      else
+        this.gameState.blueSpy = undefined;
+      break;
+
+    case role.BLUE.GUESSER:
+      if (!blueGuessersList.includes(player))
+        throw new Error(`${player} was not a ${role.BLUE.GUESSER}.`);
+      else
+        this.gameState.blueGuessers.splice(blueGuessersList.indexOf(player), 1);
+      break;
+
+    default:
+      throw new Error(`Failed to assign role: ${newRole} is invalid.`);
+  }
+  this.gameState.waitingList.push(player);
+  this.gameState.isReady = isReady(this.gameState);
+  return this.gameState;
+}
+
 // Initialize game state and start game
 Game.prototype.start = function() {
   if (!this.gameState.isReady)

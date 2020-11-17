@@ -57,6 +57,13 @@ const assign = (req, res, next) => {
   next();
 }
 
+const unassign = (req, res, next) => {
+  const {player, role} = req.body;
+  res.locals.method = res.locals.game.unassignRole;
+  res.locals.params = [player, role];
+  next();
+}
+
 const start = (req, res, next) => {
   res.locals.method = res.locals.game.start;
   res.locals.params = [];
@@ -98,6 +105,7 @@ module.exports = {
   create,
   join,
   assign,
+  unassign,
   start,
   nextMove,
   endTurn,
