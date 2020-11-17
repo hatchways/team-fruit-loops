@@ -124,7 +124,6 @@ const Match = withStyles(styles)(({ classes, state, setState, }) => {
 
     if (res.status >= 200 && res.status < 300) {
       const next = await res.json();
-      console.log("Next: ", next);
       setState(state => Object.assign(state, next));
       setRedirect(true);
     }
