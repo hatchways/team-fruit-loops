@@ -1,6 +1,7 @@
 const dictionary = require('./dictionary/dictionary');
 const shuffle = require('./utils/shuffle');
 const role = require('./role');
+const INIT_TIMER = 10;
 
 // Initialize game with 4 players and roles are randomly assigned
 const initGame = () => {
@@ -18,6 +19,7 @@ const initGame = () => {
     isEnd: false,
     winner: undefined,
     boardState: {},
+    timer: INIT_TIMER,
   };
 
   for (let key in gameState.cards)
@@ -214,6 +216,16 @@ Game.prototype.restart = function () {
 
   Object.assign(this.gameState, initGame());
   return this.gameState;
+}
+
+Game.prototype.timerCountDown = function() {
+  if (this.gameState.timer < 0) {
+    this.gameState.timer = INIT_TIMER;
+    game.endTurn();
+  }
+  else {
+    this.gameState.timer--;
+  }
 }
 
 module.exports = Game;

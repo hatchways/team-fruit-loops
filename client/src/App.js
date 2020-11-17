@@ -10,6 +10,9 @@ import Navbar from "./pages/Navbar";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
+import Chat from "./pages/Chat.js";
+import Match from "./pages/Match";
+import Game from "./pages/Game";
 
 import "./App.css";
 
@@ -25,6 +28,9 @@ function App() {
           <Route path="/signup" component={Signup} />
           <Route path="/login" component={Login} />
           <PrivateRoute path="/profile" component={Profile} />
+          <Route exact path="/match" component={Match} />
+          <Route exact path="/game" component={Game} />
+          <Route path="/chat" component={Chat}/>
         </Switch>
       </BrowserRouter>
     </MuiThemeProvider>
