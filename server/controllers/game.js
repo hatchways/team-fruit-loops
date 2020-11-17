@@ -32,6 +32,7 @@ const ping = (req, res) => {
   return res.status(200).json({gameState: globalState[req.params.id].gameEngine.gameState});
 }
 
+// create a new ID and game instance, register instance in global dict by ID
 const create = (req, res) => {
   const {player} = req.body;
   const id = uuidv4();
@@ -46,6 +47,7 @@ const create = (req, res) => {
   }
 }
 
+// join adds player to game
 const join = (req, res, next) => {
   const {player} = req.body;
   res.locals.method = res.locals.game.join;
