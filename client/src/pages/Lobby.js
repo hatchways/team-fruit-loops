@@ -120,7 +120,7 @@ const gameStyles = theme => ({
   },
 });
 
-const Game = withStyles(gameStyles)(({ classes }) => {
+const Lobby = withStyles(gameStyles)(({ classes }) => {
   const [url, ] = useState("This is a Link"),
     [self, ] = useState("Bonnie"),
     [roles, setRoles] = useState({
@@ -201,4 +201,4 @@ const Game = withStyles(gameStyles)(({ classes }) => {
   );
 });
 
-export default Game;
+export default Lobby;

@@ -1,9 +1,12 @@
 import React, { useState }from 'react';
+import { Redirect } from "react-router-dom";
 import { withStyles } from '@material-ui/core/styles';
 import {
   Container, Card, CardContent, Divider,
   Grid, Typography, Button, TextField,
+  Dialog, DialogTitle, DialogContent, IconButton
 } from '@material-ui/core';
+import CloseIcon from '@material-ui/icons/Close';
 
 const styles = theme => ({
   header: {
@@ -59,101 +62,142 @@ const styles = theme => ({
   },
   public: {
     marginTop: theme.spacing(1),
+    marginLeft: "25%",
+    width: "50%",
   },
   private: {
     marginTop: theme.spacing(1),
+    marginLeft: "25%",
+    width: "50%",
   },
+  newGame: {
+    height: "min-content",
+  },
+  close: {
+    position: "absolute",
+    right: theme.spacing(1),
+    top: theme.spacing(1),
+  }
 });
 
-const join = (id, type) => e => {
-  switch (type) {
-  case "join":
-    console.log("join: ", id);
-    break;
-  case "random":
-    console.log("random");
-    break;
-  case "public":
-    console.log("public");
-    break;
-  case "private":
-    console.log("private");
-    break;
-  default:
-    console.log("unknown case: ", type);
-  }
+const Title = ({ el, title, css, }) => (
+  <Typography variant={el} className={css}>{ title }</Typography>
+);
+
+const Btn = ({ on, css, text }) => (
+  <Button onClick={on} className={css} variant="outlined">{ text }</Button>
+);
+
+const api = {
+  "private": {
+    url: () => "/game",
+    method: "POST",
+    contentType: "application/x-www-form-urlencoded",
+    body: player => `player=${player}`,
+  },
+  "join": {
+    url: id => `/game/${id}/join`,
+    method: "PUT",
+    contentType: "application/json",
+    body: player => JSON.stringify({ player }),
+  },
 };
 
-const Match = withStyles(styles)(({ classes }) => {
-  const [id, setID] = useState("");
+const Match = withStyles(styles)(({ classes, state, setState, }) => {
+  const [gameID, setGameID] = useState("");
+  const [redirect, setRedirect] = useState(false);
+
+  if (state.hasOwnProperty("id") && state.hasOwnProperty("gameState")) {
+    return <Redirect to="/lobby"/>;
+  }
+
+  const call = type => async e => {
+    e.preventDefault();
+    const res = await fetch(api[type].url(gameID), {
+      method: api[type].method,
+      headers: {
+        "Content-Type": api[type].contentType,
+        Accept: "application/json",
+      },
+      body: api[type].body(state.player),
+    });
+
+    if (res.status >= 200 && res.status < 300) {
+      const next = await res.json();
+      console.log("Next: ", next);
+      setState(state => Object.assign(state, next));
+      setRedirect(true);
+    }
+  };
 
   return (
     <Container>
-       <Card className={classes.card}>
-         <CardContent>
-            <Typography variant="h3" className={classes.header}>
-              Welcome
-            </Typography>
-            <Divider className={classes.hDivider} variant="middle"/>
-            <Grid container align="center">
-              <Grid item xs={8}>
-                <Typography variant="h6" className={classes.join}>
-                  Join a Game:
-                </Typography>
-                <form className={classes.form}>
-                  <TextField
-                    fullWidth
-                    onChange={({ target: { value }}) => setID(value)}
-                    variant="outlined"
-                    className={classes.text}
-                    placeholder="Enter Game ID"
-                    InputProps={{
-                      endAdornment: (
-                        <Button
-                          onClick={join(id, "join")}
-                          className={classes.game}
-                          variant="outlined">
-                          Join Game
-                        </Button>
-                      )
-                    }}>
-                  </TextField>
-                </form>
-                <Typography variant="h6" className={classes.or}>
-                  Or
-                </Typography>
-                <Button
-                  onClick={join(id, "random")}
-                  className={classes.random}
-                  variant="outlined">
-                  Join Random
-                </Button>
+      <Dialog open={redirect} onClose={() => setRedirect(false)}>
+        <DialogTitle>
+          <Typography align="center">Error</Typography>
+          <IconButton
+            className={classes.close}
+            onClick={() => setRedirect(false)}>
+            <CloseIcon/>
+          </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          <Typography align="center" component="h2">
+            Error adding game, please try again later
+          </Typography>
+        </DialogContent>
+      </Dialog>
+      <Card className={classes.card}>
+        <CardContent>
+          <Title css={classes.header} title="Welcome" el="h3"/>
+          <Divider className={classes.hDivider} variant="middle"/>
+          <Grid container align="center">
+            <Grid item xs={8}>
+              <Title css={classes.join} title="Join a Game:" el="h6"/>
+              <form className={classes.form}>
+                <TextField
+                  fullWidth
+                  value={gameID}
+                  onChange={({ target: { value }}) => setGameID(value)}
+                  variant="outlined"
+                  className={classes.text}
+                  placeholder="Enter Game ID"
+                  InputProps={{endAdornment: (
+                    <Button
+                      onClick={call("join")}
+                      className={classes.game}
+                      variant="outlined">
+                      Join Game
+                    </Button>
+                  )}}/>
+              </form>
+              <Title css={classes.or} title="Or" el="h6"/>
+              <Button
+                onClick={call("random")}
+                className={classes.random}
+                variant="outlined">
+                Join Random
+              </Button>
+            </Grid>
+            <Grid item xs={1}>
+              <Divider orientation="vertical" className={classes.vDivider}/>
+            </Grid>
+            <Grid item container xs={3}>
+              <Grid item container xs={12}>
+                <Title css={classes.new} title="New Game:" el="h6"/>
               </Grid>
-              <Grid item xs={1}>
-                <Divider orientation="vertical" className={classes.vDivider}/>
-              </Grid>
-              <Grid item container xs={3}>
-                <Typography variant="h6" className={classes.new}>
-                  New Game:
-                </Typography>
-                <Grid item container direction="column" xs={6}>
-                  <Button
-                    onClick={join(id, "public")}
-                    className={classes.public}
-                    variant="outlined">
-                    Public
-                  </Button>
-                  <Button
-                    onClick={join(id, "private")}
-                    className={classes.private}
-                    variant="outlined">
-                    Private
-                  </Button>
-                </Grid>
+              <Grid item container
+                xs={12}
+                direction="column"
+                className={classes.newGame}
+                justify="center">
+                <Btn on={call("public")} css={classes.public} text="Public"/>
+                <Btn on={call("private")} css={classes.private} text="Private"/>
               </Grid>
             </Grid>
-         </CardContent>
-       </Card>
+          </Grid>
+        </CardContent>
+      </Card>
     </Container>
   );
 });
