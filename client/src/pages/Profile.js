@@ -4,10 +4,8 @@ import { useHistory } from "react-router-dom";
 import {
   Button,
   TextField,
-  Link,
   Typography,
   Container,
-  Snackbar,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
@@ -71,7 +69,7 @@ const Profile = () => {
       .catch((err) => {
         logout();
       });
-  }, []);
+  });
 
   return (
     <Container component="main" maxWidth="xs">
