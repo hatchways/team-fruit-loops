@@ -16,24 +16,44 @@ const useStyles = makeStyles({
     maxWidth: 345,
   },
   media: {
-    height: 140,
+    display: "block",
+    marginLeft: "auto",
+    marginRight: "auto",
+    height: "180px",
+    padding: "10px",
+    border: "1px solid black",
   },
 });
 
 const UploadImage = (props) => {
   const classes = useStyles();
 
-  const [imageUrl, setImageUrl] = useState(props.values["imageUrl"]);
+  const [values, setValues] = useState({
+    id: "",
+    imageUrl: "",
+  });
+
+  useEffect(() => {
+    axios.get("/account").then((res) => {
+      setValues({
+        id: res.data._id,
+        imageUrl: res.data.imageUrl,
+      });
+    });
+  }, []);
 
   const onDropAccepted = (acceptedFiles) => {
     let data = new FormData();
-    data.append("id", props.values["id"]);
+    data.append("id", values["id"]);
     data.append("image", acceptedFiles[0]);
 
     axios
       .post("/uploadImage", data)
       .then((res) => {
-        setImageUrl(res.data.imageUrl);
+        // TODO: Reload the image without having to refresh the entire page
+        setValues({ id: values["id"], imageUrl: res.data.imageUrl });
+        console.log("Image URL successfully set: " + res.data.imageUrl);
+        window.location.reload();
       })
       .catch((err) => {});
   };
@@ -58,11 +78,13 @@ const UploadImage = (props) => {
           <div {...getRootProps()}>
             <Card>
               <CardActionArea>
-                <CardMedia
-                  className={classes.media}
-                  image={imageUrl !== "" ? imageUrl : ""}
-                  title="Profile Picture"
-                ></CardMedia>
+                <CardMedia>
+                  <img
+                    src={values["imageUrl"]}
+                    alt="Profile Picture"
+                    className={classes.media}
+                  />
+                </CardMedia>
                 <input {...getInputProps()} />
                 {!isDragActive &&
                   "Click here or drop a valid image file to set as your profile picture."}

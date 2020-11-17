@@ -4,7 +4,7 @@ import { useHistory } from "react-router-dom";
 
 import { Button, TextField, Typography, Container } from "@material-ui/core";
 
-import UploadImage from "../components/UploadImage";
+import UploadImage from "../components/uploadImage";
 
 const axios = require("axios");
 
@@ -58,7 +58,7 @@ const Profile = () => {
 
   useEffect(() => {
     axios
-      .get("/profile")
+      .get("/account")
       .then((res) => {
         setValues({
           id: res.data.id,
