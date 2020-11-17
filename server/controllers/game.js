@@ -14,11 +14,13 @@ const validateGameId = (req, res, next) => {
 const execute = (req, res) => {
   const method = res.locals.method;
   const params = res.locals.params;
+  const io = req.app.get('socketio');
   if (res.locals.method === undefined || res.locals.params === undefined)
     next();
 
   try {
     const gameState = method.apply(res.locals.game, params);
+    io.to(req.params.id).emit('update', gameState);
     return res.status(200).json({gameState: gameState});
   }
   catch (e) {
@@ -33,6 +35,7 @@ const ping = (req, res) => {
 const create = (req, res) => {
   const {player} = req.body;
   const id = uuidv4();
+
   try {
     const game = new Game(player);
     globalState[id] = {gameEngine: game, id: id}
@@ -60,6 +63,13 @@ const assign = (req, res, next) => {
 const start = (req, res, next) => {
   res.locals.method = res.locals.game.start;
   res.locals.params = [];
+
+  const io = req.app.get('socketio');
+  const game = req.locals.game;
+  setInterval(() => {
+    game.timerCountDown();
+    io.emit('timer', game.gameState.timer);
+  }, 1000);
   next();
 }
 
