@@ -6,30 +6,33 @@ import {
   Card,
   CardActionArea,
   CardMedia,
-  CircularProgress,
+  Tooltip,
+  Avatar,
 } from "@material-ui/core";
 
 const axios = require("axios");
 
-const useStyles = makeStyles({
-  root: {
-    maxWidth: 345,
+const useStyles = makeStyles((theme) => ({
+  card: {
+    width: "200px",
+    margin: "10px auto 0",
+    padding: "10px 0",
   },
-  media: {
-    display: "block",
-    marginLeft: "auto",
-    marginRight: "auto",
-    height: "180px",
-    padding: "10px",
-    border: "1px solid black",
+  avatar: {
+    margin: "auto",
+    height: "170px",
+    width: "170px",
+    border: "5px solid rgba(0, 0, 0, 0.5)",
+    fontSize: "100px",
   },
-});
+}));
 
 const UploadImage = (props) => {
   const classes = useStyles();
 
   const [values, setValues] = useState({
     id: "",
+    name: "",
     imageUrl: "",
   });
 
@@ -37,6 +40,7 @@ const UploadImage = (props) => {
     axios.get("/account").then((res) => {
       setValues({
         id: res.data._id,
+        name: res.data.name,
         imageUrl: res.data.imageUrl,
       });
     });
@@ -52,7 +56,6 @@ const UploadImage = (props) => {
       .then((res) => {
         // TODO: Reload the image without having to refresh the entire page
         setValues({ id: values["id"], imageUrl: res.data.imageUrl });
-        console.log("Image URL successfully set: " + res.data.imageUrl);
         window.location.reload();
       })
       .catch((err) => {});
@@ -76,27 +79,21 @@ const UploadImage = (props) => {
           fileRejections.length > 0 && fileRejections[0].size > 5242880;
         return (
           <div {...getRootProps()}>
-            <Card>
-              <CardActionArea>
-                <CardMedia>
-                  <img
-                    src={values["imageUrl"]}
-                    alt="Profile Picture"
-                    className={classes.media}
-                  />
-                </CardMedia>
-                <input {...getInputProps()} />
-                {!isDragActive &&
-                  "Click here or drop a valid image file to set as your profile picture."}
-                {isDragActive && !isDragReject && "Valid file"}
-                {isDragReject && "File type not accepted"}
-                {isFileTooLarge && (
-                  <div className="text-danger mt-2">
-                    File is too large (Please select a file under 5 MB).
-                  </div>
-                )}
-              </CardActionArea>
-            </Card>
+            <Tooltip title="Click or drag image here to set as profile picture">
+              <Card className={classes.card}>
+                <CardActionArea>
+                  <CardMedia>
+                    <Avatar src={values["imageUrl"]} className={classes.avatar}>
+                      {values["name"] ? values["name"][0] : ""}
+                    </Avatar>
+                  </CardMedia>
+                  <input {...getInputProps()} />
+                  {isDragReject && "File type not accepted"}
+                  {isFileTooLarge &&
+                    "File is too large (Please select a file <= 5 MB)."}
+                </CardActionArea>
+              </Card>
+            </Tooltip>
           </div>
         );
       }}
