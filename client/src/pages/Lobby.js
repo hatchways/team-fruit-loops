@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { withStyles } from '@material-ui/core/styles';
+import { Redirect } from 'react-router-dom';
 import {
   Container,
   Grid,
@@ -7,82 +8,129 @@ import {
   Divider,
   Typography,
   Button,
+  Dialog, DialogTitle, DialogContent,
+  IconButton,
 } from '@material-ui/core';
-import { AddCircle, Check, Cancel, Link, } from '@material-ui/icons';
+import { Close, AddCircle, Check, Cancel, Link, } from '@material-ui/icons';
 
-const rolesStyles = theme => ({
+// map backend state -> frontend text
+const lookup = {
+  "red spy": "Red Spy Master",
+  "blue spy": "Blue Spy Master",
+  "red guesser": "Red Field Agent",
+  "blue guesser": "Blue Field Agent",
+};
+
+const api = {
+  "assign": {
+    url: id => `/game/${id}/assign`,
+    method: "PUT",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: (player, role) => JSON.stringify({ player, role }),
+  },
+  "start": {
+    url: id => `/game/${id}/start`,
+    method: "PUT",
+    headers: {
+      Accept: "application/json",
+    },
+    body: () => "",
+  },
+  "remove": {
+    url: id => `/game/${id}/unassign`,
+    method: "PUT",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: (player, role) => JSON.stringify({ player, role }),
+  }
+};
+
+// copy url to system clipboard by creating dummy html element to write value
+// into. added to document.body for `document.execCommand("copy")` to read
+const copy = id => e => {
+  e.preventDefault();
+  const dummy = document.createElement("input");
+  document.body.appendChild(dummy);
+  dummy.setAttribute("value", id);
+  dummy.select();
+  document.execCommand("copy");
+  document.body.removeChild(dummy);
+};
+
+const roleStyles = {
   role: {
     textAlign: "center",
-  },
-});
+  }
+}
 
-const Roles = withStyles(rolesStyles)(({ classes, roles, update, self }) => {
-  let disabled = false;
-  const onClick = role => e => {
+const Role = withStyles(roleStyles)(({ classes, call, selected, role }) => {
+  const click = role => e => {
     e.preventDefault();
-    if (!disabled) {
-      update(role, self);
+    if (!selected) {
+      call("assign", role);
     }
   };
-  const available = Object.entries(roles).filter(([, player]) => {
-    if (self === player) {
-      disabled = true;
-    }
-    return player === "";
-  });
 
   return (
-    <Grid container>
-      {
-          available.map(([role, ]) => (
-            <Grid item xs={12} key={role} className={classes.role}>
-              <Button endIcon={<AddCircle onClick={onClick(role)}/>}>
-                { role }
-              </Button>
-            </Grid>
-        ))
-      }
+    <Grid item xs={12} key={role} className={classes.role}>
+      <Button endIcon={<AddCircle onClick={click(role)}/>}>
+        <Typography align="center">{ lookup[role] }</Typography>
+      </Button>
     </Grid>
   );
 });
 
-const playerStyles = theme => ({
-  role: {
-    textAlign: "center",
-  },
-});
+const Player = ({ click, player, self, role }) => (
+  <Grid item xs={12} key={player}>
+    <Button
+      key={player}
+      startIcon={<Check style={{fill: "rgb(95, 184, 115)"}}/>}
+      endIcon={self && <Cancel onClick={click(player, role)}/>}>
+      <Typography align="center">
+        { `${player} - ${lookup[role]}${self ? ' (You)' : '' }` }
+      </Typography>
+    </Button>
+  </Grid>
+);
 
-const Players = withStyles(playerStyles)(({ classes, roles, self, update }) => {
-  const taken = Object.entries(roles).filter(([, v]) => v !== ""),
-    onClick = (role, player) => e => {
+const Players = ({ state, call, }) => {
+  const { blueSpy, redSpy, blueGuessers, redGuessers, } = state.gameState,
+    click = (user, role) => e => {
       e.preventDefault();
-      if (self !== player) {
-        return
+      if (state.player === user) {
+        return ;
       }
-      update(role, "");
+      call("remove", role);
     };
 
   return (
-    <Grid container item justify="center" xs={12}>
+    <Grid container item xs={12}>
       {
-        taken.map(([role, player]) => (
-          <Grid item xs={12} key={role} className={classes.role}>
-            <Button
-              key={role}
-              startIcon={<Check style={{fill: "rgb(95, 184, 115)"}}/>}
-              endIcon={
-                self === player
-                  ? <Cancel onClick={onClick(role, player)}/>
-                  : null
-              }>
-              { `${player} - ${role}${self === player ? ' (You)' : '' }` }
-            </Button>
-          </Grid>
+        blueSpy !== undefined &&
+          <Player role={"blue spy"} player={blueSpy} click={click} />
+      }
+      {
+        redSpy !== undefined &&
+          <Player role={"red spy"} player={redSpy} click={click} />
+      }
+      {
+        redGuessers.map(player => (
+          <Player role={"red guesser"} player={player} click={click} />
+        ))
+      }
+      {
+        blueGuessers.map(player => (
+          <Player role={"red guesser"} player={player} click={click} />
         ))
       }
     </Grid>
   );
-});
+};
 
 const gameStyles = theme => ({
   container: {
@@ -118,45 +166,72 @@ const gameStyles = theme => ({
     fontWeight: "bold",
     marginBottom: theme.spacing(1),
   },
+  close: {
+    position: "absolute",
+    right: theme.spacing(1),
+    top: theme.spacing(1),
+  }
 });
 
-const Lobby = withStyles(gameStyles)(({ classes }) => {
-  const [url, ] = useState("This is a Link"),
-    [self, ] = useState("Bonnie"),
-    [roles, setRoles] = useState({
-      "Blue Spy Master": "",
-      "Red Field Agent": "",
-      "Blue Field Agent": "",
-      "Red Spy Master": "Bonnie" ,
-    });
+// isOff checks if player has already selected a role
+const isOff = ({ blueSpy, redSpy, redGuessers, blueGuessers }, player) => (
+  blueSpy === player || blueGuessers.includes(player)
+  || redSpy === player || redGuessers.includes(player)
+);
 
-  const update = (k, v) => setRoles({ ...roles, [k]: v });
+const invalidState = s => (
+  s === undefined || !s.hasOwnProperty("id") || !s.hasOwnProperty("gameState")
+);
 
-  // Copy url to system clipboard by creating dummy html
-  // element to write value into. added to document.body
-  // for `document.execCommand("copy")` to read
-  const copy = url => e => {
-    e.preventDefault();
-    if (document === undefined) {
-      return ;
-    }
-    const dummy = document.createElement("input");
-    document.body.appendChild(dummy);
-    dummy.setAttribute("value", url);
-    dummy.select();
-    document.execCommand("copy");
-    document.body.removeChild(dummy);
-  };
+const useForceUpdate = () => {
+  const [updateView, setUpdateView] = useState(0);
 
-  const start = e => {
-    e.preventDefault();
-    console.log("start match");
-  };
+  return () => setUpdateView(updateView + 1);
+};
+
+const Lobby = withStyles(gameStyles)(({ classes, state, setState }) => {
+  if (invalidState(state)) {
+    return <Redirect to="/match" />;
+  }
+
+  const { gameState } = state,
+    forceUpdate = useForceUpdate(),
+    [err, setErr] = useState(false),
+    off = isOff(gameState, state.player),
+    call = async (type, role) => {
+      const res = await fetch(api[type].url(state.id), {
+        method: api[type].method,
+        headers: api[type].headers,
+        body: api[type].body(state.player, role),
+      });
+
+      if (res.status >= 200 && res.status < 300) {
+        const next = await res.json();
+        setState(Object.assign(state, next));
+        forceUpdate();
+      } else {
+        setErr(true);
+      }
+    };
 
   return (
     <Container component="h1" className={classes.container}>
+      <Dialog open={err} onClose={() => setErr(false)}>
+        <DialogTitle>
+          <Typography align="center">Error</Typography>
+          <IconButton
+            className={classes.close}
+            onClick={() => setErr(false)}>
+            <Close/>
+          </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          <Typography align="center" component="h2">
+            Error in game, please try again later
+          </Typography>
+        </DialogContent>
+      </Dialog>
       <Card>
-        {/* <CardHeader component="h4" className={classes.header} title=""/> */}
         <CardContent className={classes.content}>
           <Typography variant="h3" className={classes.header}>
             New Game
@@ -167,14 +242,27 @@ const Lobby = withStyles(gameStyles)(({ classes }) => {
               <Typography align="center" variant="h6">
                 Available roles
               </Typography>
-              <Roles self={self} update={update} roles={roles}/>
+              <Grid container item justify="center" direction="column">
+                {
+                  (!gameState.hasOwnProperty("blueSpy")
+                    || gameState.blueSpy === "")
+                    && <Role role="blue spy" call={call} disabled={off} />
+                }
+                {
+                  (!gameState.hasOwnProperty("redSpy")
+                   || gameState.redSpy === "")
+                    && <Role role="red spy" call={call} disabled={off} />
+                }
+                <Role role="blue guesser" call={call} disabled={off} />
+                <Role role="red guesser" call={call} disabled={off} />
+              </Grid>
             </Grid>
             <Grid item container xs={12} align="center" direction="row">
               <Grid item xs={8}>
                 <Typography variant="h5" className={classes.player}>
                   Players ready for match:
                 </Typography>
-                <Players update={update} roles={roles} self={self}/>
+                <Players call={call} state={state}/>
               </Grid>
               <Grid item xs={1}>
                 <Divider orientation="vertical" className={classes.vDivider}/>
@@ -184,7 +272,7 @@ const Lobby = withStyles(gameStyles)(({ classes }) => {
                   Share match id:
                 </Typography>
                 <Button
-                  onClick={copy(url)}
+                  onClick={copy(state.id)}
                   variant="outlined"
                   startIcon={<Link/>}>
                   Copy
@@ -192,7 +280,9 @@ const Lobby = withStyles(gameStyles)(({ classes }) => {
               </Grid>
             </Grid>
             <Grid item xs={12} align="center">
-              <Button onClick={start} variant="outlined" >Start Match</Button>
+              <Button onClick={() => call("start", "")} variant="outlined">
+                Start Match
+              </Button>
             </Grid>
           </Grid>
         </CardContent>

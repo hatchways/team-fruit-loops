@@ -2,9 +2,14 @@ import React, { useState }from 'react';
 import { Redirect } from "react-router-dom";
 import { withStyles } from '@material-ui/core/styles';
 import {
-  Container, Card, CardContent, Divider,
-  Grid, Typography, Button, TextField,
-  Dialog, DialogTitle, DialogContent, IconButton
+  Container,
+  Card, CardContent,
+  Divider,
+  Grid,
+  Typography,
+  Button, TextField,
+  Dialog, DialogTitle, DialogContent,
+  IconButton,
 } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 
@@ -124,7 +129,7 @@ const Match = withStyles(styles)(({ classes, state, setState, }) => {
 
     if (res.status >= 200 && res.status < 300) {
       const next = await res.json();
-      setState(state => Object.assign(state, next));
+      setState(Object.assign(state, next));
       setRedirect(true);
     }
   };

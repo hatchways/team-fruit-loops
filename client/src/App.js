@@ -17,7 +17,10 @@ import Lobby from "./pages/Lobby";
 import "./App.css";
 
 function App() {
-  const [state, setState] = useState({ player: "Bonnie", });
+  const [state, setState] = useState({ player: "Bonnie", }),
+    withState = Page => props => (
+      <Page state={state} setState={setState} {...props} />
+    )
 
   return (
     <MuiThemeProvider theme={theme}>
@@ -29,14 +32,10 @@ function App() {
           <Redirect exact from="/" to="/signup" />
           <Route path="/signup" component={Signup} />
           <Route path="/login" component={Login} />
-          <Route path="/profile" component={Profile} />
-          <Route path="/match" render={ props => (
-            <Match state={state} setState={setState} {...props} />
-          )}/>
-          <Route path="/lobby" render={props => (
-            <Lobby state={state} setState={setState} {...props} />
-          )}/>
-          <Route path="/chat" component={Chat}/>
+          <PrivateRoute path="/profile" component={Profile} />
+          <Route path="/match" render={withState(Match)} />
+          <Route path="/lobby" render={withState(Lobby)} />
+          <Route path="/chat" component={Chat} />
         </Switch>
       </BrowserRouter>
     </MuiThemeProvider>
