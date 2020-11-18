@@ -14,6 +14,7 @@ router.get('/:id/ping', game.ping);
 // middleware.
 router.put('/:id/join', game.join, game.execute);
 router.put('/:id/assign', game.assign, game.execute);
+router.put('/:id/unassign', game.unassign, game.execute);
 router.put('/:id/start', game.start, game.execute);
 router.put('/:id/next-move', game.nextMove, game.execute);
 router.put('/:id/end-turn', game.endTurn, game.execute);
