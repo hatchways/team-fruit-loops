@@ -11,6 +11,7 @@ import Profile from "./pages/Profile";
 import Chat from "./pages/Chat.js";
 import Match from "./pages/Match";
 import Game from "./pages/Game";
+import Test from "./pages/Test";
 
 import "./App.css";
 
@@ -28,7 +29,8 @@ function App() {
           <Route path="/profile" component={Profile} />
           <Route exact path="/match" component={Match} />
           <Route exact path="/game" component={Game} />
-          <Route path="/chat" component={Chat}/>
+          <Route path="/chat" component={Chat} />
+          <Route path="/test" component={Test} />
         </Switch>
       </BrowserRouter>
     </MuiThemeProvider>
