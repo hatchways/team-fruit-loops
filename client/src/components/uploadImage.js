@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Dropzone from "react-dropzone";
 
@@ -30,33 +30,30 @@ const useStyles = makeStyles((theme) => ({
 const UploadImage = (props) => {
   const classes = useStyles();
 
-  const [values, setValues] = useState({
-    id: "",
-    name: "",
-    imageUrl: "",
-  });
-
-  useEffect(() => {
-    axios.get("/account").then((res) => {
-      setValues({
-        id: res.data._id,
-        name: res.data.name,
-        imageUrl: res.data.imageUrl,
-      });
-    });
-  }, []);
-
   const onDropAccepted = (acceptedFiles) => {
     let data = new FormData();
-    data.append("id", values["id"]);
+    data.append("id", props.values["id"]);
     data.append("image", acceptedFiles[0]);
 
     axios
       .post("/uploadImage", data)
       .then((res) => {
         // TODO: Reload the image without having to refresh the entire page
-        setValues({ id: values["id"], imageUrl: res.data.imageUrl });
-        window.location.reload();
+        props.setValues({
+          id: props.values["id"],
+          name: props.values["name"],
+          email: props.values["email"],
+          imageUrl: "",
+        });
+
+        props.setValues({
+          id: props.values["id"],
+          name: props.values["name"],
+          email: props.values["email"],
+          imageUrl: res.data.imageUrl,
+        });
+
+        // window.location.reload();
       })
       .catch((err) => {});
   };
@@ -83,8 +80,11 @@ const UploadImage = (props) => {
               <Card className={classes.card}>
                 <CardActionArea>
                   <CardMedia>
-                    <Avatar src={values["imageUrl"]} className={classes.avatar}>
-                      {values["name"] ? values["name"][0] : ""}
+                    <Avatar
+                      src={`${props.values["imageUrl"]}?${Date.now()}` || ""}
+                      className={classes.avatar}
+                    >
+                      {props.values["name"] ? props.values["name"][0] : ""}
                     </Avatar>
                   </CardMedia>
                   <input {...getInputProps()} />

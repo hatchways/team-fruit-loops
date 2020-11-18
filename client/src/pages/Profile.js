@@ -61,7 +61,7 @@ const Profile = () => {
       .get("/account")
       .then((res) => {
         setValues({
-          id: res.data.id,
+          id: res.data._id,
           name: res.data.name,
           email: res.data.email,
           imageUrl: res.data.imageUrl,
@@ -98,7 +98,7 @@ const Profile = () => {
                   disabled
                 />
                 <Typography variant="subtitle1">Profile Picture:</Typography>
-                <UploadImage values={values} />
+                <UploadImage values={values} setValues={setValues} />
                 <br />
                 <Button
                   variant="contained"
