@@ -15,6 +15,10 @@ let userSchema = new Schema(
       type: String,
       required: true,
     },
+    // Profile Picture
+    imageUrl: {
+      type: String,
+    },
   },
   {
     timestamps: true,

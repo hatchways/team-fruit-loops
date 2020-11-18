@@ -53,6 +53,7 @@ router.post("/", function (req, res, next) {
           name: name,
           email: email,
           password: password,
+          imageUrl: "",
         });
 
         bcrypt.hash(password, 10).then((hash) => {

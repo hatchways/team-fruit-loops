@@ -75,11 +75,10 @@ const Login = () => {
     axios
       .post("/login", values)
       .then((res) => {
-        // TODO: Success logic
+        // If login is successful, redirect to profile page
         history.push("/profile");
       })
       .catch((err) => {
-        // TODO: Error logic
         setSnackBarMessage(err.response.data.errors);
         setSnackbarOpen(true);
       });

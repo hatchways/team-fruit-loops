@@ -4,6 +4,8 @@ import { BrowserRouter, Route, Redirect, Switch } from "react-router-dom";
 
 import { theme } from "./themes/theme";
 
+import PrivateRoute from "./components/PrivateRoute";
+
 import Navbar from "./pages/Navbar";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
@@ -31,8 +33,10 @@ function App() {
           <Route path="/match" render={ props => (
             <Match state={state} setState={setState} {...props} />
           )}/>
-          <Route path="/lobby" component={Lobby} />
-          <Route path="/chat" component={Chat} />
+          <Route path="/lobby" render={props => (
+            <Lobby state={state} setState={setState} {...props} />
+          )}/>
+          <Route path="/chat" component={Chat}/>
         </Switch>
       </BrowserRouter>
     </MuiThemeProvider>
