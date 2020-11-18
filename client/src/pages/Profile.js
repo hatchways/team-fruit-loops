@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { useHistory } from "react-router-dom";
 
+import { Button, TextField, Typography, Container } from "@material-ui/core";
+
 import UploadImage from "../components/uploadImage";
 
 const axios = require("axios");
