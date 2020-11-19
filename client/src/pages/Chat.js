@@ -43,7 +43,9 @@ const Chat = withStyles(styles)(({ classes, }) => {
 
   useEffect(() => {
     const sock = socketIOClient(Endpoint);
-    console.log(`Connected to endpoint: ${Endpoint}`);
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`Connected to endpoint: ${Endpoint}`);
+    }
     setSocket(sock);
 
     sock.emit("join", id);
