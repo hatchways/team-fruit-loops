@@ -3,6 +3,7 @@ const router = express.Router();
 const game = require('../controllers/game');
 
 router.post('/', game.create);
+router.post('/demo', game.createDemo);
 
 // This middleware validates game id for
 // any type of HTTP request to the /:id path.

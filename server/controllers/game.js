@@ -46,6 +46,20 @@ const create = (req, res) => {
   }
 }
 
+const createDemo = (req, res) => {
+  const {player} = req.body;
+  const id = "demo-id"
+
+  try {
+    const game = new Game(player);
+    globalState[id] = {gameEngine: game, id: id}
+    return res.status(201).json({id: id, gameState: game.gameState});
+  }
+  catch (e) {
+    return res.status(400).json({error: e.message});
+  }
+}
+
 const join = (req, res, next) => {
   const {player} = req.body;
   res.locals.method = res.locals.game.join;
@@ -71,12 +85,12 @@ const start = (req, res, next) => {
   res.locals.method = res.locals.game.start;
   res.locals.params = [];
 
-  const io = req.app.get('socketio');
-  const game = req.locals.game;
-  setInterval(() => {
-    game.timerCountDown();
-    io.emit('timer', game.gameState.timer);
-  }, 1000);
+  // const io = req.app.get('socketio');
+  // const game = req.locals.game;
+  // setInterval(() => {
+  //   game.timerCountDown();
+  //   io.emit('timer', game.gameState.timer);
+  // }, 1000);
   next();
 }
 
@@ -113,6 +127,7 @@ module.exports = {
   validateGameId,
   ping,
   create,
+  createDemo,
   join,
   assign,
   unassign,

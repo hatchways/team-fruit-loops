@@ -1,58 +1,105 @@
 import React, { useState, useEffect } from "react";
-import { Grid, TextField, Button, Typography } from "@material-ui/core";
+import { Button, Typography } from "@material-ui/core";
 import socketIOClient from "socket.io-client";
-import { withStyles } from "@material-ui/core/styles";
 
 const Endpoint = process.env.WS_URL || "http://127.0.0.1:3001";
+const axios = require("axios");
 
-const styles = (theme) => ({});
+const Test = () => {
+  const testPlayers = ["Player 1", "Player 2", "Player 3", "Player 4"];
 
-const user = "Bonnie";
-const id = "foobar";
-
-const Test = withStyles(styles)(({ classes }) => {
-  const [chat, setChat] = useState("");
-  const [message, setMessage] = useState("");
+  const [gameId, setGameId] = useState("");
+  const [gameState, setGameState] = useState(null);
   const [socket, setSocket] = useState(null);
+  const [message, setMessage] = useState("");
 
-  const send = () => {
-    if (socket === null) {
-      console.log("socket is empty, not sending");
-      return;
-    }
-    console.log(`Sending ${message} from ${user} on ${socket.id}`);
-    setChat(`${chat}\n${user} - ${message}\n`);
-    socket.emit("chat", id, user, message);
-    setMessage("");
-  };
-
-  const onClick = (e) => {
-    e.preventDefault();
-    send();
-  };
-
-  const onEnter = (e) => {
-    e.preventDefault();
-    if (e.key === "Enter") {
-      setChat((c) => `${c}\n${user} - ${message}\n`);
-      send();
-    }
-    setMessage(`${message}${e.key}`);
-  };
+  let id = "";
 
   useEffect(() => {
-    const sock = socketIOClient(Endpoint);
+    // Use this code block if server was just created or restarted to create a game instance
 
-    console.log(`Connected to endpoint: ${Endpoint}`);
+    axios
+      .get("/game/demo-id/ping")
+      .then((res) => {
+        setGameId("demo-id");
+        setGameState(res.data.gameState);
+      })
+      .catch((err) => {
+        axios
+          .post("/game/demo", { player: testPlayers[0] })
+          .then((res) => {
+            setGameId(res.data.id);
+            id = res.data.id;
+
+            axios
+              .put(`/game/${id}/join`, { player: testPlayers[1] })
+              .then((res) => {
+                axios
+                  .put(`/game/${id}/join`, { player: testPlayers[2] })
+                  .then((res) => {
+                    axios
+                      .put(`/game/${id}/join`, { player: testPlayers[3] })
+                      .then((res) => {
+                        axios
+                          .put(`/game/${id}/assign`, {
+                            player: testPlayers[0],
+                            role: "red spy",
+                          })
+                          .then((res) => {
+                            axios
+                              .put(`/game/${id}/assign`, {
+                                player: testPlayers[1],
+                                role: "red guesser",
+                              })
+                              .then((res) => {
+                                axios
+                                  .put(`/game/${id}/assign`, {
+                                    player: testPlayers[2],
+                                    role: "blue spy",
+                                  })
+                                  .then((res) => {
+                                    axios
+                                      .put(`/game/${id}/assign`, {
+                                        player: testPlayers[3],
+                                        role: "blue guesser",
+                                      })
+                                      .then((res) => {
+                                        axios
+                                          .put(`/game/${id}/start`, {})
+                                          .then((res) => {
+                                            setGameState(res.data.gameState);
+                                          })
+                                          .catch((err) => {
+                                            console.log(err);
+                                          });
+                                      });
+                                  });
+                              });
+                          });
+                      });
+                  });
+              });
+          })
+          .catch((err) => {});
+      });
+
+    // // Use this if you already have an active game session (server not restarted)
+    // axios.get(`/game/${id}/ping`, {}).then((res) => {
+    //   setGameId(res.data.id);
+    //   setGameState(JSON.stringify(res.data));
+    // });
+
+    // Create client-side socket instance
+    const sock = socketIOClient(Endpoint);
+    // Save to state
     setSocket(sock);
 
-    const nextMove = "move";
-    sock.emit("nextMove", id, nextMove);
-
+    // Emit to join channel, passing id parameter
     sock.emit("join", id);
 
+    // Instantiate listener tied to chat channel
     sock.on("chat", (user, message) => {
-      setChat((c) => `${c}\n${user} - ${message}\n`);
+      setMessage(message + "E");
     });
 
     return () => {
@@ -61,30 +108,30 @@ const Test = withStyles(styles)(({ classes }) => {
     };
   }, []);
 
+  const handleGuesserTurn = (e) => {
+    console.log("Button pressed: " + e);
+  };
+
   return (
-    <Grid container justify="flex-end">
-      <Grid item xs={12}>
-        <Typography>{chat}</Typography>
-      </Grid>
-      <Grid container item xs={12}>
-        <TextField
-          fullWidth
-          multiline
-          variant="outlined"
-          placeholder="Enter your message here."
-          onKeyDown={onEnter}
-          value={message}
-          InputProps={{
-            endAdornment: (
-              <Button onClick={onClick} variant="outlined">
-                Send
+    <>
+      <Typography>Game ID: {gameId}</Typography>
+      <Typography>
+        Cards:{" "}
+        {gameState
+          ? Object.entries(gameState.cards).map(([k, v]) => (
+              <Button
+                key={k}
+                variant="outlined"
+                style={{ color: v, backgroundColor: "#999" }}
+                onClick={handleGuesserTurn}
+              >
+                {k}
               </Button>
-            ),
-          }}
-        />
-      </Grid>
-    </Grid>
+            ))
+          : ""}
+      </Typography>
+    </>
   );
-});
+};
 
 export default Test;
