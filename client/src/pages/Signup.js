@@ -14,7 +14,7 @@ import MuiAlert from "@material-ui/lab/Alert";
 
 import { makeStyles } from "@material-ui/core/styles";
 
-const axios = require("axios");
+import axios from "axios";
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;

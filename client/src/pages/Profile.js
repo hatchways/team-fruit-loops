@@ -1,12 +1,15 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { useHistory } from "react-router-dom";
 
 import { Button, TextField, Typography, Container } from "@material-ui/core";
 
+import EditIcon from "@material-ui/icons/Edit";
+import SendIcon from "@material-ui/icons/Send";
+
 import UploadImage from "../components/uploadImage";
 
-const axios = require("axios");
+import axios from "axios";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -35,11 +38,13 @@ const useStyles = makeStyles((theme) => ({
     width: "120px",
     height: "40px",
   },
+  editButton: {},
 }));
 
 const Profile = () => {
   const classes = useStyles();
   let history = useHistory();
+  let textInput = useRef(null);
 
   const [values, setValues] = useState({
     id: "",
@@ -47,6 +52,12 @@ const Profile = () => {
     email: "",
     imageUrl: "",
   });
+
+  // Save default name in separate variable, as the values["name"] variable can be dynamically edited
+  const [savedName, setSavedName] = useState("");
+
+  // Handle disabling of name field
+  const [editState, setEditState] = useState(false);
 
   const logout = useCallback(() => {
     axios
@@ -56,7 +67,53 @@ const Profile = () => {
       .finally(() => history.push("/login"));
   }, [history]);
 
+  const editName = () => {
+    // Button is pressed while editing name field
+    if (editState) {
+      handleSubmitName();
+    } else {
+      // Button is pressed while name field is disabled
+      setTimeout(() => {
+        textInput.current.focus();
+      }, 100);
+    }
+
+    setEditState(!editState);
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Escape") {
+      setEditState(false);
+      setValues({
+        id: values["id"],
+        name: savedName,
+        email: values["email"],
+        imageUrl: values["imageUrl"],
+      });
+    } else if (e.key === "Enter" || e.key === "NumpadEnter") {
+      setEditState(false);
+      handleSubmitName();
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setValues({ ...values, [name]: value });
+  };
+
+  const handleSubmitName = (e) => {
+    if (savedName !== values["name"]) {
+      axios
+        .post("/account/update", values)
+        .then((res) => {
+          setSavedName(values["name"]);
+        })
+        .catch((err) => {});
+    }
+  };
+
   useEffect(() => {
+    // Get account information from database
     axios
       .get("/account")
       .then((res) => {
@@ -66,6 +123,8 @@ const Profile = () => {
           email: res.data.email,
           imageUrl: res.data.imageUrl,
         });
+
+        setSavedName(res.data.name);
       })
       .catch((err) => {
         logout();
@@ -76,19 +135,37 @@ const Profile = () => {
     <Container component="main" maxWidth="xs">
       <div className={classes.root}>
         <>
-          {values["name"] !== "" ? (
+          {values["email"] !== "" ? (
             <>
               <Typography variant="h5">Profile</Typography>
               <hr className={classes.underline} />
               <form className={classes.form}>
                 <Typography variant="subtitle1">Name:</Typography>
                 <TextField
+                  id="name"
+                  name="name"
                   variant="outlined"
                   margin="normal"
                   fullWidth
                   value={values["name"]}
-                  disabled
+                  inputRef={textInput}
+                  disabled={!editState}
+                  onKeyDown={handleKeyPress}
+                  onChange={handleInputChange}
+                  InputProps={{
+                    endAdornment: (
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        className={classes.editButton}
+                        onClick={editName}
+                      >
+                        {editState ? <SendIcon /> : <EditIcon />}
+                      </Button>
+                    ),
+                  }}
                 />
+
                 <Typography variant="subtitle1">Email:</Typography>
                 <TextField
                   variant="outlined"

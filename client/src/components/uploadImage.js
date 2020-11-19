@@ -38,7 +38,6 @@ const UploadImage = (props) => {
     axios
       .post("/uploadImage", data)
       .then((res) => {
-        // TODO: Reload the image without having to refresh the entire page
         props.setValues({
           id: props.values["id"],
           name: props.values["name"],
@@ -52,8 +51,6 @@ const UploadImage = (props) => {
           email: props.values["email"],
           imageUrl: res.data.imageUrl,
         });
-
-        // window.location.reload();
       })
       .catch((err) => {});
   };
