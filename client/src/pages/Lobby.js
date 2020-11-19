@@ -131,10 +131,8 @@ const Lobby = withStyles(gameStyles)(({ classes, state, setState, gameID, socket
       if (process.env.NODE_ENV === 'development') {
         console.log("update recieved: ", next);
       }
-      if (mounted) {
-        state.gameState = next;
-        setState({player: state.player, gameState: state.gameState});
-      }
+      state.gameState = next;
+      setState({player: state.player, gameState: state.gameState});
     }
 
     socket.on("update", updateHandler);
@@ -196,7 +194,7 @@ const Lobby = withStyles(gameStyles)(({ classes, state, setState, gameID, socket
               </Grid>
             </Grid>
             <Grid item xs={12} align="center">
-              <Button onClick={() => call("start", "")} variant="outlined">
+              <Button disabled={!state.gameState.isReady} onClick={() => call("start", "")} variant="outlined">
                 Start Match
               </Button>
             </Grid>
