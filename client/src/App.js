@@ -10,7 +10,6 @@ import Navbar from "./pages/Navbar";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
-import Chat from "./pages/Chat.js";
 import Match from "./pages/Match";
 import Lobby from "./pages/Lobby";
 
@@ -51,7 +50,6 @@ function App() {
               {...props}
             />
           )} />
-          <Route path="/chat" component={Chat} />
         </Switch>
       </BrowserRouter>
     </MuiThemeProvider>
