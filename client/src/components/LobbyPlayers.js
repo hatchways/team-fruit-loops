@@ -21,16 +21,17 @@ const isSelf = ({
     redSpy,
     redGuessers,
     blueGuessers
-  }}, role) => {
+  }}, role, currPlayer) => {
+
   switch (role) {
     case "red spy":
       return redSpy === player;
     case "blue spy":
       return blueSpy === player;
     case "red guesser":
-      return redGuessers !== undefined && redGuessers.includes(player);
+      return redGuessers.includes(player) && currPlayer === player;
     case "blue guesser":
-      return blueGuessers !== undefined && blueGuessers.includes(player);
+      return blueGuessers.includes(player) && currPlayer === player;
     default:
       if (process.env.NODE_ENV === "development") {
         console.log(`Error - unknown case: ${role}`);
@@ -53,8 +54,8 @@ const Player = ({ click, player, self, role }) => (
 );
 
 const LobbyPlayers = ({ state, call, }) => {
-  const { blueSpy, redSpy, blueGuessers, redGuessers, } = state.gameState,
-    click = role => e => {
+  const { blueSpy, redSpy, blueGuessers, redGuessers, } = state.gameState;
+  const click = role => e => {
       e.preventDefault();
       call("remove", role);
     };
@@ -80,7 +81,7 @@ const LobbyPlayers = ({ state, call, }) => {
       {
         redGuessers.map(player => (
           <Player
-            self={isSelf(state, "red guesser")}
+            self={isSelf(state, "red guesser", player)}
             role={"red guesser"}
             key={player}
             player={player}
@@ -90,8 +91,8 @@ const LobbyPlayers = ({ state, call, }) => {
       {
         blueGuessers.map(player => (
           <Player
-            self={isSelf(state, "red guesser")}
-            role={"red guesser"}
+            self={isSelf(state, "blue guesser", player)}
+            role={"blue guesser"}
             key={player}
             player={player}
             click={click} />

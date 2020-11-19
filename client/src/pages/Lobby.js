@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import socketIOClient from "socket.io-client";
 import { withStyles } from "@material-ui/core/styles";
 import { Redirect } from "react-router-dom";
 import {
@@ -14,7 +13,6 @@ import {
 } from "@material-ui/core";
 import { Close, Link, } from "@material-ui/icons";
 
-import useForceUpdate from "../hooks/Update";
 import LobbyPlayers from "../components/LobbyPlayers";
 import LobbyRoles from "../components/LobbyRoles";
 
@@ -106,75 +104,53 @@ const isOff = ({ blueSpy, redSpy, redGuessers, blueGuessers }, player) => (
   || redSpy === player || redGuessers.includes(player)
 );
 
-const invalidState = s => (
-  s === undefined || !s.hasOwnProperty("id") || !s.hasOwnProperty("gameState")
-);
-
-const Endpoint = process.env.WS_URL || "http://127.0.0.1:3001";
-
-const Lobby = withStyles(gameStyles)(({ classes, state, setState }) => {
-  if (invalidState(state)) {
+const Lobby = withStyles(gameStyles)(({ classes, state, setState, gameID, socket }) => {
+  if (gameID === undefined) {
     return (<Redirect to="/match" />);
   }
 
-  const { gameState } = state,
-    forceUpdate = useForceUpdate(),
-    [update, setUpdate] = useState(0),
-    [err, setErr] = useState(false),
-    off = isOff(gameState, state.player),
-    call = async (type, role) => {
-      const res = await fetch(api[type].url(state.id), {
-        method: api[type].method,
-        headers: api[type].headers,
-        body: api[type].body(state.player, role),
-      });
+  const {gameState, player} = state;
+  const [err, setErr] = useState(undefined);
+  const off = isOff(gameState, player);
 
-      if (res.status >= 200 && res.status < 300) {
-        const next = await res.json();
-        setState(Object.assign(state, next));
-        forceUpdate();
-      } else {
-        setErr(true);
-      }
-    };
+  const call = async (type, role) => {
+    const res = await fetch(api[type].url(gameID), {
+      method: api[type].method,
+      headers: api[type].headers,
+      body: api[type].body(state.player, role),
+    });
+
+    if (res.status < 200 || res.status >= 300) {
+      const next = await res.json()
+      setErr(next.error);
+    }
+  };
 
   useEffect(() => {
-    const sock = socketIOClient();
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`Connected to endpoint: ${Endpoint}, socket: ${sock}`);
-    }
-    // setSocket(sock);
-    sock.emit("join", state.id);
-    sock.on("update", next => {
+    socket.on("update", next => {
       if (process.env.NODE_ENV === 'development') {
         console.log("update recieved: ", next);
       }
-      setState(s => Object.assign(s, next));
-      setUpdate(update + 1);
+      state.gameState = next;
+      setState({player: state.player, gameState: state.gameState});
     });
-
-    return () => {
-      console.log(`Disconnected from web socket: ${sock}`);
-      sock.disconnect();
-    }
-  }, [state.id, setState, setUpdate, update/*forceUpdate, setSocket*/]);
+  }, [setState, socket, state.gameState, state.player]);
 
   return (
     <Container component="h1" className={classes.container}>
-      <Dialog open={err} onClose={() => setErr(false)}>
+      <Dialog open={err !== undefined} onClose={() => setErr(undefined)}>
         <DialogTitle>
           <Typography align="center">Error</Typography>
           <IconButton
             className={classes.close}
-            onClick={() => setErr(false)}>
+            onClick={() => setErr(undefined)}>
             <Close/>
           </IconButton>
         </DialogTitle>
         <DialogContent>
           <Typography align="center" component="h2">
-            Error in game, please try again later
+            {err}
           </Typography>
-          { update }
         </DialogContent>
       </Dialog>
       <Card>
@@ -188,7 +164,7 @@ const Lobby = withStyles(gameStyles)(({ classes, state, setState }) => {
               <Typography align="center" variant="h6">
                 Available roles
               </Typography>
-              <LobbyRoles call={call} off={off} gameState={gameState}/>
+              <LobbyRoles call={call} off={off} state={state}/>
             </Grid>
             <Grid item container xs={12} align="center" direction="row">
               <Grid item xs={8}>
@@ -205,7 +181,7 @@ const Lobby = withStyles(gameStyles)(({ classes, state, setState }) => {
                   Share match id:
                 </Typography>
                 <Button
-                  onClick={copy(state.id)}
+                  onClick={copy(gameID)}
                   variant="outlined"
                   startIcon={<Link/>}>
                   Copy

@@ -38,7 +38,7 @@ const Role = withStyles(roleStyles)(({ classes, call, selected, role }) => {
   );
 });
 
-const LobbyRoles = ({ call, off, gameState: { redSpy, blueSpy, } }) => (
+const LobbyRoles = ({ call, off, state: {gameState: { redSpy, blueSpy, }} }) => (
   <Grid container item justify="center">
     {
       blueSpy === undefined && <Role role="blue spy" call={call} disabled={off} />

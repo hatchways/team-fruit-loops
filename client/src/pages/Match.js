@@ -13,8 +13,6 @@ import {
 } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 
-import useForceUpdate from "../hooks/Update";
-
 const styles = theme => ({
   header: {
     textAlign: "center",
@@ -115,15 +113,15 @@ const api = {
   },
 };
 
-const Match = withStyles(styles)(({ classes, state, setState, }) => {
-  // I cant figure out why this wont work
-  // if (state.hasOwnProperty("id") && state.hasOwnProperty("gameState")) {
-  //   return <Redirect push to="/lobby"/>;
-  // }
+const Match = withStyles(styles)(({ classes, state, setState, gameID, setGameID, socket}) => {
+  const [err, setErr] = useState(undefined);
+  const { player } = state;
+  // local game id. used in join a game text field
+  const [id, setId] = useState('');
 
-  const forceUpdate = useForceUpdate(),
-    [err, setErr] = useState(false),
-    [gameID, setGameID] = useState("");
+  if (gameID !== undefined) {
+    return <Redirect push to={`/lobby/${gameID}`}/>;
+  }
 
   const call = type => async () => {
     const res = await fetch(api[type].url(gameID), {
@@ -132,39 +130,57 @@ const Match = withStyles(styles)(({ classes, state, setState, }) => {
         "Content-Type": api[type].contentType,
         Accept: "application/json",
       },
-      body: api[type].body(state.player),
+      body: api[type].body(player),
     });
 
+    const nextState = await res.json();
     if (res.status >= 200 && res.status < 300) {
-      const next = await res.json();
-      setState(Object.assign(state, next));
-      forceUpdate();
+      socket.emit('join', nextState.id);
+      setState({player: player, gameState: nextState.gameState});
+      setGameID(nextState.id);
     } else {
-      setErr(true);
+      setErr(nextState.error);
     }
-  },
-  join = () => {
-    setState({ ...state, id: gameID });
-    // e.persist();
-    call("join")();
+  }
+
+  const join = id => async () => {
+    const testName = "Alice";
+    socket.emit('join', id);
+    const type = 'join';
+    const res = await fetch(api[type].url(id), {
+      method: api[type].method,
+      headers: {
+        "Content-Type": api[type].contentType,
+        Accept: "application/json",
+      },
+      body: api[type].body(testName),
+    });
+
+    const nextState = await res.json();
+    if (res.status >= 200 && res.status < 300) {
+      setState({player: testName, gameState: nextState.gameState});
+      setGameID(id);
+    } else {
+      setErr(nextState.error);
+    }
   };
 
-  return state.hasOwnProperty("id") && state.hasOwnProperty("gameState")
-    ? <Redirect push to="/lobby"/>
+  return state.gameID !== undefined
+    ? <Redirect push to={`/lobby/${gameID}`}/>
     : (
     <Container>
-      <Dialog open={err} onClose={() => setErr(false)}>
+      <Dialog open={err !== undefined} onClose={() => setErr(undefined)}>
         <DialogTitle>
           <Typography align="center">Error</Typography>
           <IconButton
             className={classes.close}
-            onClick={() => setErr(false)}>
+            onClick={() => setErr(undefined)}>
             <CloseIcon/>
           </IconButton>
         </DialogTitle>
         <DialogContent>
           <Typography align="center" component="h2">
-            Error adding game, please try again later
+            {err}
           </Typography>
         </DialogContent>
       </Dialog>
@@ -178,14 +194,14 @@ const Match = withStyles(styles)(({ classes, state, setState, }) => {
               <form className={classes.form}>
                 <TextField
                   fullWidth
-                  value={gameID}
-                  onChange={({ target: { value }}) => setGameID(value)}
+                  value={id}
+                  onChange={({ target: { value }}) => setId(value)}
                   variant="outlined"
                   className={classes.text}
                   placeholder="Enter Game ID"
                   InputProps={{endAdornment: (
                     <Button
-                      onClick={join}
+                      onClick={join(id)}
                       className={classes.game}
                       variant="outlined">
                       Join Game
