@@ -21,6 +21,9 @@ const execute = (req, res) => {
   try {
     const gameState = method.apply(res.locals.game, params);
     io.to(req.params.id).emit('update', gameState);
+    if (process.env.NODE_ENV === "development") {
+      console.log(`Emitting game state to ${req.params.id}`);
+    }
     return res.status(200).json({gameState: gameState});
   }
   catch (e) {

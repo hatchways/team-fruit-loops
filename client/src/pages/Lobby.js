@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { withStyles } from '@material-ui/core/styles';
-import { Redirect } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import socketIOClient from "socket.io-client";
+import { withStyles } from "@material-ui/core/styles";
+import { Redirect } from "react-router-dom";
 import {
   Container,
   Grid,
@@ -10,16 +11,12 @@ import {
   Button,
   Dialog, DialogTitle, DialogContent,
   IconButton,
-} from '@material-ui/core';
-import { Close, AddCircle, Check, Cancel, Link, } from '@material-ui/icons';
+} from "@material-ui/core";
+import { Close, Link, } from "@material-ui/icons";
 
-// map backend state -> frontend text
-const lookup = {
-  "red spy": "Red Spy Master",
-  "blue spy": "Blue Spy Master",
-  "red guesser": "Red Field Agent",
-  "blue guesser": "Blue Field Agent",
-};
+import useForceUpdate from "../hooks/Update";
+import LobbyPlayers from "../components/LobbyPlayers";
+import LobbyRoles from "../components/LobbyRoles";
 
 const api = {
   "assign": {
@@ -60,76 +57,6 @@ const copy = id => e => {
   dummy.select();
   document.execCommand("copy");
   document.body.removeChild(dummy);
-};
-
-const roleStyles = {
-  role: {
-    textAlign: "center",
-  }
-}
-
-const Role = withStyles(roleStyles)(({ classes, call, selected, role }) => {
-  const click = role => e => {
-    e.preventDefault();
-    if (!selected) {
-      call("assign", role);
-    }
-  };
-
-  return (
-    <Grid item xs={12} key={role} className={classes.role}>
-      <Button endIcon={<AddCircle onClick={click(role)}/>}>
-        <Typography align="center">{ lookup[role] }</Typography>
-      </Button>
-    </Grid>
-  );
-});
-
-const Player = ({ click, player, self, role }) => (
-  <Grid item xs={12} key={player}>
-    <Button
-      key={player}
-      startIcon={<Check style={{fill: "rgb(95, 184, 115)"}}/>}
-      endIcon={self && <Cancel onClick={click(player, role)}/>}>
-      <Typography align="center">
-        { `${player} - ${lookup[role]}${self ? ' (You)' : '' }` }
-      </Typography>
-    </Button>
-  </Grid>
-);
-
-const Players = ({ state, call, }) => {
-  const { blueSpy, redSpy, blueGuessers, redGuessers, } = state.gameState,
-    click = (user, role) => e => {
-      e.preventDefault();
-      if (state.player === user) {
-        return ;
-      }
-      call("remove", role);
-    };
-
-  return (
-    <Grid container item xs={12}>
-      {
-        blueSpy !== undefined &&
-          <Player role={"blue spy"} player={blueSpy} click={click} />
-      }
-      {
-        redSpy !== undefined &&
-          <Player role={"red spy"} player={redSpy} click={click} />
-      }
-      {
-        redGuessers.map(player => (
-          <Player role={"red guesser"} player={player} click={click} />
-        ))
-      }
-      {
-        blueGuessers.map(player => (
-          <Player role={"red guesser"} player={player} click={click} />
-        ))
-      }
-    </Grid>
-  );
 };
 
 const gameStyles = theme => ({
@@ -183,19 +110,16 @@ const invalidState = s => (
   s === undefined || !s.hasOwnProperty("id") || !s.hasOwnProperty("gameState")
 );
 
-const useForceUpdate = () => {
-  const [updateView, setUpdateView] = useState(0);
-
-  return () => setUpdateView(updateView + 1);
-};
+const Endpoint = process.env.WS_URL || "http://127.0.0.1:3001";
 
 const Lobby = withStyles(gameStyles)(({ classes, state, setState }) => {
   if (invalidState(state)) {
-    return <Redirect to="/match" />;
+    return (<Redirect to="/match" />);
   }
 
   const { gameState } = state,
     forceUpdate = useForceUpdate(),
+    [update, setUpdate] = useState(0),
     [err, setErr] = useState(false),
     off = isOff(gameState, state.player),
     call = async (type, role) => {
@@ -214,6 +138,27 @@ const Lobby = withStyles(gameStyles)(({ classes, state, setState }) => {
       }
     };
 
+  useEffect(() => {
+    const sock = socketIOClient();
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`Connected to endpoint: ${Endpoint}, socket: ${sock}`);
+    }
+    // setSocket(sock);
+    sock.emit("join", state.id);
+    sock.on("update", next => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log("update recieved: ", next);
+      }
+      setState(s => Object.assign(s, next));
+      setUpdate(update + 1);
+    });
+
+    return () => {
+      console.log(`Disconnected from web socket: ${sock}`);
+      sock.disconnect();
+    }
+  }, [state.id, setState, setUpdate, update/*forceUpdate, setSocket*/]);
+
   return (
     <Container component="h1" className={classes.container}>
       <Dialog open={err} onClose={() => setErr(false)}>
@@ -229,6 +174,7 @@ const Lobby = withStyles(gameStyles)(({ classes, state, setState }) => {
           <Typography align="center" component="h2">
             Error in game, please try again later
           </Typography>
+          { update }
         </DialogContent>
       </Dialog>
       <Card>
@@ -242,27 +188,14 @@ const Lobby = withStyles(gameStyles)(({ classes, state, setState }) => {
               <Typography align="center" variant="h6">
                 Available roles
               </Typography>
-              <Grid container item justify="center" direction="column">
-                {
-                  (!gameState.hasOwnProperty("blueSpy")
-                    || gameState.blueSpy === "")
-                    && <Role role="blue spy" call={call} disabled={off} />
-                }
-                {
-                  (!gameState.hasOwnProperty("redSpy")
-                   || gameState.redSpy === "")
-                    && <Role role="red spy" call={call} disabled={off} />
-                }
-                <Role role="blue guesser" call={call} disabled={off} />
-                <Role role="red guesser" call={call} disabled={off} />
-              </Grid>
+              <LobbyRoles call={call} off={off} gameState={gameState}/>
             </Grid>
             <Grid item container xs={12} align="center" direction="row">
               <Grid item xs={8}>
                 <Typography variant="h5" className={classes.player}>
                   Players ready for match:
                 </Typography>
-                <Players call={call} state={state}/>
+                <LobbyPlayers call={call} state={state} />
               </Grid>
               <Grid item xs={1}>
                 <Divider orientation="vertical" className={classes.vDivider}/>

@@ -13,6 +13,8 @@ import {
 } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 
+import useForceUpdate from "../hooks/Update";
+
 const styles = theme => ({
   header: {
     textAlign: "center",
@@ -106,18 +108,24 @@ const api = {
     contentType: "application/json",
     body: player => JSON.stringify({ player }),
   },
+  "random": {
+    url: () => {
+      throw new Error("Error: not implemented");
+    },
+  },
 };
 
 const Match = withStyles(styles)(({ classes, state, setState, }) => {
-  const [gameID, setGameID] = useState("");
-  const [redirect, setRedirect] = useState(false);
+  // I cant figure out why this wont work
+  // if (state.hasOwnProperty("id") && state.hasOwnProperty("gameState")) {
+  //   return <Redirect push to="/lobby"/>;
+  // }
 
-  if (state.hasOwnProperty("id") && state.hasOwnProperty("gameState")) {
-    return <Redirect to="/lobby"/>;
-  }
+  const forceUpdate = useForceUpdate(),
+    [err, setErr] = useState(false),
+    [gameID, setGameID] = useState("");
 
-  const call = type => async e => {
-    e.preventDefault();
+  const call = type => async () => {
     const res = await fetch(api[type].url(gameID), {
       method: api[type].method,
       headers: {
@@ -130,18 +138,27 @@ const Match = withStyles(styles)(({ classes, state, setState, }) => {
     if (res.status >= 200 && res.status < 300) {
       const next = await res.json();
       setState(Object.assign(state, next));
-      setRedirect(true);
+      forceUpdate();
+    } else {
+      setErr(true);
     }
+  },
+  join = () => {
+    setState({ ...state, id: gameID });
+    // e.persist();
+    call("join")();
   };
 
-  return (
+  return state.hasOwnProperty("id") && state.hasOwnProperty("gameState")
+    ? <Redirect push to="/lobby"/>
+    : (
     <Container>
-      <Dialog open={redirect} onClose={() => setRedirect(false)}>
+      <Dialog open={err} onClose={() => setErr(false)}>
         <DialogTitle>
           <Typography align="center">Error</Typography>
           <IconButton
             className={classes.close}
-            onClick={() => setRedirect(false)}>
+            onClick={() => setErr(false)}>
             <CloseIcon/>
           </IconButton>
         </DialogTitle>
@@ -168,7 +185,7 @@ const Match = withStyles(styles)(({ classes, state, setState, }) => {
                   placeholder="Enter Game ID"
                   InputProps={{endAdornment: (
                     <Button
-                      onClick={call("join")}
+                      onClick={join}
                       className={classes.game}
                       variant="outlined">
                       Join Game
