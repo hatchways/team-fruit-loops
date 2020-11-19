@@ -1,159 +1,202 @@
-import React, { useState }from 'react';
+import React, { useState } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import {
-  Container, Card, CardContent, Divider,
-  Grid, Typography, Button, TextField,
+  Container,
+  Grid,
+  Card, CardContent,
+  Divider,
+  Typography,
+  Button,
 } from '@material-ui/core';
+import { AddCircle, Check, Cancel, Link, } from '@material-ui/icons';
 
-const styles = theme => ({
+const rolesStyles = theme => ({
+  role: {
+    textAlign: "center",
+  },
+});
+
+const Roles = withStyles(rolesStyles)(({ classes, roles, update, self }) => {
+  let disabled = false;
+  const onClick = role => e => {
+    e.preventDefault();
+    if (!disabled) {
+      update(role, self);
+    }
+  };
+  const available = Object.entries(roles).filter(([, player]) => {
+    if (self === player) {
+      disabled = true;
+    }
+    return player === "";
+  });
+
+  return (
+    <Grid container>
+      {
+          available.map(([role, ]) => (
+            <Grid item xs={12} key={role} className={classes.role}>
+              <Button endIcon={<AddCircle onClick={onClick(role)}/>}>
+                { role }
+              </Button>
+            </Grid>
+        ))
+      }
+    </Grid>
+  );
+});
+
+const playerStyles = theme => ({
+  role: {
+    textAlign: "center",
+  },
+});
+
+const Players = withStyles(playerStyles)(({ classes, roles, self, update }) => {
+  const taken = Object.entries(roles).filter(([, v]) => v !== ""),
+    onClick = (role, player) => e => {
+      e.preventDefault();
+      if (self !== player) {
+        return
+      }
+      update(role, "");
+    };
+
+  return (
+    <Grid container item justify="center" xs={12}>
+      {
+        taken.map(([role, player]) => (
+          <Grid item xs={12} key={role} className={classes.role}>
+            <Button
+              key={role}
+              startIcon={<Check style={{fill: "rgb(95, 184, 115)"}}/>}
+              endIcon={
+                self === player
+                  ? <Cancel onClick={onClick(role, player)}/>
+                  : null
+              }>
+              { `${player} - ${role}${self === player ? ' (You)' : '' }` }
+            </Button>
+          </Grid>
+        ))
+      }
+    </Grid>
+  );
+});
+
+const gameStyles = theme => ({
+  container: {
+    marginTop: theme.spacing(3)
+  },
   header: {
     textAlign: "center",
     paddingTop: theme.spacing(2),
     paddingBottom: theme.spacing(0),
   },
-  card: {
-    marginTop: theme.spacing(3),
+  content: {
+    paddingTop: theme.spacing(0),
   },
   hDivider: {
     height: "1px",
     backgroundColor: "rgb(72, 172, 122)",
-    marginLeft: theme.spacing(33),
-    marginRight: theme.spacing(33),
+    marginLeft: theme.spacing(35),
+    marginRight: theme.spacing(35),
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
   },
   vDivider: {
     width: "1px",
+  },
+  bold: {
+  },
+  player: {
+    fontWeight: "bold",
     marginLeft: theme.spacing(1),
-    marginRight: theme.spacing(2),
-  },
-  join: {
     textAlign: "left",
-    marginLeft: theme.spacing(3),
+  },
+  copy: {
     fontWeight: "bold",
-  },
-  game: {
-    whiteSpace: "nowrap",
-    backgroundColor: "rgb(75, 75, 75)",
-    width: "100%",
-    color: "white",
-  },
-  random: {
-    whiteSpace: "nowrap",
-    backgroundColor: "rgb(75, 75, 75)",
-    color: "white",
-    width: "50%",
-  },
-  new: {
-    fontWeight: "bold",
-    height: theme.spacing(0),
-  },
-  form: {
-    marginLeft: theme.spacing(3),
-    marginRight: theme.spacing(5),
-  },
-  or: {
-    fontWeight: "bold",
-    marginTop: theme.spacing(1),
     marginBottom: theme.spacing(1),
-  },
-  public: {
-    marginTop: theme.spacing(1),
-  },
-  private: {
-    marginTop: theme.spacing(1),
   },
 });
 
-const join = (id, type) => e => {
-  switch (type) {
-  case "join":
-    console.log("join: ", id);
-    break;
-  case "random":
-    console.log("random");
-    break;
-  case "public":
-    console.log("public");
-    break;
-  case "private":
-    console.log("private");
-    break;
-  default:
-    console.log("unknown case: ", type);
-  }
-};
+const Match = withStyles(gameStyles)(({ classes }) => {
+  const [url, ] = useState("This is a Link"),
+    [self, ] = useState("Bonnie"),
+    [roles, setRoles] = useState({
+      "Blue Spy Master": "",
+      "Red Field Agent": "",
+      "Blue Field Agent": "",
+      "Red Spy Master": "Bonnie" ,
+    });
 
-const Match = withStyles(styles)(({ classes }) => {
-  const [id, setID] = useState("");
+  const update = (k, v) => setRoles({ ...roles, [k]: v });
+
+  // Copy url to system clipboard by creating dummy html
+  // element to write value into. added to document.body
+  // for `document.execCommand("copy")` to read
+  const copy = url => e => {
+    e.preventDefault();
+    if (document === undefined) {
+      return ;
+    }
+    const dummy = document.createElement("input");
+    document.body.appendChild(dummy);
+    dummy.setAttribute("value", url);
+    dummy.select();
+    document.execCommand("copy");
+    document.body.removeChild(dummy);
+  };
+
+  const start = e => {
+    e.preventDefault();
+    console.log("start match");
+  };
 
   return (
-    <Container>
-       <Card className={classes.card}>
-         <CardContent>
-            <Typography variant="h3" className={classes.header}>
-              Welcome
-            </Typography>
-            <Divider className={classes.hDivider} variant="middle"/>
-            <Grid container align="center">
+    <Container component="h1" className={classes.container}>
+      <Card>
+        {/* <CardHeader component="h4" className={classes.header} title=""/> */}
+        <CardContent className={classes.content}>
+          <Typography variant="h3" className={classes.header}>
+            New Game
+          </Typography>
+          <Divider className={classes.hDivider} variant="middle"/>
+          <Grid container spacing={1}>
+            <Grid item container xs={12} justify="center">
+              <Typography align="center" variant="h6">
+                Available roles
+              </Typography>
+              <Roles self={self} update={update} roles={roles}/>
+            </Grid>
+            <Grid item container xs={12} align="center" direction="row">
               <Grid item xs={8}>
-                <Typography variant="h6" className={classes.join}>
-                  Join a Game:
+                <Typography variant="h5" className={classes.player}>
+                  Players ready for match:
                 </Typography>
-                <form className={classes.form}>
-                  <TextField
-                    fullWidth
-                    onChange={({ target: { value }}) => setID(value)}
-                    variant="outlined"
-                    className={classes.text}
-                    placeholder="Enter Game ID"
-                    InputProps={{
-                      endAdornment: (
-                        <Button
-                          onClick={join(id, "join")}
-                          className={classes.game}
-                          variant="outlined">
-                          Join Game
-                        </Button>
-                      )
-                    }}>
-                  </TextField>
-                </form>
-                <Typography variant="h6" className={classes.or}>
-                  Or
-                </Typography>
-                <Button
-                  onClick={join(id, "random")}
-                  className={classes.random}
-                  variant="outlined">
-                  Join Random
-                </Button>
+                <Players update={update} roles={roles} self={self}/>
               </Grid>
               <Grid item xs={1}>
                 <Divider orientation="vertical" className={classes.vDivider}/>
               </Grid>
-              <Grid item container xs={3}>
-                <Typography variant="h6" className={classes.new}>
-                  New Game:
+              <Grid item align="center" xs={3}>
+                <Typography variant="h5" className={classes.copy}>
+                  Share match id:
                 </Typography>
-                <Grid item container direction="column" xs={6}>
-                  <Button
-                    onClick={join(id, "public")}
-                    className={classes.public}
-                    variant="outlined">
-                    Public
-                  </Button>
-                  <Button
-                    onClick={join(id, "private")}
-                    className={classes.private}
-                    variant="outlined">
-                    Private
-                  </Button>
-                </Grid>
+                <Button
+                  onClick={copy(url)}
+                  variant="outlined"
+                  startIcon={<Link/>}>
+                  Copy
+                </Button>
               </Grid>
             </Grid>
-         </CardContent>
-       </Card>
+            <Grid item xs={12} align="center">
+              <Button onClick={start} variant="outlined" >Start Match</Button>
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
     </Container>
   );
 });

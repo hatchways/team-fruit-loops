@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { useHistory } from "react-router-dom";
+import axios from "axios";
 
 import { Button, TextField, Typography, Container } from "@material-ui/core";
 
 import UploadImage from "../components/uploadImage";
-
-const axios = require("axios");
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -48,13 +47,13 @@ const Profile = () => {
     imageUrl: "",
   });
 
-  const logout = () => {
+  const logout = useCallback(() => {
     axios
       .get("/logout")
       .then((res) => {})
       .catch((err) => {})
       .finally(() => history.push("/login"));
-  };
+  }, [history]);
 
   useEffect(() => {
     axios
@@ -70,7 +69,7 @@ const Profile = () => {
       .catch((err) => {
         logout();
       });
-  }, []);
+  }, [logout]);
 
   return (
     <Container component="main" maxWidth="xs">

@@ -1,202 +1,103 @@
-import React, { useState } from 'react';
-import { withStyles } from '@material-ui/core/styles';
+import React from "react";
+import { withStyles } from "@material-ui/core/styles";
 import {
   Container,
   Grid,
-  Card, CardContent,
-  Divider,
-  Typography,
-  Button,
-} from '@material-ui/core';
-import { AddCircle, Check, Cancel, Link, } from '@material-ui/icons';
+  Paper,
+} from "@material-ui/core";
 
-const rolesStyles = theme => ({
-  role: {
-    textAlign: "center",
+const SidebarTop = () => {
+  return (
+    <div></div>
+  );
+};
+
+const SidebarMiddle = () => {
+  return (
+    <div></div>
+  );
+};
+
+const SidebarBottom = () => {
+  return (
+    <div></div>
+  );
+};
+
+const sidebarStyles = theme => ({
+  sidebar: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    left: 0,
+    backgroundColor: "blue",
+    height: "100%",
   },
 });
 
-const Roles = withStyles(rolesStyles)(({ classes, roles, update, self }) => {
-  let disabled = false;
-  const onClick = role => e => {
-    e.preventDefault();
-    if (!disabled) {
-      update(role, self);
-    }
-  };
-  const available = Object.entries(roles).filter(([, player]) => {
-    if (self === player) {
-      disabled = true;
-    }
-    return player === "";
-  });
-
+const Sidebar = withStyles(sidebarStyles)(({ classes }) => {
   return (
-    <Grid container>
-      {
-          available.map(([role, ]) => (
-            <Grid item xs={12} key={role} className={classes.role}>
-              <Button endIcon={<AddCircle onClick={onClick(role)}/>}>
-                { role }
-              </Button>
-            </Grid>
-        ))
-      }
+    <Grid item container xs={3} className={classes.sidebar}>
+      <SidebarTop/>
+      <SidebarMiddle/>
+      <SidebarBottom/>
     </Grid>
   );
 });
 
-const playerStyles = theme => ({
-  role: {
-    textAlign: "center",
+const cardStyles = theme => ({
+  board: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    right: 0,
+    backgroundColor: "red",
+    height: "100%",
   },
-});
-
-const Players = withStyles(playerStyles)(({ classes, roles, self, update }) => {
-  const taken = Object.entries(roles).filter(([, v]) => v !== ""),
-    onClick = (role, player) => e => {
-      e.preventDefault();
-      if (self !== player) {
-        return
-      }
-      update(role, "");
-    };
-
-  return (
-    <Grid container item justify="center" xs={12}>
-      {
-        taken.map(([role, player]) => (
-          <Grid item xs={12} key={role} className={classes.role}>
-            <Button
-              key={role}
-              startIcon={<Check style={{fill: "rgb(95, 184, 115)"}}/>}
-              endIcon={
-                self === player
-                  ? <Cancel onClick={onClick(role, player)}/>
-                  : null
-              }>
-              { `${player} - ${role}${self === player ? ' (You)' : '' }` }
-            </Button>
-          </Grid>
-        ))
-      }
-    </Grid>
-  );
-});
-
-const gameStyles = theme => ({
-  container: {
-    marginTop: theme.spacing(3)
+  row: {
+    width: "100%",
   },
-  header: {
-    textAlign: "center",
-    paddingTop: theme.spacing(2),
-    paddingBottom: theme.spacing(0),
-  },
-  content: {
-    paddingTop: theme.spacing(0),
-  },
-  hDivider: {
-    height: "1px",
-    backgroundColor: "rgb(72, 172, 122)",
-    marginLeft: theme.spacing(35),
-    marginRight: theme.spacing(35),
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-  },
-  vDivider: {
-    width: "1px",
-  },
-  bold: {
-  },
-  player: {
-    fontWeight: "bold",
+  card: {
     marginLeft: theme.spacing(1),
-    textAlign: "left",
+    height: "100%",
+    textAlign: "center",
   },
-  copy: {
-    fontWeight: "bold",
-    marginBottom: theme.spacing(1),
+  paper: {
+    height: "75%",
+    paddingTop: "35%",
   },
 });
 
-const Game = withStyles(gameStyles)(({ classes }) => {
-  const [url, ] = useState("This is a Link"),
-    [self, ] = useState("Bonnie"),
-    [roles, setRoles] = useState({
-      "Blue Spy Master": "",
-      "Red Field Agent": "",
-      "Blue Field Agent": "",
-      "Red Spy Master": "Bonnie" ,
-    });
-
-  const update = (k, v) => setRoles({ ...roles, [k]: v });
-
-  // Copy url to system clipboard by creating dummy html
-  // element to write value into. added to document.body
-  // for `document.execCommand("copy")` to read
-  const copy = url => e => {
-    e.preventDefault();
-    if (document === undefined) {
-      return ;
-    }
-    const dummy = document.createElement("input");
-    document.body.appendChild(dummy);
-    dummy.setAttribute("value", url);
-    dummy.select();
-    document.execCommand("copy");
-    document.body.removeChild(dummy);
-  };
-
-  const start = e => {
-    e.preventDefault();
-    console.log("start match");
-  };
-
+const Cards = withStyles(cardStyles)(({ classes }) => {
   return (
-    <Container component="h1" className={classes.container}>
-      <Card>
-        {/* <CardHeader component="h4" className={classes.header} title=""/> */}
-        <CardContent className={classes.content}>
-          <Typography variant="h3" className={classes.header}>
-            New Game
-          </Typography>
-          <Divider className={classes.hDivider} variant="middle"/>
-          <Grid container spacing={1}>
-            <Grid item container xs={12} justify="center">
-              <Typography align="center" variant="h6">
-                Available roles
-              </Typography>
-              <Roles self={self} update={update} roles={roles}/>
+    <Grid item container xs={9} className={classes.board}>
+      {[...Array(6).keys()].map(i => (
+        <Grid item container
+          key={`${i}`}
+          xs={12}
+          spacing={1}
+          className={classes.row}>
+          {[...Array(6).keys()].map(k => (
+            <Grid item xs key={`${i}${k}`} className={classes.card}>
+              <Paper className={classes.paper}>{`${i}${k}`}</Paper>
             </Grid>
-            <Grid item container xs={12} align="center" direction="row">
-              <Grid item xs={8}>
-                <Typography variant="h5" className={classes.player}>
-                  Players ready for match:
-                </Typography>
-                <Players update={update} roles={roles} self={self}/>
-              </Grid>
-              <Grid item xs={1}>
-                <Divider orientation="vertical" className={classes.vDivider}/>
-              </Grid>
-              <Grid item align="center" xs={3}>
-                <Typography variant="h5" className={classes.copy}>
-                  Share match id:
-                </Typography>
-                <Button
-                  onClick={copy(url)}
-                  variant="outlined"
-                  startIcon={<Link/>}>
-                  Copy
-                </Button>
-              </Grid>
-            </Grid>
-            <Grid item xs={12} align="center">
-              <Button onClick={start} variant="outlined" >Start Match</Button>
-            </Grid>
-          </Grid>
-        </CardContent>
-      </Card>
+          ))}
+        </Grid>
+      ))}
+    </Grid>
+  );
+});
+
+const styles = theme => ({
+});
+
+const Game = withStyles(styles)(({ classes }) => {
+  return (
+    <Container>
+      <Grid container align="stretch" xs={12}>
+        <Sidebar/>
+        <Cards/>
+      </Grid>
     </Container>
   );
 });
