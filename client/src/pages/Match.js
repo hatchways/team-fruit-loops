@@ -13,112 +13,56 @@ import {
 } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 
-const rolesStyles = theme => ({
-  role: {
-    textAlign: "center",
-  },
-});
-
-const Roles = withStyles(rolesStyles)(({ classes, roles, update, self }) => {
-  let disabled = false;
-  const onClick = role => e => {
-    e.preventDefault();
-    if (!disabled) {
-      update(role, self);
-    }
-  };
-  const available = Object.entries(roles).filter(([, player]) => {
-    if (self === player) {
-      disabled = true;
-    }
-    return player === "";
-  });
-
-  return (
-    <Grid container>
-      {
-          available.map(([role, ]) => (
-            <Grid item xs={12} key={role} className={classes.role}>
-              <Button endIcon={<AddCircle onClick={onClick(role)}/>}>
-                { role }
-              </Button>
-            </Grid>
-        ))
-      }
-    </Grid>
-  );
-});
-
-const playerStyles = theme => ({
-  role: {
-    textAlign: "center",
-  },
-});
-
-const Players = withStyles(playerStyles)(({ classes, roles, self, update }) => {
-  const taken = Object.entries(roles).filter(([, v]) => v !== ""),
-    onClick = (role, player) => e => {
-      e.preventDefault();
-      if (self !== player) {
-        return
-      }
-      update(role, "");
-    };
-
-  return (
-    <Grid container item justify="center" xs={12}>
-      {
-        taken.map(([role, player]) => (
-          <Grid item xs={12} key={role} className={classes.role}>
-            <Button
-              key={role}
-              startIcon={<Check style={{fill: "rgb(95, 184, 115)"}}/>}
-              endIcon={
-                self === player
-                  ? <Cancel onClick={onClick(role, player)}/>
-                  : null
-              }>
-              { `${player} - ${role}${self === player ? ' (You)' : '' }` }
-            </Button>
-          </Grid>
-        ))
-      }
-    </Grid>
-  );
-});
-
-const gameStyles = theme => ({
-  container: {
-    marginTop: theme.spacing(3)
-  },
+const styles = theme => ({
   header: {
     textAlign: "center",
     paddingTop: theme.spacing(2),
     paddingBottom: theme.spacing(0),
   },
-  content: {
-    paddingTop: theme.spacing(0),
+  card: {
+    marginTop: theme.spacing(3),
   },
   hDivider: {
     height: "1px",
     backgroundColor: "rgb(72, 172, 122)",
-    marginLeft: theme.spacing(35),
-    marginRight: theme.spacing(35),
+    marginLeft: theme.spacing(33),
+    marginRight: theme.spacing(33),
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
   },
   vDivider: {
     width: "1px",
-  },
-  bold: {
-  },
-  player: {
-    fontWeight: "bold",
     marginLeft: theme.spacing(1),
-    textAlign: "left",
+    marginRight: theme.spacing(2),
   },
-  copy: {
+  join: {
+    textAlign: "left",
+    marginLeft: theme.spacing(3),
     fontWeight: "bold",
+  },
+  game: {
+    whiteSpace: "nowrap",
+    backgroundColor: "rgb(75, 75, 75)",
+    width: "100%",
+    color: "white",
+  },
+  random: {
+    whiteSpace: "nowrap",
+    backgroundColor: "rgb(75, 75, 75)",
+    color: "white",
+    width: "50%",
+  },
+  new: {
+    fontWeight: "bold",
+    height: theme.spacing(0),
+  },
+  form: {
+    marginLeft: theme.spacing(3),
+    marginRight: theme.spacing(5),
+  },
+  or: {
+    fontWeight: "bold",
+    marginTop: theme.spacing(1),
     marginBottom: theme.spacing(1),
   },
   public: {
