@@ -1,159 +1,206 @@
-import React, { useState }from 'react';
-import { withStyles } from '@material-ui/core/styles';
+import React, { useState, useEffect } from "react";
+import { withStyles } from "@material-ui/core/styles";
+import { Redirect } from "react-router-dom";
 import {
-  Container, Card, CardContent, Divider,
-  Grid, Typography, Button, TextField,
-} from '@material-ui/core';
+  Container,
+  Grid,
+  Card, CardContent,
+  Divider,
+  Typography,
+  Button,
+  Dialog, DialogTitle, DialogContent,
+  IconButton,
+} from "@material-ui/core";
+import { Close, Link, } from "@material-ui/icons";
 
-const styles = theme => ({
+import LobbyPlayers from "../components/LobbyPlayers";
+import LobbyRoles from "../components/LobbyRoles";
+
+const api = {
+  "assign": {
+    url: id => `/game/${id}/assign`,
+    method: "PUT",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: (player, role) => JSON.stringify({ player, role }),
+  },
+  "start": {
+    url: id => `/game/${id}/start`,
+    method: "PUT",
+    headers: {
+      Accept: "application/json",
+    },
+    body: () => "",
+  },
+  "remove": {
+    url: id => `/game/${id}/unassign`,
+    method: "PUT",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: (player, role) => JSON.stringify({ player, role }),
+  }
+};
+
+// copy url to system clipboard by creating dummy html element to write value
+// into. added to document.body for `document.execCommand("copy")` to read
+const copy = id => e => {
+  e.preventDefault();
+  const dummy = document.createElement("input");
+  document.body.appendChild(dummy);
+  dummy.setAttribute("value", id);
+  dummy.select();
+  document.execCommand("copy");
+  document.body.removeChild(dummy);
+};
+
+const gameStyles = theme => ({
+  container: {
+    marginTop: theme.spacing(3)
+  },
   header: {
     textAlign: "center",
     paddingTop: theme.spacing(2),
     paddingBottom: theme.spacing(0),
   },
-  card: {
-    marginTop: theme.spacing(3),
+  content: {
+    paddingTop: theme.spacing(0),
   },
   hDivider: {
     height: "1px",
     backgroundColor: "rgb(72, 172, 122)",
-    marginLeft: theme.spacing(33),
-    marginRight: theme.spacing(33),
+    marginLeft: theme.spacing(35),
+    marginRight: theme.spacing(35),
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
   },
   vDivider: {
     width: "1px",
+  },
+  bold: {
+  },
+  player: {
+    fontWeight: "bold",
     marginLeft: theme.spacing(1),
-    marginRight: theme.spacing(2),
-  },
-  join: {
     textAlign: "left",
-    marginLeft: theme.spacing(3),
+  },
+  copy: {
     fontWeight: "bold",
-  },
-  game: {
-    whiteSpace: "nowrap",
-    backgroundColor: "rgb(75, 75, 75)",
-    width: "100%",
-    color: "white",
-  },
-  random: {
-    whiteSpace: "nowrap",
-    backgroundColor: "rgb(75, 75, 75)",
-    color: "white",
-    width: "50%",
-  },
-  new: {
-    fontWeight: "bold",
-    height: theme.spacing(0),
-  },
-  form: {
-    marginLeft: theme.spacing(3),
-    marginRight: theme.spacing(5),
-  },
-  or: {
-    fontWeight: "bold",
-    marginTop: theme.spacing(1),
     marginBottom: theme.spacing(1),
   },
-  public: {
-    marginTop: theme.spacing(1),
-  },
-  private: {
-    marginTop: theme.spacing(1),
-  },
+  close: {
+    position: "absolute",
+    right: theme.spacing(1),
+    top: theme.spacing(1),
+  }
 });
 
-const join = (id, type) => e => {
-  switch (type) {
-  case "join":
-    console.log("join: ", id);
-    break;
-  case "random":
-    console.log("random");
-    break;
-  case "public":
-    console.log("public");
-    break;
-  case "private":
-    console.log("private");
-    break;
-  default:
-    console.log("unknown case: ", type);
-  }
-};
+// isOff checks if player has already selected a role
+const isOff = ({ blueSpy, redSpy, redGuessers, blueGuessers }, player) => (
+  blueSpy === player || blueGuessers.includes(player)
+  || redSpy === player || redGuessers.includes(player)
+);
 
-const Lobby = withStyles(styles)(({ classes }) => {
-  const [id, setID] = useState("");
+const Lobby = withStyles(gameStyles)(({ classes, state, setState, gameID, socket }) => {
+  if (gameID === undefined) {
+    return (<Redirect to="/match" />);
+  }
+
+  const {gameState, player} = state;
+  const [err, setErr] = useState(undefined);
+  const off = isOff(gameState, player);
+
+  const call = async (type, role) => {
+    const res = await fetch(api[type].url(gameID), {
+      method: api[type].method,
+      headers: api[type].headers,
+      body: api[type].body(state.player, role),
+    });
+
+    if (res.status < 200 || res.status >= 300) {
+      const next = await res.json()
+      setErr(next.error);
+    }
+  };
+
+  useEffect(() => {
+    const updateHandler = next => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log("update recieved: ", next);
+      }
+      state.gameState = next;
+      setState({player: state.player, gameState: state.gameState});
+    }
+
+    socket.on("update", updateHandler);
+    return () => {
+      socket.off("update", updateHandler);
+    }
+  }, [setState, socket, state.gameState, state.player]);
 
   return (
-    <Container>
-       <Card className={classes.card}>
-         <CardContent>
-            <Typography variant="h3" className={classes.header}>
-              Welcome
-            </Typography>
-            <Divider className={classes.hDivider} variant="middle"/>
-            <Grid container align="center">
+    <Container component="h1" className={classes.container}>
+      <Dialog open={err !== undefined} onClose={() => setErr(undefined)}>
+        <DialogTitle>
+          <Typography align="center">Error</Typography>
+          <IconButton
+            className={classes.close}
+            onClick={() => setErr(undefined)}>
+            <Close/>
+          </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          <Typography align="center" component="h2">
+            {err}
+          </Typography>
+        </DialogContent>
+      </Dialog>
+      <Card>
+        <CardContent className={classes.content}>
+          <Typography variant="h3" className={classes.header}>
+            New Game
+          </Typography>
+          <Divider className={classes.hDivider} variant="middle"/>
+          <Grid container spacing={1}>
+            <Grid item container xs={12} justify="center">
+              <Typography align="center" variant="h6">
+                Available roles
+              </Typography>
+              <LobbyRoles call={call} off={off} state={state}/>
+            </Grid>
+            <Grid item container xs={12} align="center" direction="row">
               <Grid item xs={8}>
-                <Typography variant="h6" className={classes.join}>
-                  Join a Game:
+                <Typography variant="h5" className={classes.player}>
+                  Players ready for match:
                 </Typography>
-                <form className={classes.form}>
-                  <TextField
-                    fullWidth
-                    onChange={({ target: { value }}) => setID(value)}
-                    variant="outlined"
-                    className={classes.text}
-                    placeholder="Enter Game ID"
-                    InputProps={{
-                      endAdornment: (
-                        <Button
-                          onClick={join(id, "join")}
-                          className={classes.game}
-                          variant="outlined">
-                          Join Game
-                        </Button>
-                      )
-                    }}>
-                  </TextField>
-                </form>
-                <Typography variant="h6" className={classes.or}>
-                  Or
-                </Typography>
-                <Button
-                  onClick={join(id, "random")}
-                  className={classes.random}
-                  variant="outlined">
-                  Join Random
-                </Button>
+                <LobbyPlayers call={call} state={state} />
               </Grid>
               <Grid item xs={1}>
                 <Divider orientation="vertical" className={classes.vDivider}/>
               </Grid>
-              <Grid item container xs={3}>
-                <Typography variant="h6" className={classes.new}>
-                  New Game:
+              <Grid item align="center" xs={3}>
+                <Typography variant="h5" className={classes.copy}>
+                  Share match id:
                 </Typography>
-                <Grid item container direction="column" xs={6}>
-                  <Button
-                    onClick={join(id, "public")}
-                    className={classes.public}
-                    variant="outlined">
-                    Public
-                  </Button>
-                  <Button
-                    onClick={join(id, "private")}
-                    className={classes.private}
-                    variant="outlined">
-                    Private
-                  </Button>
-                </Grid>
+                <Button
+                  onClick={copy(gameID)}
+                  variant="outlined"
+                  startIcon={<Link/>}>
+                  Copy
+                </Button>
               </Grid>
             </Grid>
-         </CardContent>
-       </Card>
+            <Grid item xs={12} align="center">
+              <Button disabled={!state.gameState.isReady} onClick={() => call("start", "")} variant="outlined">
+                Start Match
+              </Button>
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
     </Container>
   );
 });

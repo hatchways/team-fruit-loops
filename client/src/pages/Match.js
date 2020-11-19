@@ -1,14 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState }from 'react';
+import { Redirect } from "react-router-dom";
 import { withStyles } from '@material-ui/core/styles';
 import {
   Container,
-  Grid,
   Card, CardContent,
   Divider,
+  Grid,
   Typography,
-  Button,
+  Button, TextField,
+  Dialog, DialogTitle, DialogContent,
+  IconButton,
 } from '@material-ui/core';
-import { AddCircle, Check, Cancel, Link, } from '@material-ui/icons';
+import CloseIcon from '@material-ui/icons/Close';
 
 const rolesStyles = theme => ({
   role: {
@@ -118,81 +121,172 @@ const gameStyles = theme => ({
     fontWeight: "bold",
     marginBottom: theme.spacing(1),
   },
+  public: {
+    marginTop: theme.spacing(1),
+    marginLeft: "25%",
+    width: "50%",
+  },
+  private: {
+    marginTop: theme.spacing(1),
+    marginLeft: "25%",
+    width: "50%",
+  },
+  newGame: {
+    height: "min-content",
+  },
+  close: {
+    position: "absolute",
+    right: theme.spacing(1),
+    top: theme.spacing(1),
+  }
 });
 
-const Match = withStyles(gameStyles)(({ classes }) => {
-  const [url, ] = useState("This is a Link"),
-    [self, ] = useState("Bonnie"),
-    [roles, setRoles] = useState({
-      "Blue Spy Master": "",
-      "Red Field Agent": "",
-      "Blue Field Agent": "",
-      "Red Spy Master": "Bonnie" ,
+const Title = ({ el, title, css, }) => (
+  <Typography variant={el} className={css}>{ title }</Typography>
+);
+
+const Btn = ({ on, css, text }) => (
+  <Button onClick={on} className={css} variant="outlined">{ text }</Button>
+);
+
+const api = {
+  "private": {
+    url: () => "/game",
+    method: "POST",
+    contentType: "application/x-www-form-urlencoded",
+    body: player => `player=${player}`,
+  },
+  "join": {
+    url: id => `/game/${id}/join`,
+    method: "PUT",
+    contentType: "application/json",
+    body: player => JSON.stringify({ player }),
+  },
+  "random": {
+    url: () => {
+      throw new Error("Error: not implemented");
+    },
+  },
+};
+
+const Match = withStyles(styles)(({ classes, state, setState, gameID, setGameID, socket}) => {
+  const [err, setErr] = useState(undefined);
+  const { player } = state;
+  // local game id. used in join a game text field
+  const [id, setId] = useState('');
+
+  if (gameID !== undefined) {
+    return <Redirect push to={`/lobby/${gameID}`}/>;
+  }
+
+  const call = type => async () => {
+    const res = await fetch(api[type].url(gameID), {
+      method: api[type].method,
+      headers: {
+        "Content-Type": api[type].contentType,
+        Accept: "application/json",
+      },
+      body: api[type].body(player),
     });
 
-  const update = (k, v) => setRoles({ ...roles, [k]: v });
-
-  // Copy url to system clipboard by creating dummy html
-  // element to write value into. added to document.body
-  // for `document.execCommand("copy")` to read
-  const copy = url => e => {
-    e.preventDefault();
-    if (document === undefined) {
-      return ;
+    const nextState = await res.json();
+    if (res.status >= 200 && res.status < 300) {
+      socket.emit('join', nextState.id);
+      setState({player: player, gameState: nextState.gameState});
+      setGameID(nextState.id);
+    } else {
+      setErr(nextState.error);
     }
-    const dummy = document.createElement("input");
-    document.body.appendChild(dummy);
-    dummy.setAttribute("value", url);
-    dummy.select();
-    document.execCommand("copy");
-    document.body.removeChild(dummy);
+  }
+
+  const join = id => async () => {
+    const testName = "Alice";
+    socket.emit('join', id);
+    const type = 'join';
+    const res = await fetch(api[type].url(id), {
+      method: api[type].method,
+      headers: {
+        "Content-Type": api[type].contentType,
+        Accept: "application/json",
+      },
+      body: api[type].body(testName),
+    });
+
+    const nextState = await res.json();
+    if (res.status >= 200 && res.status < 300) {
+      setState({player: testName, gameState: nextState.gameState});
+      setGameID(id);
+    } else {
+      setErr(nextState.error);
+    }
   };
 
-  const start = e => {
-    e.preventDefault();
-    console.log("start match");
-  };
-
-  return (
-    <Container component="h1" className={classes.container}>
-      <Card>
-        {/* <CardHeader component="h4" className={classes.header} title=""/> */}
-        <CardContent className={classes.content}>
-          <Typography variant="h3" className={classes.header}>
-            New Game
+  return state.gameID !== undefined
+    ? <Redirect push to={`/lobby/${gameID}`}/>
+    : (
+    <Container>
+      <Dialog open={err !== undefined} onClose={() => setErr(undefined)}>
+        <DialogTitle>
+          <Typography align="center">Error</Typography>
+          <IconButton
+            className={classes.close}
+            onClick={() => setErr(undefined)}>
+            <CloseIcon/>
+          </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          <Typography align="center" component="h2">
+            {err}
           </Typography>
+        </DialogContent>
+      </Dialog>
+      <Card className={classes.card}>
+        <CardContent>
+          <Title css={classes.header} title="Welcome" el="h3"/>
           <Divider className={classes.hDivider} variant="middle"/>
-          <Grid container spacing={1}>
-            <Grid item container xs={12} justify="center">
-              <Typography align="center" variant="h6">
-                Available roles
-              </Typography>
-              <Roles self={self} update={update} roles={roles}/>
-            </Grid>
-            <Grid item container xs={12} align="center" direction="row">
-              <Grid item xs={8}>
-                <Typography variant="h5" className={classes.player}>
-                  Players ready for match:
-                </Typography>
-                <Players update={update} roles={roles} self={self}/>
-              </Grid>
-              <Grid item xs={1}>
-                <Divider orientation="vertical" className={classes.vDivider}/>
-              </Grid>
-              <Grid item align="center" xs={3}>
-                <Typography variant="h5" className={classes.copy}>
-                  Share match id:
-                </Typography>
-                <Button
-                  onClick={copy(url)}
+          <Grid container align="center">
+            <Grid item xs={8}>
+              <Title css={classes.join} title="Join a Game:" el="h6"/>
+              <form className={classes.form}>
+                <TextField
+                  fullWidth
+                  value={id}
+                  onChange={({ target: { value }}) => setId(value)}
                   variant="outlined"
-                  startIcon={<Link/>}>
-                  Copy
-                </Button>
-              </Grid>
+                  className={classes.text}
+                  placeholder="Enter Game ID"
+                  InputProps={{endAdornment: (
+                    <Button
+                      onClick={join(id)}
+                      className={classes.game}
+                      variant="outlined">
+                      Join Game
+                    </Button>
+                  )}}/>
+              </form>
+              <Title css={classes.or} title="Or" el="h6"/>
+              <Button
+                onClick={call("random")}
+                className={classes.random}
+                variant="outlined">
+                Join Random
+              </Button>
             </Grid>
-            <Grid item xs={12} align="center">
-              <Button onClick={start} variant="outlined" >Start Match</Button>
+            <Grid item xs={1}>
+              <Divider orientation="vertical" className={classes.vDivider}/>
+            </Grid>
+            <Grid item container xs={3}>
+              <Grid item container xs={12}>
+                <Title css={classes.new} title="New Game:" el="h6"/>
+              </Grid>
+              <Grid item container
+                xs={12}
+                direction="column"
+                className={classes.newGame}
+                justify="center">
+                <Btn on={call("public")} css={classes.public} text="Public"/>
+                <Btn on={call("private")} css={classes.private} text="Private"/>
+              </Grid>
             </Grid>
           </Grid>
         </CardContent>
