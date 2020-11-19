@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { useHistory } from "react-router-dom";
 
@@ -59,13 +59,13 @@ const Profile = () => {
   // Handle disabling of name field
   const [editState, setEditState] = useState(false);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     axios
       .get("/logout")
       .then((res) => {})
       .catch((err) => {})
       .finally(() => history.push("/login"));
-  };
+  }, [history]);
 
   const editName = () => {
     // Button is pressed while editing name field
@@ -129,7 +129,7 @@ const Profile = () => {
       .catch((err) => {
         logout();
       });
-  }, []);
+  }, [logout]);
 
   return (
     <Container component="main" maxWidth="xs">
