@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { withStyles } from '@material-ui/core/styles';
+import React, { useState, useEffect } from "react";
+import { withStyles } from "@material-ui/core/styles";
+import { Redirect } from "react-router-dom";
 import {
   Container,
   Grid,
@@ -7,82 +8,54 @@ import {
   Divider,
   Typography,
   Button,
-} from '@material-ui/core';
-import { AddCircle, Check, Cancel, Link, } from '@material-ui/icons';
+  Dialog, DialogTitle, DialogContent,
+  IconButton,
+} from "@material-ui/core";
+import { Close, Link, } from "@material-ui/icons";
 
-const rolesStyles = theme => ({
-  role: {
-    textAlign: "center",
+import LobbyPlayers from "../components/LobbyPlayers";
+import LobbyRoles from "../components/LobbyRoles";
+
+const api = {
+  "assign": {
+    url: id => `/game/${id}/assign`,
+    method: "PUT",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: (player, role) => JSON.stringify({ player, role }),
   },
-});
-
-const Roles = withStyles(rolesStyles)(({ classes, roles, update, self }) => {
-  let disabled = false;
-  const onClick = role => e => {
-    e.preventDefault();
-    if (!disabled) {
-      update(role, self);
-    }
-  };
-  const available = Object.entries(roles).filter(([, player]) => {
-    if (self === player) {
-      disabled = true;
-    }
-    return player === "";
-  });
-
-  return (
-    <Grid container>
-      {
-          available.map(([role, ]) => (
-            <Grid item xs={12} key={role} className={classes.role}>
-              <Button endIcon={<AddCircle onClick={onClick(role)}/>}>
-                { role }
-              </Button>
-            </Grid>
-        ))
-      }
-    </Grid>
-  );
-});
-
-const playerStyles = theme => ({
-  role: {
-    textAlign: "center",
+  "start": {
+    url: id => `/game/${id}/start`,
+    method: "PUT",
+    headers: {
+      Accept: "application/json",
+    },
+    body: () => "",
   },
-});
+  "remove": {
+    url: id => `/game/${id}/unassign`,
+    method: "PUT",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: (player, role) => JSON.stringify({ player, role }),
+  }
+};
 
-const Players = withStyles(playerStyles)(({ classes, roles, self, update }) => {
-  const taken = Object.entries(roles).filter(([, v]) => v !== ""),
-    onClick = (role, player) => e => {
-      e.preventDefault();
-      if (self !== player) {
-        return
-      }
-      update(role, "");
-    };
-
-  return (
-    <Grid container item justify="center" xs={12}>
-      {
-        taken.map(([role, player]) => (
-          <Grid item xs={12} key={role} className={classes.role}>
-            <Button
-              key={role}
-              startIcon={<Check style={{fill: "rgb(95, 184, 115)"}}/>}
-              endIcon={
-                self === player
-                  ? <Cancel onClick={onClick(role, player)}/>
-                  : null
-              }>
-              { `${player} - ${role}${self === player ? ' (You)' : '' }` }
-            </Button>
-          </Grid>
-        ))
-      }
-    </Grid>
-  );
-});
+// copy url to system clipboard by creating dummy html element to write value
+// into. added to document.body for `document.execCommand("copy")` to read
+const copy = id => e => {
+  e.preventDefault();
+  const dummy = document.createElement("input");
+  document.body.appendChild(dummy);
+  dummy.setAttribute("value", id);
+  dummy.select();
+  document.execCommand("copy");
+  document.body.removeChild(dummy);
+};
 
 const gameStyles = theme => ({
   container: {
@@ -118,45 +91,74 @@ const gameStyles = theme => ({
     fontWeight: "bold",
     marginBottom: theme.spacing(1),
   },
+  close: {
+    position: "absolute",
+    right: theme.spacing(1),
+    top: theme.spacing(1),
+  }
 });
 
-const Lobby = withStyles(gameStyles)(({ classes }) => {
-  const [url, ] = useState("This is a Link"),
-    [self, ] = useState("Bonnie"),
-    [roles, setRoles] = useState({
-      "Blue Spy Master": "",
-      "Red Field Agent": "",
-      "Blue Field Agent": "",
-      "Red Spy Master": "Bonnie" ,
+// isOff checks if player has already selected a role
+const isOff = ({ blueSpy, redSpy, redGuessers, blueGuessers }, player) => (
+  blueSpy === player || blueGuessers.includes(player)
+  || redSpy === player || redGuessers.includes(player)
+);
+
+const Lobby = withStyles(gameStyles)(({ classes, state, setState, gameID, socket }) => {
+  if (gameID === undefined) {
+    return (<Redirect to="/match" />);
+  }
+
+  const {gameState, player} = state;
+  const [err, setErr] = useState(undefined);
+  const off = isOff(gameState, player);
+
+  const call = async (type, role) => {
+    const res = await fetch(api[type].url(gameID), {
+      method: api[type].method,
+      headers: api[type].headers,
+      body: api[type].body(state.player, role),
     });
 
-  const update = (k, v) => setRoles({ ...roles, [k]: v });
-
-  // Copy url to system clipboard by creating dummy html
-  // element to write value into. added to document.body
-  // for `document.execCommand("copy")` to read
-  const copy = url => e => {
-    e.preventDefault();
-    if (document === undefined) {
-      return ;
+    if (res.status < 200 || res.status >= 300) {
+      const next = await res.json()
+      setErr(next.error);
     }
-    const dummy = document.createElement("input");
-    document.body.appendChild(dummy);
-    dummy.setAttribute("value", url);
-    dummy.select();
-    document.execCommand("copy");
-    document.body.removeChild(dummy);
   };
 
-  const start = e => {
-    e.preventDefault();
-    console.log("start match");
-  };
+  useEffect(() => {
+    const updateHandler = next => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log("update recieved: ", next);
+      }
+      state.gameState = next;
+      setState({player: state.player, gameState: state.gameState});
+    }
+
+    socket.on("update", updateHandler);
+    return () => {
+      socket.off("update", updateHandler);
+    }
+  }, [setState, socket, state.gameState, state.player]);
 
   return (
     <Container component="h1" className={classes.container}>
+      <Dialog open={err !== undefined} onClose={() => setErr(undefined)}>
+        <DialogTitle>
+          <Typography align="center">Error</Typography>
+          <IconButton
+            className={classes.close}
+            onClick={() => setErr(undefined)}>
+            <Close/>
+          </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          <Typography align="center" component="h2">
+            {err}
+          </Typography>
+        </DialogContent>
+      </Dialog>
       <Card>
-        {/* <CardHeader component="h4" className={classes.header} title=""/> */}
         <CardContent className={classes.content}>
           <Typography variant="h3" className={classes.header}>
             New Game
@@ -167,14 +169,14 @@ const Lobby = withStyles(gameStyles)(({ classes }) => {
               <Typography align="center" variant="h6">
                 Available roles
               </Typography>
-              <Roles self={self} update={update} roles={roles}/>
+              <LobbyRoles call={call} off={off} state={state}/>
             </Grid>
             <Grid item container xs={12} align="center" direction="row">
               <Grid item xs={8}>
                 <Typography variant="h5" className={classes.player}>
                   Players ready for match:
                 </Typography>
-                <Players update={update} roles={roles} self={self}/>
+                <LobbyPlayers call={call} state={state} />
               </Grid>
               <Grid item xs={1}>
                 <Divider orientation="vertical" className={classes.vDivider}/>
@@ -184,7 +186,7 @@ const Lobby = withStyles(gameStyles)(({ classes }) => {
                   Share match id:
                 </Typography>
                 <Button
-                  onClick={copy(url)}
+                  onClick={copy(gameID)}
                   variant="outlined"
                   startIcon={<Link/>}>
                   Copy
@@ -192,7 +194,9 @@ const Lobby = withStyles(gameStyles)(({ classes }) => {
               </Grid>
             </Grid>
             <Grid item xs={12} align="center">
-              <Button onClick={start} variant="outlined" >Start Match</Button>
+              <Button disabled={!state.gameState.isReady} onClick={() => call("start", "")} variant="outlined">
+                Start Match
+              </Button>
             </Grid>
           </Grid>
         </CardContent>

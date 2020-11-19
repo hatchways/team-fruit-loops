@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { useHistory } from "react-router-dom";
 
@@ -48,13 +48,13 @@ const Profile = () => {
     imageUrl: "",
   });
 
-  const logout = () => {
+  const logout = useCallback(() => {
     axios
       .get("/logout")
       .then((res) => {})
       .catch((err) => {})
       .finally(() => history.push("/login"));
-  };
+  }, [history]);
 
   useEffect(() => {
     axios
@@ -70,7 +70,7 @@ const Profile = () => {
       .catch((err) => {
         logout();
       });
-  }, []);
+  }, [logout]);
 
   return (
     <Container component="main" maxWidth="xs">
