@@ -127,13 +127,20 @@ const Lobby = withStyles(gameStyles)(({ classes, state, setState, gameID, socket
   };
 
   useEffect(() => {
-    socket.on("update", next => {
+    const updateHandler = next => {
       if (process.env.NODE_ENV === 'development') {
         console.log("update recieved: ", next);
       }
-      state.gameState = next;
-      setState({player: state.player, gameState: state.gameState});
-    });
+      if (mounted) {
+        state.gameState = next;
+        setState({player: state.player, gameState: state.gameState});
+      }
+    }
+
+    socket.on("update", updateHandler);
+    return () => {
+      socket.off("update", updateHandler);
+    }
   }, [setState, socket, state.gameState, state.player]);
 
   return (
