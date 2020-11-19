@@ -9,7 +9,7 @@ import SendIcon from "@material-ui/icons/Send";
 
 import UploadImage from "../components/uploadImage";
 
-const axios = require("axios");
+import axios from "axios";
 
 const useStyles = makeStyles((theme) => ({
   root: {
