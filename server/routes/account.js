@@ -23,4 +23,17 @@ router.get("/", authenticateToken, (req, res) => {
   }
 });
 
+// Update account
+// Currently only works for name changes
+router.post("/update", (req, res) => {
+  User.findById(req.body.id).then((user) => {
+    if (!user) return res.sendStatus(404);
+
+    user.name = req.body.name;
+    user.save();
+
+    return res.sendStatus(200);
+  });
+});
+
 module.exports = router;
