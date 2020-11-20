@@ -1,22 +1,29 @@
-import React, { useState, useEffect } from "react";
-import { Button, Typography } from "@material-ui/core";
-import socketIOClient from "socket.io-client";
+import React, { useState, useEffect, useLayoutEffect } from "react";
+import {
+  Button,
+  Typography,
+  FormControl,
+  Select,
+  MenuItem,
+  InputLabel,
+  TextField,
+} from "@material-ui/core";
 
-const Endpoint = process.env.WS_URL || "http://127.0.0.1:3001";
-const axios = require("axios");
+import axios from "axios";
 
-const Test = () => {
+const Test = (props) => {
   const testPlayers = ["Player 1", "Player 2", "Player 3", "Player 4"];
 
   const [gameId, setGameId] = useState("");
   const [gameState, setGameState] = useState(null);
-  const [socket, setSocket] = useState(null);
-  const [message, setMessage] = useState("");
+
+  const [player, setPlayer] = useState(testPlayers[0]);
+  const [playerRole, setPlayerRole] = useState("");
 
   let id = "";
 
-  useEffect(() => {
-    // Use this code block if server was just created or restarted to create a game instance
+  useLayoutEffect(() => {
+    console.log("Entering axios chain...");
 
     axios
       .get("/game/demo-id/ping")
@@ -82,54 +89,79 @@ const Test = () => {
           })
           .catch((err) => {});
       });
-
-    // // Use this if you already have an active game session (server not restarted)
-    // axios.get(`/game/${id}/ping`, {}).then((res) => {
-    //   setGameId(res.data.id);
-    //   setGameState(JSON.stringify(res.data));
-    // });
-
-    // Create client-side socket instance
-    const sock = socketIOClient(Endpoint);
-    // Save to state
-    setSocket(sock);
-
-    // Emit to join channel, passing id parameter
-    sock.emit("join", id);
-
-    // Instantiate listener tied to chat channel
-    sock.on("chat", (user, message) => {
-      setMessage(message + "E");
-    });
-
-    return () => {
-      console.log(`Disconnected from web socket: ${sock.id}`);
-      sock.disconnect();
-    };
   }, []);
 
-  const handleGuesserTurn = (e) => {
-    console.log("Button pressed: " + e);
+  useEffect(() => {
+    const updateHandler = () => {
+      console.log("update recieved: ");
+    };
+    props.socket.emit("join", "demo-id");
+
+    props.socket.on("update", updateHandler);
+  }, [props.socket]);
+
+  const handleGuesserTurn = (e, word) => {
+    console.log("Button pressed: " + word);
+    axios
+      .put(`/game/${gameId}/next-move`, {
+        player: testPlayers[2],
+        hint: "",
+        word: "word",
+      })
+      .then(() => {})
+      .catch((err) => console.log(err));
+  };
+
+  // Custom functions
+  const handlePlayerChange = (e) => {
+    setPlayer(e.target.value);
   };
 
   return (
     <>
-      <Typography>Game ID: {gameId}</Typography>
-      <Typography>
-        Cards:{" "}
-        {gameState
-          ? Object.entries(gameState.cards).map(([k, v]) => (
-              <Button
-                key={k}
-                variant="outlined"
-                style={{ color: v, backgroundColor: "#999" }}
-                onClick={handleGuesserTurn}
-              >
-                {k}
-              </Button>
-            ))
-          : ""}
-      </Typography>
+      {" "}
+      {gameState ? (
+        <>
+          <Typography>Game ID: {gameId}</Typography>
+          <Typography>Current Turn: {gameState.turn}</Typography>
+          <Typography>Red Points: {gameState.redPoints}</Typography>
+          <Typography>Blue Points: {gameState.redPoints}</Typography>
+          <Typography>Game Ended: {gameState.isEnd}</Typography>
+          <Typography>Cards:</Typography>
+          {Object.entries(gameState.cards).map(([k, v]) => (
+            <Button
+              key={k}
+              variant="outlined"
+              style={{ color: v, backgroundColor: "#999" }}
+              onClick={(e) => {
+                handleGuesserTurn(e, k);
+              }}
+            >
+              {k}
+            </Button>
+          ))}
+          <br />
+          <FormControl>
+            <InputLabel id="player-label">Player</InputLabel>
+            <Select
+              labelId="player-label"
+              id="player"
+              value={player}
+              onChange={handlePlayerChange}
+            >
+              {testPlayers.map((player) => (
+                <MenuItem key={player} value={player}>
+                  {player}
+                </MenuItem>
+              ))}
+            </Select>
+            <InputLabel id="role">Player's Role</InputLabel>
+            <TextField onChange={handleRoleChange}></TextField>
+          </FormControl>
+        </>
+      ) : (
+        <></>
+      )}
     </>
   );
 };

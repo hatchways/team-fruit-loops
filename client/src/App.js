@@ -18,7 +18,10 @@ import "./App.css";
 
 let socket = socketIOClient();
 function App() {
-  const [state, setState] = useState({player: "Bonnie", gameState: undefined});
+  const [state, setState] = useState({
+    player: "Bonnie",
+    gameState: undefined,
+  });
   const [gameID, setGameID] = useState(undefined);
 
   return (
@@ -32,25 +35,35 @@ function App() {
           <Route path="/signup" component={Signup} />
           <Route path="/login" component={Login} />
           <PrivateRoute path="/profile" component={Profile} />
-          <Route path="/match" render={props => (
-            <Match
-              state={state}
-              setState={setState}
-              gameID={gameID}
-              setGameID={setGameID}
-              socket={socket}
-              {...props}
-            />
-          )} />
-          <Route path="/lobby/:gameID" render={props => (
-            <Lobby
-              state={state}
-              setState={setState}
-              gameID={gameID}
-              socket={socket}
-              {...props}
-            />
-          )} />
+          <Route
+            path="/match"
+            render={(props) => (
+              <Match
+                state={state}
+                setState={setState}
+                gameID={gameID}
+                setGameID={setGameID}
+                socket={socket}
+                {...props}
+              />
+            )}
+          />
+          <Route
+            path="/lobby/:gameID"
+            render={(props) => (
+              <Lobby
+                state={state}
+                setState={setState}
+                gameID={gameID}
+                socket={socket}
+                {...props}
+              />
+            )}
+          />
+          <Route
+            path="/test"
+            render={(props) => <Test socket={socket} {...props} />}
+          />
         </Switch>
       </BrowserRouter>
     </MuiThemeProvider>
