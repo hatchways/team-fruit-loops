@@ -63,6 +63,9 @@ Game.prototype.join = function(player) {
   if (this.gameState.playerList.includes(player))
     throw new Error(`${player} has already joined in the game.`);
 
+  if (this.gameState.isStart)
+    throw new Error('Game has already started.');
+
   this.gameState.playerList.push(player);
   this.gameState.waitingList.push(player);
   return this.gameState;
@@ -70,6 +73,8 @@ Game.prototype.join = function(player) {
 
 Game.prototype.assignRole = function(player, newRole) {
   const waitingList = this.gameState.waitingList;
+  if (this.gameState.isStart)
+    throw new Error('Game has already started.');
   if (!this.gameState.playerList.includes(player))
     throw new Error(`Failed to assign role: ${player} is an invalid player.`);
   if (!waitingList.includes(player))
@@ -109,6 +114,8 @@ Game.prototype.assignRole = function(player, newRole) {
 Game.prototype.unassignRole = function(player, oldRole) {
   const redGuessersList = this.gameState.redGuessers;
   const blueGuessersList = this.gameState.blueGuessers;
+  if (this.gameState.isStart)
+    throw new Error('Game has already started.');
   if (!this.gameState.playerList.includes(player))
     throw new Error(`Failed to assign role: ${player} is an invalid player.`);
 
