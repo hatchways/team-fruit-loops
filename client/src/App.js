@@ -20,7 +20,6 @@ let socket = socketIOClient();
 function App() {
   const [state, setState] = useState({player: "Bonnie", gameState: undefined});
   const [gameID, setGameID] = useState(undefined);
-  const [testState, setTestState] = useState(test);
 
   return (
     <MuiThemeProvider theme={theme}>
@@ -52,10 +51,11 @@ function App() {
               {...props}
             />
           )} />
-          <Route path="/board" render={props => (
+          <Route path="/board/:gameID" render={props => (
             <BoardWrapper
-              state={testState}
-              setState={setTestState}
+              state={state}
+              setState={setState}
+              socket={socket}
               {...props}
             />
           )} />

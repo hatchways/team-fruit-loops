@@ -1,7 +1,8 @@
 const dictionary = require('./dictionary/dictionary');
 const shuffle = require('./utils/shuffle');
 const role = require('./role');
-const INIT_TIMER = 10;
+const INIT_TIMER = 600;
+const INIT_GUESS_CHANCE = 2;
 
 // Initialize game with 4 players and roles are randomly assigned
 const initGame = () => {
@@ -9,12 +10,12 @@ const initGame = () => {
     cards: dictionary.generateCards(),
     blueCardNum: 8,
     redCardNum: 8,
-    whiteCardNum: 8,
+    greyCardNum: 8,
     blackCardNum: 1,
     redPoints: 0,
     bluePoints: 0,
     turn: 'blue',
-    guessNum: 0,
+    guessNum: INIT_GUESS_CHANCE,
     hint: undefined,
     isEnd: false,
     winner: undefined,
@@ -172,8 +173,8 @@ Game.prototype.guesserNextMove = function(player, word) {
   if (turn === 'blue' && !this.gameState.blueGuessers.includes(player))
     throw new Error(`${player} is not a guesser from team blue.`);
 
-  if (this.gameState.hint === undefined)
-    throw new Error('A guesser must wait until a spy gives hints.');
+  //if (this.gameState.hint === undefined)
+    //throw new Error('A guesser must wait until a spy gives hints.');
 
   this.gameState.boardState[word].status = this.gameState.cards[word];
   switch(this.gameState.cards[word]) {
@@ -189,6 +190,10 @@ Game.prototype.guesserNextMove = function(player, word) {
       if (this.gameState.guessNum === 0)
         return this.endTurn();
 
+      if (this.gameState.turn === 'red') {
+        return this.endTurn();
+      }
+
       this.gameState.turn = 'blue';
       if (this.gameState.bluePoints === this.gameState.blueCardNum) {
         this.gameState.isEnd = true;
@@ -202,14 +207,16 @@ Game.prototype.guesserNextMove = function(player, word) {
       if (this.gameState.guessNum === 0)
         return this.endTurn();
 
-      this.gameState.turn = 'red';
+      if (this.gameState.turn === 'blue') {
+        return this.endTurn();
+      }
       if (this.gameState.redPoints === this.gameState.redCardNum) {
         this.gameState.isEnd = true;
         this.gameState.winner = 'red';
       }
       break;
-    // if select a white card(innocent card), make turn to the opponent
-    case 'white':
+    // if select a grey card(innocent card), make turn to the opponent
+    case 'grey':
       return this.endTurn();
     default:
       throw new Error(`${word} is not a word in this game.`);
@@ -235,7 +242,7 @@ Game.prototype.spyNextMove = function(player, hint, hintNum) {
     throw new Error('Invalid number of hints');
 
   this.gameState.hint = hint;
-  this.gameState.guessNum = hintNum + 1;
+  this.gameState.guessNum = hintNum + this.gameState.guessNum;
   return this.gameState;
 }
 
@@ -243,8 +250,16 @@ Game.prototype.endTurn = function() {
   if (!this.gameState.isStart || this.gameState.isEnd)
     throw new Error('Game is not started yet');
 
+  if (this.gameState.redPoints === this.gameState.redCardNum) {
+    this.gameState.isEnd = true;
+    this.gameState.winner = 'red';
+  }
+  if (this.gameState.bluePoints === this.gameState.blueCardNum) {
+    this.gameState.isEnd = true;
+    this.gameState.winner = 'blue';
+  }
   this.gameState.turn = this.gameState.turn === 'red' ? 'blue' : 'red';
-  this.gameState.guessNum = 0;
+  this.gameState.guessNum = INIT_GUESS_CHANCE;
   this.gameState.hint = undefined;
   return this.gameState;
 }
@@ -262,9 +277,10 @@ Game.prototype.restart = function () {
 }
 
 Game.prototype.timerCountDown = function() {
+  if (!this.gameState.isStart || this.gameState.isEnd) return;
   if (this.gameState.timer < 0) {
     this.gameState.timer = INIT_TIMER;
-    game.endTurn();
+    this.endTurn();
   }
   else {
     this.gameState.timer--;

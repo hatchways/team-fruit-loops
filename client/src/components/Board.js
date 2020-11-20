@@ -1,5 +1,6 @@
-import React from 'react';
+import React from "react";
 import { makeStyles } from '@material-ui/core/styles';
+import { Redirect } from "react-router-dom";
 import {
   Grid,
   Button,
@@ -35,6 +36,36 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
+const getRole = (player, gameState) => {
+  const {blueSpy, redSpy, blueGuessers, redGuessers} = gameState;
+  if (player === blueSpy) return "blue spy";
+  if (player === redSpy) return "red spy";
+  if (blueGuessers.includes(player)) return "blue guesser";
+  if (redGuessers.includes(player)) return "red guesser";
+}
+
+const isSpy = role => role === "blue spy" || role === "red spy";
+
+const api = {
+  "nextMove": {
+    url: id => `/game/${id}/next-move`,
+    method: "PUT",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: (player, word) => JSON.stringify({ player, word }),
+  },
+  "restart": {
+    url: id => `/game/${id}/restart`,
+    method: "PUT",
+    headers: {
+      Accept: "application/json",
+    },
+    body: () => "",
+  },
+};
+
 const Card = ({status, color, word, onClick}) => {
   const classes = useStyles({status: status, color: color});
   const click = word => e => {
@@ -48,20 +79,56 @@ const Card = ({status, color, word, onClick}) => {
   );
 };
 
-const Board = ({ state, onClick}) => {
+const Board = ({ state, setState, gameID, socket}) => {
   const classes = useStyles();
-  const {cards, boardState} = state;
+  const {player, gameState} = state;
+  if (gameState === undefined) {
+    return <Redirect to={'/match'} />
+  }
+
+  let {cards, boardState} = gameState;
+  const playerRole = getRole(player, gameState);
+
+  // create an array for rendering board
   const words = Object.keys(boardState).map(key => {
     return ({
       word: key,
       status: boardState[key].status,
-      color: cards === undefined ? undefined : cards[key],
+      color: isSpy(playerRole) ? cards[key] : undefined,
     });
   });
   const wordsGrid = [];
   while(words.length) wordsGrid.push(words.splice(0,5));
-  console.log("in board", onClick)
-  console.log(wordsGrid)
+
+  // event handler for selecting a card
+  const onNextMove = async(word) => {
+    const type = "nextMove"
+    const res = await fetch(api[type].url(gameID), {
+      method: api[type].method,
+      headers: api[type].headers,
+      body: api[type].body(player, word),
+    });
+
+    if (res.status < 200 || res.status >= 300) {
+      const next = await res.json()
+      console.log(next)
+    }
+  }
+
+  // event handler for restarting the game
+  const onRestart = async() => {
+    const type = "restart"
+    const res = await fetch(api[type].url(gameID), {
+      method: api[type].method,
+      headers: api[type].headers,
+    });
+
+    if (res.status < 200 || res.status >= 300) {
+      const next = await res.json()
+      console.log(next)
+    }
+  }
+
   return (
     <div className={classes.board}>
       <Grid container spacing={3} justify="center" className={classes.grid}>
@@ -75,7 +142,7 @@ const Board = ({ state, onClick}) => {
                   word={value.word}
                   color={value.color}
                   status={value.status}
-                  onClick={onClick}
+                  onClick={onNextMove}
                 />
               </Grid>)
           }
@@ -83,6 +150,22 @@ const Board = ({ state, onClick}) => {
         )
       }
       </Grid>
+      <div>
+        Turn: {gameState.turn}
+      </div>
+      <div>
+        Player: {player}
+      </div>
+      <div>
+        Role: {getRole(player, gameState)}
+      </div>
+      <div>
+        Remaining guess number: {gameState.guessNum}
+      </div>
+      <div>
+        Winner: {gameState.winner === undefined ? '' : gameState.winner}
+      </div>
+      <Button onClick={() => onRestart()}> restart </Button>
     </div>
   )
 }
