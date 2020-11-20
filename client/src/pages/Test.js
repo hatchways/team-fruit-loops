@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect } from "react";
+import { makeStyles } from "@material-ui/core/styles";
 import {
   Button,
   Typography,
@@ -11,14 +12,35 @@ import {
 
 import axios from "axios";
 
+const useStyles = makeStyles((theme) => ({
+  root: {
+    display: "flex",
+    flexWrap: "wrap",
+  },
+  textField: {
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
+    width: "25ch",
+  },
+}));
+
 const Test = (props) => {
+  const classes = useStyles();
+
   const testPlayers = ["Player 1", "Player 2", "Player 3", "Player 4"];
+  const roles = ["redSpy", "redGuessers", "blueSpy", "blueGuessers"];
 
   const [gameId, setGameId] = useState("");
   const [gameState, setGameState] = useState(null);
 
+  // Player that is making a move
   const [player, setPlayer] = useState(testPlayers[0]);
+  // Player's role in the game
   const [playerRole, setPlayerRole] = useState("");
+  // Spy's provided word hint
+  const [spyHint, setSpyHint] = useState("");
+  // Spy's provided number of guesses given hint
+  const [spyGuesses, setSpyGuesses] = useState(0);
 
   let id = "";
 
@@ -95,26 +117,73 @@ const Test = (props) => {
     const updateHandler = () => {
       console.log("update recieved: ");
     };
+    // Join the game-lobby
     props.socket.emit("join", "demo-id");
 
     props.socket.on("update", updateHandler);
   }, [props.socket]);
 
   const handleGuesserTurn = (e, word) => {
-    console.log("Button pressed: " + word);
+    // console.log("Button pressed: " + word);
+    console.log("Player: " + player);
     axios
       .put(`/game/${gameId}/next-move`, {
-        player: testPlayers[2],
-        hint: "",
+        player: player,
         word: "word",
       })
-      .then(() => {})
-      .catch((err) => console.log(err));
+      .then((res) => {
+        console.log("Data: " + res.data);
+      })
+      .catch((err) => {
+        console.log("Error: " + err);
+      });
   };
 
   // Custom functions
   const handlePlayerChange = (e) => {
     setPlayer(e.target.value);
+    getPlayerRole(e.target.value);
+  };
+
+  const getPlayerRole = (player) => {
+    let role = "";
+
+    if (player === gameState["redSpy"]) {
+      role = "Red Spy";
+    } else if (player === gameState["blueSpy"]) {
+      role = "Blue Spy";
+    } else if (gameState["redGuessers"].includes(player)) {
+      role = "Red Guesser";
+    } else if (gameState["blueGuessers"].includes(player)) {
+      role = "Blue Guesser";
+    } else {
+    }
+
+    setPlayerRole(role);
+  };
+
+  const handleSpyHintChange = (e) => {
+    setSpyHint(e.target.value);
+  };
+
+  const handleSpyGuessesChange = (e) => {
+    setSpyGuesses(e.target.value);
+  };
+
+  const handleHintSubmit = (e) => {
+    axios
+      .put(`/game/${gameId}/next-move`, {
+        player: player,
+        hint: {
+          word: spyHint,
+          times: spyGuesses,
+        },
+        word: "word",
+      })
+      .then((res) => {
+        console.log("Data: " + res.data);
+      })
+      .catch((err) => {});
   };
 
   return (
@@ -141,23 +210,56 @@ const Test = (props) => {
             </Button>
           ))}
           <br />
-          <FormControl>
-            <InputLabel id="player-label">Player</InputLabel>
-            <Select
-              labelId="player-label"
-              id="player"
-              value={player}
-              onChange={handlePlayerChange}
-            >
-              {testPlayers.map((player) => (
-                <MenuItem key={player} value={player}>
-                  {player}
-                </MenuItem>
-              ))}
-            </Select>
-            <InputLabel id="role">Player's Role</InputLabel>
-            <TextField onChange={handleRoleChange}></TextField>
-          </FormControl>
+
+          <div>
+            <FormControl className={classes.textField}>
+              <InputLabel id="player-label" className={classes.textField}>
+                Player
+              </InputLabel>
+              <Select
+                labelId="player-label"
+                id="player"
+                value={player}
+                onChange={handlePlayerChange}
+              >
+                {testPlayers.map((player) => (
+                  <MenuItem key={player} value={player}>
+                    {player}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <FormControl className={classes.textField}>
+              <TextField
+                label="Player Role"
+                value={playerRole}
+                InputProps={{ readOnly: true }}
+              />
+            </FormControl>
+
+            <FormControl className={classes.textField}>
+              <TextField
+                label="Hint"
+                value={spyHint}
+                disabled={playerRole.toLocaleLowerCase().includes("guesser")}
+                onChange={handleSpyHintChange}
+              />
+            </FormControl>
+
+            <FormControl className={classes.textField}>
+              <TextField
+                label="# of Guesses"
+                value={spyGuesses}
+                disabled={playerRole.toLocaleLowerCase().includes("guesser")}
+                onChange={handleSpyGuessesChange}
+              />
+            </FormControl>
+
+            <Button variant="contained" onClick={handleHintSubmit}>
+              Submit Hint
+            </Button>
+          </div>
         </>
       ) : (
         <></>
