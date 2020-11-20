@@ -261,6 +261,7 @@ Game.prototype.endTurn = function() {
   this.gameState.turn = this.gameState.turn === 'red' ? 'blue' : 'red';
   this.gameState.guessNum = INIT_GUESS_CHANCE;
   this.gameState.hint = undefined;
+  this.gameState.timer = INIT_TIMER;
   return this.gameState;
 }
 
