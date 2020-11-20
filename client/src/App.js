@@ -18,40 +18,33 @@ import "./App.css";
 
 let socket = socketIOClient();
 function App() {
-  const [state, setState] = useState({player: "Bonnie", gameState: undefined});
-  const [gameID, setGameID] = useState(undefined);
+  const [state, setState] = useState({player: "Bonnie", gameState: undefined}),
+    [gameID, setGameID] = useState(undefined),
+    withGameState = Component => props => (
+      <Component
+        state={state}
+        setState={setState}
+        gameID={gameID}
+        setGameID={setGameID}
+        socket={socket}
+        {...props}
+      />
+    );
 
   return (
     <MuiThemeProvider theme={theme}>
       <CssBaseline />
-      <Navbar />
-      <Toolbar />
       <BrowserRouter>
+        <Navbar />
+        <Toolbar />
         <Switch>
           <Redirect exact from="/" to="/signup" />
           <Route path="/signup" component={Signup} />
           <Route path="/login" component={Login} />
           <PrivateRoute path="/profile" component={Profile} />
-          <Route exact path="/game" component={Game} />
-          <Route path="/match" render={props => (
-            <Match
-              state={state}
-              setState={setState}
-              gameID={gameID}
-              setGameID={setGameID}
-              socket={socket}
-              {...props}
-            />
-          )} />
-          <Route path="/lobby/:gameID" render={props => (
-            <Lobby
-              state={state}
-              setState={setState}
-              gameID={gameID}
-              socket={socket}
-              {...props}
-            />
-          )} />
+          <Route path="/match" render={withGameState(Match)}/>
+          <Route path="/lobby/:gameID" render={withGameState(Lobby)}/>
+          <Route path="/game" render={withGameState(Game)}/>
         </Switch>
       </BrowserRouter>
     </MuiThemeProvider>
