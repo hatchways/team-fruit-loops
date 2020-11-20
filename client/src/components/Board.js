@@ -150,6 +150,7 @@ const Board = ({ state, setState, gameID, socket}) => {
         )
       }
       </Grid>
+      <div> Time remaining: {gameState.timer} </div>
       <div>
         Turn: {gameState.turn}
       </div>

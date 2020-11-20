@@ -80,7 +80,8 @@ const start = (req, res, next) => {
   const game = res.locals.game;
   setInterval(() => {
     game.timerCountDown();
-    io.emit('timer', game.gameState.timer);
+    io.to(req.params.id).emit('update', game.gameState);
+    //io.emit('timer', game.gameState.timer);
   }, 1000);
   next();
 }
