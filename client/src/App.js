@@ -12,6 +12,7 @@ import Login from "./pages/Login";
 import Profile from "./pages/Profile";
 import Match from "./pages/Match";
 import Lobby from "./pages/Lobby";
+import BoardWrapper from "./pages/Board";
 
 import "./App.css";
 
@@ -19,6 +20,7 @@ let socket = socketIOClient();
 function App() {
   const [state, setState] = useState({player: "Bonnie", gameState: undefined});
   const [gameID, setGameID] = useState(undefined);
+  const [testState, setTestState] = useState(test);
 
   return (
     <MuiThemeProvider theme={theme}>
@@ -47,6 +49,13 @@ function App() {
               setState={setState}
               gameID={gameID}
               socket={socket}
+              {...props}
+            />
+          )} />
+          <Route path="/board" render={props => (
+            <BoardWrapper
+              state={testState}
+              setState={setTestState}
               {...props}
             />
           )} />
