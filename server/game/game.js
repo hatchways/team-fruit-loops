@@ -245,6 +245,9 @@ Game.prototype.spyNextMove = function(player, hint, hintNum) {
   if (this.gameState.hint !== undefined)
     throw new Error(`${this.gameState.turn} spy has already given a hint.`);
 
+  if (isNaN(hintNum))
+    throw new Error(`hitNum is not a number: ${hintNum}`);
+
   if (hintNum <= 0)
     throw new Error('Invalid number of hints');
 
