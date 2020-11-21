@@ -102,13 +102,31 @@ const Signup = () => {
               history.push("/profile");
             })
             .catch((err) => {
-              setSnackBarMessage(err.response.data.errors);
-              setSnackbarOpen(true);
+              console.log("Error in login route");
+
+              if (
+                err &&
+                err.response &&
+                err.response.data &&
+                err.response.data.errors
+              ) {
+                setSnackBarMessage(err.response.data.errors);
+                setSnackbarOpen(true);
+              }
             });
         })
         .catch((err) => {
-          setSnackBarMessage(err.response.data.errors);
-          setSnackbarOpen(true);
+          console.log("Error in register route");
+
+          if (
+            err &&
+            err.response &&
+            err.response.data &&
+            err.response.data.errors
+          ) {
+            setSnackBarMessage(err.response.data.errors);
+            setSnackbarOpen(true);
+          }
         })
         .then(() => {});
     }
