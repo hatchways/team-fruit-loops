@@ -1,7 +1,8 @@
-const dictionary = require("./dictionary/dictionary");
-const shuffle = require("./utils/shuffle");
-const role = require("./role");
-const INIT_TIMER = 10;
+const dictionary = require('./dictionary/dictionary');
+const shuffle = require('./utils/shuffle');
+const role = require('./role');
+const INIT_TIMER = 20;
+const INIT_GUESS_CHANCE = 2;
 
 // Initialize game with 4 players and roles are randomly assigned
 const initGame = () => {
@@ -9,12 +10,12 @@ const initGame = () => {
     cards: dictionary.generateCards(),
     blueCardNum: 8,
     redCardNum: 8,
-    whiteCardNum: 8,
+    greyCardNum: 8,
     blackCardNum: 1,
     redPoints: 0,
     bluePoints: 0,
-    turn: "blue",
-    guessNum: 0,
+    turn: 'blue',
+    guessNum: INIT_GUESS_CHANCE,
     hint: undefined,
     isEnd: false,
     winner: undefined,
@@ -60,6 +61,9 @@ Game.prototype.join = function (player) {
   if (this.gameState.playerList.includes(player))
     throw new Error(`${player} has already joined in the game.`);
 
+  if (this.gameState.isStart)
+    throw new Error('Game has already started.');
+
   this.gameState.playerList.push(player);
   this.gameState.waitingList.push(player);
   return this.gameState;
@@ -67,6 +71,8 @@ Game.prototype.join = function (player) {
 
 Game.prototype.assignRole = function (player, newRole) {
   const waitingList = this.gameState.waitingList;
+  if (this.gameState.isStart)
+    throw new Error('Game has already started.');
   if (!this.gameState.playerList.includes(player))
     throw new Error(`Failed to assign role: ${player} is an invalid player.`);
   if (!waitingList.includes(player))
@@ -104,6 +110,8 @@ Game.prototype.assignRole = function (player, newRole) {
 Game.prototype.unassignRole = function (player, oldRole) {
   const redGuessersList = this.gameState.redGuessers;
   const blueGuessersList = this.gameState.blueGuessers;
+  if (this.gameState.isStart)
+    throw new Error('Game has already started.');
   if (!this.gameState.playerList.includes(player))
     throw new Error(`Failed to assign role: ${player} is an invalid player.`);
 
@@ -165,8 +173,8 @@ Game.prototype.guesserNextMove = function (player, word) {
   if (turn === "blue" && !this.gameState.blueGuessers.includes(player))
     throw new Error(`${player} is not a guesser from team blue.`);
 
-  if (this.gameState.hint === undefined)
-    throw new Error("A guesser must wait until a spy gives hints.");
+  //if (this.gameState.hint === undefined)
+    //throw new Error('A guesser must wait until a spy gives hints.');
 
   this.gameState.boardState[word].status = this.gameState.cards[word];
   switch (this.gameState.cards[word]) {
@@ -181,7 +189,11 @@ Game.prototype.guesserNextMove = function (player, word) {
       this.gameState.guessNum--;
       if (this.gameState.guessNum === 0) return this.endTurn();
 
-      this.gameState.turn = "blue";
+      if (this.gameState.turn === 'red') {
+        return this.endTurn();
+      }
+
+      this.gameState.turn = 'blue';
       if (this.gameState.bluePoints === this.gameState.blueCardNum) {
         this.gameState.isEnd = true;
         this.gameState.winner = "blue";
@@ -193,14 +205,16 @@ Game.prototype.guesserNextMove = function (player, word) {
       this.gameState.guessNum--;
       if (this.gameState.guessNum === 0) return this.endTurn();
 
-      this.gameState.turn = "red";
+      if (this.gameState.turn === 'blue') {
+        return this.endTurn();
+      }
       if (this.gameState.redPoints === this.gameState.redCardNum) {
         this.gameState.isEnd = true;
         this.gameState.winner = "red";
       }
       break;
-    // if select a white card(innocent card), make turn to the opponent
-    case "white":
+    // if select a grey card(innocent card), make turn to the opponent
+    case 'grey':
       return this.endTurn();
     default:
       throw new Error(`${word} is not a word in this game.`);
@@ -226,9 +240,8 @@ Game.prototype.spyNextMove = function (player, hint, hintNum) {
 
   this.gameState.hint = hint;
   if (hintNum && parseInt(hintNum)) {
-    this.gameState.guessNum = parseInt(hintNum) + 1;
+  this.gameState.guessNum = hintNum + this.gameState.guessNum;
   }
-
   return this.gameState;
 };
 
@@ -236,9 +249,18 @@ Game.prototype.endTurn = function () {
   if (!this.gameState.isStart || this.gameState.isEnd)
     throw new Error("Game is not started yet");
 
-  this.gameState.turn = this.gameState.turn === "red" ? "blue" : "red";
-  this.gameState.guessNum = 0;
+  if (this.gameState.redPoints === this.gameState.redCardNum) {
+    this.gameState.isEnd = true;
+    this.gameState.winner = 'red';
+  }
+  if (this.gameState.bluePoints === this.gameState.blueCardNum) {
+    this.gameState.isEnd = true;
+    this.gameState.winner = 'blue';
+  }
+  this.gameState.turn = this.gameState.turn === 'red' ? 'blue' : 'red';
+  this.gameState.guessNum = INIT_GUESS_CHANCE;
   this.gameState.hint = undefined;
+  this.gameState.timer = INIT_TIMER;
   return this.gameState;
 };
 
@@ -253,11 +275,13 @@ Game.prototype.restart = function () {
   return this.gameState;
 };
 
-Game.prototype.timerCountDown = function () {
-  if (this.gameState.timer < 0) {
+Game.prototype.timerCountDown = function() {
+  if (!this.gameState.isStart || this.gameState.isEnd) return;
+  if (this.gameState.timer <= 0) {
     this.gameState.timer = INIT_TIMER;
-    game.endTurn();
-  } else {
+    this.endTurn();
+  }
+  else {
     this.gameState.timer--;
   }
 };

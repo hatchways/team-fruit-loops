@@ -27,7 +27,7 @@ const generateCards = (size = 25, blue = 8, red = 8, black = 1) => {
     ...Array(blue).fill('blue'),
     ...Array(red).fill('red'),
     ...Array(black).fill('black'),
-    ...Array(size - blue - red - black).fill('white')
+    ...Array(size - blue - red - black).fill('grey')
   ];
 
   // shuffle words and identities, then associate each word with an identity.

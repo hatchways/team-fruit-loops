@@ -141,7 +141,9 @@ const Lobby = withStyles(gameStyles)(({ classes, state, setState, gameID, socket
     }
   }, [setState, socket, state.gameState, state.player]);
 
-  return (
+  return state.gameState.isStart === true ?
+    <Redirect push to={`/board/${gameID}`}/> :
+    (
     <Container component="h1" className={classes.container}>
       <Dialog open={err !== undefined} onClose={() => setErr(undefined)}>
         <DialogTitle>

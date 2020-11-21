@@ -13,6 +13,7 @@ import Profile from "./pages/Profile";
 import Match from "./pages/Match";
 import Lobby from "./pages/Lobby";
 import Test from "./pages/Test";
+import BoardWrapper from "./pages/Board";
 
 import "./App.css";
 
@@ -55,6 +56,17 @@ function App() {
                 state={state}
                 setState={setState}
                 gameID={gameID}
+                socket={socket}
+                {...props}
+              />
+            )}
+          />
+          <Route
+            path="/board/:gameID"
+            render={(props) => (
+              <BoardWrapper
+                state={state}
+                setState={setState}
                 socket={socket}
                 {...props}
               />
