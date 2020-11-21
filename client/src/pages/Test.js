@@ -114,8 +114,9 @@ const Test = (props) => {
   }, []);
 
   useEffect(() => {
-    const updateHandler = () => {
-      console.log("update recieved: ");
+    const updateHandler = (next) => {
+      console.log("update recieved");
+      setGameState(next);
     };
     // Join the game-lobby
     props.socket.emit("join", "demo-id");
@@ -125,17 +126,14 @@ const Test = (props) => {
 
   const handleGuesserTurn = (e, word) => {
     // console.log("Button pressed: " + word);
-    console.log("Player: " + player);
     axios
       .put(`/game/${gameId}/next-move`, {
         player: player,
-        word: "word",
+        word: word,
       })
-      .then((res) => {
-        console.log("Data: " + res.data);
-      })
+      .then((res) => {})
       .catch((err) => {
-        console.log("Error: " + err);
+        console.log(err.response.data.error);
       });
   };
 
@@ -180,10 +178,10 @@ const Test = (props) => {
         },
         word: "word",
       })
-      .then((res) => {
-        console.log("Data: " + res.data);
-      })
-      .catch((err) => {});
+      .then((res) => {})
+      .catch((err) => {
+        console.log(err.response.data.error);
+      });
   };
 
   return (
@@ -194,21 +192,30 @@ const Test = (props) => {
           <Typography>Game ID: {gameId}</Typography>
           <Typography>Current Turn: {gameState.turn}</Typography>
           <Typography>Red Points: {gameState.redPoints}</Typography>
-          <Typography>Blue Points: {gameState.redPoints}</Typography>
+          <Typography>Blue Points: {gameState.bluePoints}</Typography>
           <Typography>Game Ended: {gameState.isEnd}</Typography>
+          <Typography>
+            Spy Hint: {gameState.hint !== undefined ? gameState.hint : "N/A"}
+          </Typography>
+          <Typography>Number of Guesses: {gameState.guessNum}</Typography>
           <Typography>Cards:</Typography>
-          {Object.entries(gameState.cards).map(([k, v]) => (
-            <Button
-              key={k}
-              variant="outlined"
-              style={{ color: v, backgroundColor: "#999" }}
-              onClick={(e) => {
-                handleGuesserTurn(e, k);
-              }}
-            >
-              {k}
-            </Button>
-          ))}
+          {gameState.cards ? (
+            Object.entries(gameState.cards).map(([k, v]) => (
+              <Button
+                key={k}
+                variant="contained"
+                disabled={gameState.boardState[k].status !== "covered"}
+                style={{ color: v  }}
+                onClick={(e) => {
+                  handleGuesserTurn(e, k);
+                }}
+              >
+                {k}
+              </Button>
+            ))
+          ) : (
+            <></>
+          )}
           <br />
 
           <div>
