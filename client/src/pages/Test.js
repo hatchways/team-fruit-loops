@@ -28,7 +28,6 @@ const Test = (props) => {
   const classes = useStyles();
 
   const testPlayers = ["Player 1", "Player 2", "Player 3", "Player 4"];
-  const roles = ["redSpy", "redGuessers", "blueSpy", "blueGuessers"];
 
   const [gameId, setGameId] = useState("");
   const [gameState, setGameState] = useState(null);

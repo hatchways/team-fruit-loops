@@ -114,11 +114,12 @@ const api = {
 };
 
 const Match = withStyles(styles)(({ classes, state, setState, gameID, setGameID, socket}) => {
-  const [err, setErr] = useState(undefined);
   const { player } = state;
+
   // local game id. used in join a game text field
   const [id, setId] = useState('');
   const [name, setName] = useState('');
+  const [err, setErr] = useState(undefined);
 
   if (gameID !== undefined) {
     return <Redirect push to={`/lobby/${gameID}`}/>;

@@ -2,7 +2,7 @@ import { createMuiTheme } from "@material-ui/core";
 
 export const theme = createMuiTheme({
   typography: {
-    fontFamily: '"Roboto"',
+    fontFamily: "Raleway, Roboto",
     fontSize: 12,
     h1: {
       fontSize: "24px",
