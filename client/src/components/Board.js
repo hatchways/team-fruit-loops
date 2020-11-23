@@ -27,17 +27,12 @@ const useStyles = makeStyles((theme) => ({
     "text-align": "center",
     whiteSpace: "nowrap",
     backgroundColor: props.status === "covered" ? "white" : props.status,
-
-    //props.status === "covered" ? "white" : props.status,
-    color:
-      props.status !== "covered"
-        ? "white"
-        : props.color === undefined
-        ? "black"
-        : props.color,
-    "&:hover": {
-      boxShadow:
-        props.status === "covered" ? "0 3px 5px 2px rgba(0, 0, 0, .3)" : null,
+    color: props.status !== "covered" ? "white" :
+           props.color === undefined ? "black" : props.color,
+    '&:hover': {
+      boxShadow: props.status === "covered"? '0 3px 5px 2px rgba(0, 0, 0, .3)'
+                 : null,
+      backgroundColor: props.status === "covered" ? "white" : props.status,
     },
     fontSize: "1.5em",
     fontWeight: "bold",

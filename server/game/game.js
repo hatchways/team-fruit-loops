@@ -173,9 +173,6 @@ Game.prototype.guesserNextMove = function (player, word) {
   if (turn === "blue" && !this.gameState.blueGuessers.includes(player))
     throw new Error(`${player} is not a guesser from team blue.`);
 
-  //if (this.gameState.hint === undefined)
-    //throw new Error('A guesser must wait until a spy gives hints.');
-
   this.gameState.boardState[word].status = this.gameState.cards[word];
   switch (this.gameState.cards[word]) {
     // if select a black card, ends game and the opponent wins.
@@ -208,6 +205,7 @@ Game.prototype.guesserNextMove = function (player, word) {
       if (this.gameState.turn === 'blue') {
         return this.endTurn();
       }
+      
       if (this.gameState.redPoints === this.gameState.redCardNum) {
         this.gameState.isEnd = true;
         this.gameState.winner = "red";
@@ -236,7 +234,11 @@ Game.prototype.spyNextMove = function (player, hint, hintNum) {
   if (this.gameState.hint !== undefined)
     throw new Error(`${this.gameState.turn} spy has already given a hint.`);
 
-  if (hintNum <= 0) throw new Error("Invalid number of hints");
+  if (typeof(hintNum) !== 'number')
+    throw new Error(`hitNum is not a number: ${hintNum}`);
+
+  if (hintNum <= 0)
+    throw new Error('Invalid number of hints');
 
   this.gameState.hint = hint;
   if (hintNum && parseInt(hintNum)) {
