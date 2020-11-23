@@ -4,6 +4,8 @@ import { useParams } from 'react-router';
 
 const BoardWrapper = ({ state, setState, socket}) => {
   const { gameID } = useParams();
+  // This is responsible for re-rendering if websocket receives update
+  // from front end.
   useEffect(() => {
     const updateHandler = next => {
       if (process.env.NODE_ENV === 'development') {

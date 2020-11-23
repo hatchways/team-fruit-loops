@@ -180,9 +180,6 @@ Game.prototype.guesserNextMove = function(player, word) {
   if (turn === 'blue' && !this.gameState.blueGuessers.includes(player))
     throw new Error(`${player} is not a guesser from team blue.`);
 
-  //if (this.gameState.hint === undefined)
-    //throw new Error('A guesser must wait until a spy gives hints.');
-
   this.gameState.boardState[word].status = this.gameState.cards[word];
   switch(this.gameState.cards[word]) {
     // if select a black card, ends game and the opponent wins.
@@ -217,6 +214,7 @@ Game.prototype.guesserNextMove = function(player, word) {
       if (this.gameState.turn === 'blue') {
         return this.endTurn();
       }
+      
       if (this.gameState.redPoints === this.gameState.redCardNum) {
         this.gameState.isEnd = true;
         this.gameState.winner = 'red';

@@ -81,7 +81,6 @@ const start = (req, res, next) => {
   setInterval(() => {
     game.timerCountDown();
     io.to(req.params.id).emit('update', game.gameState);
-    //io.emit('timer', game.gameState.timer);
   }, 1000);
   next();
 }

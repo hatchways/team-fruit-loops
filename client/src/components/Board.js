@@ -16,8 +16,6 @@ const useStyles = makeStyles((theme) => ({
     "text-align": "center",
     whiteSpace: "nowrap",
     backgroundColor: props.status === "covered" ? "white" : props.status,
-
-    //props.status === "covered" ? "white" : props.status,
     color: props.status !== "covered" ? "white" :
            props.color === undefined ? "black" : props.color,
     '&:hover': {
