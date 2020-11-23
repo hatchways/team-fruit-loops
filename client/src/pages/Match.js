@@ -118,6 +118,7 @@ const Match = withStyles(styles)(({ classes, state, setState, gameID, setGameID,
   const { player } = state;
   // local game id. used in join a game text field
   const [id, setId] = useState('');
+  const [name, setName] = useState('');
 
   if (gameID !== undefined) {
     return <Redirect push to={`/lobby/${gameID}`}/>;
@@ -143,8 +144,8 @@ const Match = withStyles(styles)(({ classes, state, setState, gameID, setGameID,
     }
   }
 
-  const join = id => async () => {
-    const testName = "Alice";
+  const join = (id, name) => async () => {
+    const testName = name;
     socket.emit('join', id);
     const type = 'join';
     const res = await fetch(api[type].url(id), {
@@ -201,12 +202,20 @@ const Match = withStyles(styles)(({ classes, state, setState, gameID, setGameID,
                   placeholder="Enter Game ID"
                   InputProps={{endAdornment: (
                     <Button
-                      onClick={join(id)}
+                      onClick={join(id, name)}
                       className={classes.game}
                       variant="outlined">
                       Join Game
                     </Button>
                   )}}/>
+                  <TextField
+                    fullWidth
+                    value={name}
+                    onChange={({ target: { value }}) => setName(value)}
+                    variant="outlined"
+                    className={classes.text}
+                    placeholder="Enter name"
+                    />
               </form>
               <Title css={classes.or} title="Or" el="h6"/>
               <Button

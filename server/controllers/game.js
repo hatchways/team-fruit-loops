@@ -77,10 +77,10 @@ const start = (req, res, next) => {
   res.locals.params = [];
 
   const io = req.app.get('socketio');
-  const game = req.locals.game;
+  const game = res.locals.game;
   setInterval(() => {
     game.timerCountDown();
-    io.emit('timer', game.gameState.timer);
+    io.to(req.params.id).emit('update', game.gameState);
   }, 1000);
   next();
 }
