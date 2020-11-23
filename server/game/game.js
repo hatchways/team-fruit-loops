@@ -2,7 +2,7 @@ const dictionary = require('./dictionary/dictionary');
 const shuffle = require('./utils/shuffle');
 const role = require('./role');
 const INIT_TIMER = 20;
-const INIT_GUESS_CHANCE = 0;
+const INIT_GUESS_CHANCE = 1;
 
 // Initialize game with 4 players and roles are randomly assigned
 const initGame = () => {
@@ -244,6 +244,10 @@ Game.prototype.spyNextMove = function (player, hint, hintNum) {
   if (hintNum && parseInt(hintNum)) {
   this.gameState.guessNum = hintNum + this.gameState.guessNum;
   }
+
+  // Restart timer for the guesser's turn
+  this.gameState.timer = INIT_TIMER;
+
   return this.gameState;
 };
 
