@@ -37,8 +37,8 @@ const styles = theme => ({
 });
 
 const FinishedComponent = ({ classes, finished, winner }) => {
-  const history = useHistory(),
-    onNewGameClick = () => history.push("/match");
+  const history = useHistory();
+  const onNewGameClick = () => history.push("/match");
 
   return (
     <Dialog open={finished} className={classes.root}>

@@ -81,10 +81,10 @@ const Scorecard = ({ classes, score, team, }) => (
 );
 
 const Navbar = props => {
-  const {classes, state: {gameState: {bluePoints, redPoints}}} = props,
-    [miniMenu, setMiniMenu] = useState(null),
-    [fullMenu, setFullMenu] = useState(null),
-    toggleMenu = type => ({ currentTarget }) => (
+  const {classes, state: {gameState: {bluePoints, redPoints}}} = props;
+  const [miniMenu, setMiniMenu] = useState(null);
+  const [fullMenu, setFullMenu] = useState(null);
+  const toggleMenu = type => ({ currentTarget }) => (
       type === "full"
         ? setFullMenu(fullMenu === null ? currentTarget : null)
         : setMiniMenu(miniMenu === null ? currentTarget : null)

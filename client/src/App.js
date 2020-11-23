@@ -22,7 +22,7 @@ const test = {
   "waitingList": [],
   "redSpy": "1",
   "redGuessers": ["4"],
-  "blueSpy": "BBonnie",
+  "blueSpy": "Bonnie",
   "blueGuessers": ["3"],
   "isReady": true,
   "isStart": true,
@@ -144,9 +144,9 @@ const test = {
 
 let socket = socketIOClient();
 function App() {
-  const [gameID, setGameID] = useState(undefined),
-    [state, setState] = useState({player: "Bonnie", gameState: test}),
-    withGameState = Component => props => (
+  const [gameID, setGameID] = useState(undefined);
+  const [state, setState] = useState({player: "Bonnie", gameState: test});
+  const withGameState = Component => props => (
       <Component
         state={state}
         setState={setState}

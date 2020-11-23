@@ -65,12 +65,12 @@ const useSpyBottomStyles = makeStyles(theme => ({
 }));
 
 const SpyBottom = ({ countMax, setFinished, }) => {
-  const classes = useSpyBottomStyles(),
-    [message, setMessage] = useState(""),
-    [count, setCount] = useState(0),
-    onClickDone = () => setFinished(true),
-    onClickMin = () => setCount(Math.max(count - 1, 0)),
-    onClickMax = () => setCount(Math.min(count + 1, countMax));
+  const classes = useSpyBottomStyles();
+  const [message, setMessage] = useState("");
+  const [count, setCount] = useState(0);
+  const onClickDone = () => setFinished(true);
+  const onClickMin = () => setCount(Math.max(count - 1, 0));
+  const onClickMax = () => setCount(Math.min(count + 1, countMax));
 
   return (
     <Grid container justify="center" className={classes.bottom}>
@@ -137,10 +137,9 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const SidebarBottom = ({ setFinished, isSpy, countMax, }) => {
-  const classes = useStyles(),
-    [message, setMessage] = useState("");
+  const classes = useStyles();
+  const [message, setMessage] = useState("");
 
-  console.log("spy", isSpy);
   if (isSpy) {
     return <SpyBottom setFinished={setFinished} countMax={countMax} />;
   }

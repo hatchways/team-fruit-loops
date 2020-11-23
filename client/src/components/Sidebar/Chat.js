@@ -37,8 +37,8 @@ const styles = theme => ({
 });
 
 const Chat = ({ player, classes }) => {
-  const [chats, ] = useState(mockChat),
-    isSelf = author => author === player ? "You" : author;
+  const [chats, ] = useState(mockChat);
+  const isSelf = author => author === player ? "You" : author;
 
   return (
     <List className={classes.window}>
