@@ -1,17 +1,17 @@
 import React, { useState } from "react";
 import { withRouter } from "react-router-dom";
-import { makeStyles } from "@material-ui/core/styles";
+import { withStyles } from "@material-ui/core/styles";
 import {
   AppBar,
   Avatar,
+  Button,
+  Divider,
+  Grid,
   Hidden,
   IconButton,
   Menu, MenuItem,
   Toolbar,
   Typography,
-  Divider,
-  Grid,
-  Button,
 } from "@material-ui/core";
 import {
   ArrowDropDown,
@@ -21,7 +21,7 @@ import {
 
 const appBarHeight = "10vh";
 
-const useStyles = makeStyles((theme) => ({
+const styles = theme => ({
   root: {
     zIndex: 1300,
     backgroundColor: "white",
@@ -60,31 +60,28 @@ const useStyles = makeStyles((theme) => ({
   points: {
     fontWeight: "bold",
   },
-}));
+});
 
-const join = css => Object.keys(css).filter(name => css[name]).join(" ");
-
-const Scorecard = ({ classes, score, team, }) => {
-  const css = join({
+const Scorecard = ({ classes, score, team, }) => (
+  <div className={Object.entries({
     [classes.points]: true,
     [classes.red]: team === "Red Team",
     [classes.blue]: team === "Blue Team",
-  });
+  })
+  .filter(([, v]) => v === false ? false : true)
+  .map(([k,]) => k)
+  .join(" ")}>
+    <Typography align="center" className={classes.points}>
+      { score }
+    </Typography>
+    <Typography className={classes.points}>
+      { team === "Red Team" ? "Red Team" : "Blue Team" }
+    </Typography>
+  </div>
+);
 
-  return (
-    <div className={css}>
-      <Typography align="center" className={classes.points}>
-        { score }
-      </Typography>
-      <Typography className={classes.points}>
-        { team === "Red Team" ? "Red Team" : "Blue Team" }
-      </Typography>
-    </div>
-  );
-};
-
-const GameNavbar = ({ state: { bluePoints, redPoints } = test }) => {
-  const classes = useStyles(),
+const Navbar = props => {
+  const {classes, state: {gameState: {bluePoints, redPoints}}} = props,
     [miniMenu, setMiniMenu] = useState(null),
     [fullMenu, setFullMenu] = useState(null),
     toggleMenu = type => ({ currentTarget }) => (
@@ -150,15 +147,9 @@ const GameNavbar = ({ state: { bluePoints, redPoints } = test }) => {
   );
 };
 
-const routerWrappedGameNavbar = withRouter(GameNavbar);
+const GameNavbar = withRouter(withStyles(styles)(Navbar));
 
 export {
-  routerWrappedGameNavbar as default,
+  GameNavbar as default,
   appBarHeight
-};
-
-        "status": "covered"
-      }
-  },
-  "timer": 10
 };

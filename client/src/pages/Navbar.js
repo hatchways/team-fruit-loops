@@ -7,7 +7,7 @@ import {
   Typography,
 } from "@material-ui/core";
 
-import GameNavbar from "../components/GameNav";
+import GameNavbar from "../components/Game/Nav";
 
 const useStyles = makeStyles((theme) => ({
   root: {
