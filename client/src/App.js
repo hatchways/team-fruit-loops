@@ -6,7 +6,7 @@ import { theme } from "./themes/theme";
 
 import PrivateRoute from "./components/PrivateRoute";
 
-import Navbar from "./pages/Navbar";
+import Navbar from "./components/Navbar";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";

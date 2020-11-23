@@ -68,20 +68,6 @@ const useStyles = makeStyles((theme) => ({
     width: "120px",
     height: "40px",
   },
-  endGameModal: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  endGameContent: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    borderRadius: "10px",
-    boxShadow: "0 0 10px 0",
-    padding: theme.spacing(5, 20, 0),
-    backgroundColor: "white",
-  },
 }));
 
 const getRole = (player, gameState) => {
@@ -280,7 +266,7 @@ const Board = ({ state, setState, gameID, socket }) => {
             <TextField
               className={classes.spyHintNumber}
               value={spyHintNumber}
-              inputProps={{ style: { textAlign: "center" } }}
+              inputProps={{ style: { textAlign: "center", color: "black" } }}
               disabled
               onChange={handleSpyHintNumberChange}
             />
@@ -317,6 +303,11 @@ const Board = ({ state, setState, gameID, socket }) => {
         bluePoints={gameState.bluePoints}
         winner={gameState.winner}
       />
+
+      <Grid container>
+        <Grid container item></Grid>
+        <Grid container item></Grid>
+      </Grid>
 
       <Button onClick={() => onRestart()}> restart </Button>
     </div>

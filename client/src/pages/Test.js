@@ -41,9 +41,9 @@ const Test = (props) => {
   // Spy's provided number of guesses given hint
   const [spyGuesses, setSpyGuesses] = useState(0);
 
-  let id = "";
-
   useLayoutEffect(() => {
+    let id = "";
+
     console.log("Entering axios chain...");
 
     axios
@@ -110,7 +110,7 @@ const Test = (props) => {
           })
           .catch((err) => {});
       });
-  }, []);
+  }, [testPlayers]);
 
   useEffect(() => {
     const updateHandler = (next) => {
@@ -204,7 +204,7 @@ const Test = (props) => {
                 key={k}
                 variant="contained"
                 disabled={gameState.boardState[k].status !== "covered"}
-                style={{ color: v  }}
+                style={{ color: v }}
                 onClick={(e) => {
                   handleGuesserTurn(e, k);
                 }}
