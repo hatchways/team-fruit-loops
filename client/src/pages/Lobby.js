@@ -13,8 +13,8 @@ import {
 } from "@material-ui/core";
 import { Close, Link, } from "@material-ui/icons";
 
-import LobbyPlayers from "../components/LobbyPlayers";
-import LobbyRoles from "../components/LobbyRoles";
+import LobbyPlayers from "../components/Lobby/Players";
+import LobbyRoles from "../components/Lobby/Roles";
 
 const api = {
   "assign": {

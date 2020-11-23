@@ -22,15 +22,14 @@ const cardStyles = theme => ({
   },
 });
 
-const GameCard = withStyles(cardStyles)(({ classes, key }) => {
-  console.log("key:", key);
-  return (
-    <Grid item container xs key={key} className={classes.card}>
-      <Paper className={classes.paper}>
-          key{key}
-      </Paper>
-    </Grid>
-  );
-});
+const Card = ({ classes, key }) => (
+  <Grid item container xs key={key} className={classes.card}>
+    <Paper className={classes.paper}>
+        key{key}
+    </Paper>
+  </Grid>
+);
+
+const GameCard = withStyles(cardStyles)(Card);
 
 export default GameCard;
