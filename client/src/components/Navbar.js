@@ -35,7 +35,7 @@ const Navbar = () => {
           {/*   - Scoreboard component is placed in the center only when on the game page */}
           {/*   - New Game button is placed on the right (left of profile component) only when on the game page */}
           {/*   - Profile component is placed on the right and is visible only when a user is logged in */}
-          <NavbarProfileComponent />
+          {/* <NavbarProfileComponent /> */}
         </Toolbar>
       </AppBar>
     </div>

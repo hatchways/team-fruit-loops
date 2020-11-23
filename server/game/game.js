@@ -2,7 +2,7 @@ const dictionary = require('./dictionary/dictionary');
 const shuffle = require('./utils/shuffle');
 const role = require('./role');
 const INIT_TIMER = 20;
-const INIT_GUESS_CHANCE = 2;
+const INIT_GUESS_CHANCE = 0;
 
 // Initialize game with 4 players and roles are randomly assigned
 const initGame = () => {
