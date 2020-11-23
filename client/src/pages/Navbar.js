@@ -1,18 +1,28 @@
 import React from "react";
-
-import { AppBar, Toolbar, Typography } from "@material-ui/core";
-
+import { withRouter } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+} from "@material-ui/core";
+
+import GameNavbar from "../components/Game/Nav";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     alignItems: "center",
+    zIndex: 1300,
     backgroundColor: "white",
   },
 }));
 
-const Navbar = () => {
+const Navbar = ({ location, state }) => {
   const classes = useStyles();
+
+  if (location.pathname === "/game") {
+    return <GameNavbar state={state} classes={classes} />;
+  };
 
   return (
     <AppBar className={classes.root}>
@@ -23,4 +33,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default withRouter(Navbar);
