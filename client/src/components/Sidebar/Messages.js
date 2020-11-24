@@ -14,7 +14,7 @@ const own = theme => ({
     padding: theme.spacing(1),
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
-    borderRadius: "5px",
+    borderRadius: "8px",
     marginLeft: theme.spacing(1),
   },
   floatRight: {
@@ -66,6 +66,8 @@ const other = theme => ({
     paddingBottom: theme.spacing(1),
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
+    borderRadius: "8px",
+    borderTopLeftRadius: "0px",
   },
 });
 
