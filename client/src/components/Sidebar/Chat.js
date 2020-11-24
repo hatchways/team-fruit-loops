@@ -44,20 +44,21 @@ const Chat = ({ player, classes }) => {
     <List className={classes.window}>
       {
         chats
-          .map(({ type, author, text }) => {
+          .map(({ type, author, text }, i) => {
+            const props = { key: i, text };
             if (type === "chat" && player === author) {
-              return <OwnMessage text={text}/>;
+              return <OwnMessage {...props}/>;
             } else if (type === "chat") {
-              return <OtherMessage text={text} author={author}/>;
+              return <OtherMessage {...props} author={author}/>;
             } else if (type === "action") {
-              return <EventMessage text={text} author={isSelf(author)}/>;
+              return <EventMessage {...props} author={isSelf(author)}/>;
             } else if (type === "notification") {
-                return <NotificationMessage text={text}/>;
+              return <NotificationMessage {...props}/>;
             }
-            if (process.env.NODE_ENV !== "production") {
+            if (process.env.NODE_ENV === "development") {
               console.log(`Unknown chat type: ${type}`);
             };
-            return <div></div>;
+            return false;
           })
           .map((Component, i) => (
             <ListItem dense key={i} classes={{gutters: classes.nopadding}}>

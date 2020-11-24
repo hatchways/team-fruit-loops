@@ -68,14 +68,12 @@ const Scorecard = ({ classes, score, team, }) => (
     [classes.red]: team === "Red Team",
     [classes.blue]: team === "Blue Team",
   })
-  .filter(([, v]) => v === false ? false : true)
-  .map(([k,]) => k)
-  .join(" ")}>
+  .reduce((css, [k, v]) => (css + (v === true ? k + " " : "")), "")}>
     <Typography align="center" className={classes.points}>
       { score }
     </Typography>
     <Typography className={classes.points}>
-      { team === "Red Team" ? "Red Team" : "Blue Team" }
+      { team }
     </Typography>
   </div>
 );
@@ -100,7 +98,10 @@ const Navbar = props => {
           <Hidden smDown>
             <Typography variant="h1">CLUEWORDS</Typography>
           </Hidden>
-          <Grid item container direction="row" justify="center" className={classes.inset}>
+          <Grid item container
+            direction="row"
+            justify="center"
+            className={classes.inset}>
             <Scorecard classes={classes} score={bluePoints} team="Blue Team"/>
             <Divider className={classes.hDivider} variant="middle"/>
             <Scorecard classes={classes} score={redPoints} team="Red Team"/>
@@ -112,7 +113,9 @@ const Navbar = props => {
           </Hidden>
           <Hidden smDown>
           <Grid item container className={classes.navEnd}>
-            <Button className={classes.game} variant="outlined">New Game</Button>
+            <Button className={classes.game} variant="outlined">
+              New Game
+            </Button>
             <Avatar alt="Sofia" />
             <Button
               onClick={toggleMenu("full")}
@@ -124,23 +127,33 @@ const Navbar = props => {
           </Hidden>
         </Grid>
         <Menu
+          keepMounted
           id="full-menu"
           anchorEl={fullMenu}
-          keepMounted
           open={Boolean(fullMenu)}
           onClose={toggleMenu("full")}>
-          <MenuItem onClick={toggleMenu("full")}>Profile</MenuItem>
-          <MenuItem onClick={toggleMenu("full")}>Logout</MenuItem>
+          <MenuItem onClick={toggleMenu("full")}>
+            Profile
+          </MenuItem>
+          <MenuItem onClick={toggleMenu("full")}>
+            Logout
+          </MenuItem>
         </Menu>
         <Menu
+          keepMounted
           id="mini-menu"
           anchorEl={miniMenu}
-          keepMounted
           open={Boolean(miniMenu)}
           onClose={toggleMenu("mini")}>
-          <MenuItem onClick={toggleMenu("mini")}>New Game</MenuItem>
-          <MenuItem onClick={toggleMenu("mini")}>Profile</MenuItem>
-          <MenuItem onClick={toggleMenu("mini")}>Logout</MenuItem>
+          <MenuItem selected={false} onClick={toggleMenu("mini")}>New
+            Game
+          </MenuItem>
+          <MenuItem onClick={toggleMenu("mini")}>
+            Profile
+          </MenuItem>
+          <MenuItem onClick={toggleMenu("mini")}>
+            Logout
+          </MenuItem>
         </Menu>
       </Toolbar>
     </AppBar>

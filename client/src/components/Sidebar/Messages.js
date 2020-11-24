@@ -32,12 +32,7 @@ const own = theme => ({
   },
 });
 
-const Own = ({
-  classes,
-  text,
-  inline = false,
-  direction = "bottomRight",
-}) => (
+const Own = ({ classes, text, inline = false, direction = "bottomRight", }) => (
   <div className={
     Object.entries({
       [classes.inline]: inline,
@@ -46,9 +41,7 @@ const Own = ({
       [classes.bottomRight]: direction === "bottomRight",
       [classes.floatRight]: direction === "bottomRight",
     })
-    .filter(([, v]) => v === false ? false : true)
-    .map(([k,]) => k)
-    .join(" ")}>
+    .reduce((css, [k, v]) => (css + (v === true ? k + " " : "")), "")}>
     { text }
   </div>
 );

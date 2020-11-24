@@ -26,7 +26,7 @@ const styles = theme => ({
 
 const isSpy = ({player, gameState: {redSpy, blueSpy}}) => (
   player === redSpy || player === blueSpy
-)
+);
 
 const GamePage = ({ classes, state, }) => {
   const [winner, ] = useState("blue"),
@@ -65,7 +65,7 @@ GamePage.propTypes = {
   classes: PropTypes.object.isRequired,
   socket: PropTypes.object.isRequired,
   state: PropTypes.object.isRequired,
-}
+};
 
 const Game = withStyles(styles)(GamePage);
 
