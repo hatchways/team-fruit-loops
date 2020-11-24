@@ -104,14 +104,13 @@ const GamePage = ({ classes, state, setState, socket}) => {
   return (
     <Container className={classes.root}>
       <GameNavbar
+        setState={setState}
         state={state}
         onRestart={onRestart}
       />
       <Finished
-        finished={state.gameState.isEnd}
-        winner={state.gameState.winner}
-        bluePoints={state.gameState.bluePoints}
-        redPoints={state.gameState.redPoints}
+        setState={setState}
+        state={state}
       />
       <GameSidebar
         state={state}
@@ -137,7 +136,7 @@ GamePage.propTypes = {
   classes: PropTypes.object.isRequired,
   socket: PropTypes.object.isRequired,
   state: PropTypes.object.isRequired,
-  setState: PropTypes.object.isRequired,
+  setState: PropTypes.func.isRequired,
 };
 
 const Game = withStyles(styles)(GamePage);
