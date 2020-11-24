@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { MuiThemeProvider, CssBaseline, Toolbar } from "@material-ui/core";
+import { MuiThemeProvider, CssBaseline } from "@material-ui/core";
 import { BrowserRouter, Route, Redirect, Switch } from "react-router-dom";
 import socketIOClient from "socket.io-client";
 import { theme } from "./themes/theme";

@@ -1,16 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { Redirect } from "react-router-dom";
 import { useParams } from 'react-router';
 import { withStyles } from "@material-ui/core/styles";
 import {
-  Grid,
   Container,
-  Toolbar,
 } from "@material-ui/core";
 import PropTypes from 'prop-types';
 
 import Finished from "../components/Game/Finished";
-import GameSidebar, { sidebarWidth } from "../components/Sidebar";
+import GameSidebar from "../components/Sidebar";
 import Board from "../components/Game/Board";
 import GameNavbar from "../components/Game/Nav";
 
