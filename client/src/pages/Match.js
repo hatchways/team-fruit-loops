@@ -113,11 +113,12 @@ const api = {
   },
 };
 
-const Match = withStyles(styles)(({ classes, state, setState, gameID, setGameID, socket}) => {
+const Match = withStyles(styles)(({ classes, state, setState, socket}) => {
   const [err, setErr] = useState(undefined);
-  const { player } = state;
+  const { player, gameID } = state;
   // local game id. used in join a game text field
-  const [id, setId] = useState('');
+  const [roomID, setRoomID] = useState('');
+  const [name, setName] = useState('');
 
   if (gameID !== undefined) {
     return <Redirect push to={`/lobby/${gameID}`}/>;
@@ -136,15 +137,18 @@ const Match = withStyles(styles)(({ classes, state, setState, gameID, setGameID,
     const nextState = await res.json();
     if (res.status >= 200 && res.status < 300) {
       socket.emit('join', nextState.id);
-      setState({player: player, gameState: nextState.gameState});
-      setGameID(nextState.id);
+      setState({
+        player: player,
+        gameID: nextState.id,
+        gameState: nextState.gameState
+      });
     } else {
       setErr(nextState.error);
     }
   }
 
-  const join = id => async () => {
-    const testName = "Alice";
+  const join = (id, name) => async () => {
+    const testName = name;
     socket.emit('join', id);
     const type = 'join';
     const res = await fetch(api[type].url(id), {
@@ -158,14 +162,17 @@ const Match = withStyles(styles)(({ classes, state, setState, gameID, setGameID,
 
     const nextState = await res.json();
     if (res.status >= 200 && res.status < 300) {
-      setState({player: testName, gameState: nextState.gameState});
-      setGameID(id);
+      setState({
+        player: name,
+        gameID: id,
+        gameState: nextState.gameState
+      });
     } else {
       setErr(nextState.error);
     }
   };
 
-  return state.gameID !== undefined
+  return gameID !== undefined
     ? <Redirect push to={`/lobby/${gameID}`}/>
     : (
     <Container>
@@ -194,23 +201,31 @@ const Match = withStyles(styles)(({ classes, state, setState, gameID, setGameID,
               <form className={classes.form}>
                 <TextField
                   fullWidth
-                  value={id}
-                  onChange={({ target: { value }}) => setId(value)}
+                  value={roomID}
+                  onChange={({ target: { value }}) => setRoomID(value)}
                   variant="outlined"
                   className={classes.text}
                   placeholder="Enter Game ID"
                   InputProps={{endAdornment: (
                     <Button
-                      onClick={join(id)}
+                      onClick={join(roomID, name)}
                       className={classes.game}
                       variant="outlined">
                       Join Game
                     </Button>
                   )}}/>
+                  <TextField
+                    fullWidth
+                    value={name}
+                    onChange={({ target: { value }}) => setName(value)}
+                    variant="outlined"
+                    className={classes.text}
+                    placeholder="Enter name"
+                    />
               </form>
               <Title css={classes.or} title="Or" el="h6"/>
               <Button
-                onClick={call("random")}
+                onClick={() => setErr("not implemented")}
                 className={classes.random}
                 variant="outlined">
                 Join Random
@@ -228,7 +243,7 @@ const Match = withStyles(styles)(({ classes, state, setState, gameID, setGameID,
                 direction="column"
                 className={classes.newGame}
                 justify="center">
-                <Btn on={call("public")} css={classes.public} text="Public"/>
+                <Btn on={() => setErr("not implemented")} css={classes.public} text="Public"/>
                 <Btn on={call("private")} css={classes.private} text="Private"/>
               </Grid>
             </Grid>

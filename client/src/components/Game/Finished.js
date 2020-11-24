@@ -1,5 +1,4 @@
 import React, { forwardRef } from "react";
-import { useHistory } from "react-router-dom";
 import { withStyles } from "@material-ui/core/styles";
 import {
   Button,
@@ -43,13 +42,15 @@ const Transition = forwardRef((props, ref) => (
   <Slide direction="up" ref={ref} {...props} />
 ));
 
-const FinishedComponent = ({ classes, finished, winner, bluePoints, redPoints }) => {
-  const history = useHistory();
-  const onNewGameClick = () => history.push("/match");
+const FinishedComponent = ({ classes, setState, state}) => {
+  const {gameState: {bluePoints, redPoints, winner, isEnd}} = state;
+  const onNewGameClick = () => {
+    setState({player: state.player, gameID: undefined, gameState: undefined});
+  }
 
   return (
     <Dialog
-      open={finished}
+      open={isEnd && winner !== undefined}
       className={classes.root}
       TransitionComponent={Transition}>
       <DialogTitle>Game Over!</DialogTitle>
@@ -83,11 +84,9 @@ const FinishedComponent = ({ classes, finished, winner, bluePoints, redPoints })
 };
 
 FinishedComponent.propTypes = {
-  finished: PropTypes.bool.isRequired,
   classes: PropTypes.object.isRequired,
-  winner: PropTypes.string.isRequired,
-  bluePoints: PropTypes.number.isRequired,
-  redPoints: PropTypes.number.isRequired,
+  state: PropTypes.object.isRequired,
+  setState: PropTypes.func.isRequired
 }
 
 const Finished = withStyles(styles)(FinishedComponent);

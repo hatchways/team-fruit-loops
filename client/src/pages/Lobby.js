@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { withStyles } from "@material-ui/core/styles";
 import { Redirect } from "react-router-dom";
+import { useParams } from 'react-router';
 import {
   Container,
   Grid,
@@ -104,14 +105,16 @@ const isOff = ({ blueSpy, redSpy, redGuessers, blueGuessers }, player) => (
   || redSpy === player || redGuessers.includes(player)
 );
 
-const Lobby = withStyles(gameStyles)(({ classes, state, setState, gameID, socket }) => {
-  if (gameID === undefined) {
+const Lobby = withStyles(gameStyles)(({ classes, state, setState, socket }) => {
+  const { gameID } = useParams();
+  const {gameState, player} = state;
+  if (gameID === undefined || gameState === undefined) {
     return (<Redirect to="/match" />);
   }
 
-  const {gameState, player} = state;
   const [err, setErr] = useState(undefined);
   const off = isOff(gameState, player);
+  const isHost = player === gameState.playerList[0];
 
   const call = async (type, role) => {
     const res = await fetch(api[type].url(gameID), {
@@ -141,7 +144,9 @@ const Lobby = withStyles(gameStyles)(({ classes, state, setState, gameID, socket
     }
   }, [setState, socket, state.gameState, state.player]);
 
-  return (
+  return state.gameState.isStart ?
+    <Redirect push to={`/game/${gameID}`}/> :
+    (
     <Container component="h1" className={classes.container}>
       <Dialog open={err !== undefined} onClose={() => setErr(undefined)}>
         <DialogTitle>
@@ -194,7 +199,7 @@ const Lobby = withStyles(gameStyles)(({ classes, state, setState, gameID, socket
               </Grid>
             </Grid>
             <Grid item xs={12} align="center">
-              <Button disabled={!state.gameState.isReady} onClick={() => call("start", "")} variant="outlined">
+              <Button disabled={!(gameState.isReady && isHost)} onClick={() => call("start", "")} variant="outlined">
                 Start Match
               </Button>
             </Grid>
