@@ -30,7 +30,7 @@ const socketio = (server) => {
           ].gameEngine.guesserNextMove(player, word);
         } catch (err) {
           console.log(err);
-          thrownError = err;
+          thrownError = err.message;
         }
 
         io.in(gameID).emit("guesserNextMove", gameState, thrownError);
@@ -48,8 +48,7 @@ const socketio = (server) => {
             gameID
           ].gameEngine.spyNextMove(player, hint, guesses);
         } catch (err) {
-          console.log(err);
-          thrownError = err;
+          thrownError = err.message;
         }
 
         io.in(gameID).emit("guesserNextMove", gameState, thrownError);

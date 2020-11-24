@@ -35,7 +35,7 @@ const Test = (props) => {
   // Player that is making a move
   const [player, setPlayer] = useState(testPlayers[0]);
   // Player's role in the game
-  const [playerRole, setPlayerRole] = useState("");
+  const [playerRole, setPlayerRole] = useState("Red Spy");
   // Spy's provided word hint
   const [spyHint, setSpyHint] = useState("");
   // Spy's provided number of guesses given hint
@@ -178,21 +178,21 @@ const Test = (props) => {
     setSpyGuesses(e.target.value);
   };
 
-  const handleHintSubmit = (e) => {
-    axios
-      .put(`/game/${gameId}/next-move`, {
-        player: player,
-        hint: {
-          word: spyHint,
-          times: spyGuesses,
-        },
-        word: "word",
-      })
-      .then((res) => {})
-      .catch((err) => {
-        console.log(err.response.data.error);
-      });
-  };
+  // const handleHintSubmit = (e) => {
+  //   axios
+  //     .put(`/game/${gameId}/next-move`, {
+  //       player: player,
+  //       hint: {
+  //         word: spyHint,
+  //         times: spyGuesses,
+  //       },
+  //       word: "word",
+  //     })
+  //     .then((res) => {})
+  //     .catch((err) => {
+  //       console.log(err.response.data.error);
+  //     });
+  // };
 
   return (
     <>
@@ -272,10 +272,10 @@ const Test = (props) => {
                 onChange={handleSpyGuessesChange}
               />
             </FormControl>
-
+{/* 
             <Button variant="contained" onClick={handleHintSubmit}>
               Submit Hint
-            </Button>
+            </Button> */}
 
             {/* Socket Buttons */}
             <Button
