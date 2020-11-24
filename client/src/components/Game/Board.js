@@ -17,7 +17,22 @@ const useStyles = makeStyles((theme) => ({
     textTransform: 'capitalize',
     "text-align": "center",
     whiteSpace: "nowrap",
-    backgroundColor: props.status === "covered" ? "white" : props.status,
+    backgroundColor:
+          props.status === 'covered'
+        ? 'white'
+        : props.status === 'black'
+        ? 'rgb(0, 0, 0)'
+        : props.status === 'red'
+        ? 'rgb(255, 62, 59)'
+        : 'rgb(95, 63, 254)',
+    backgroundImage:
+      props.status === 'covered'
+        ? 'white'
+        : props.status === 'black'
+        ? 'linear-gradient(to right, rgb(0, 0, 0), rgb(138, 138, 138))'
+        : props.status === 'red'
+        ? 'linear-gradient(to right, rgb(255, 62, 59), rgb(254, 100, 63))'
+        : 'linear-gradient(to right, rgb(59, 66, 255), rgb(95, 63, 254))',
     color: props.status !== "covered" ? "white" :
            props.color === undefined ? "black" : props.color,
     '&:hover': {

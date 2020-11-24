@@ -68,7 +68,7 @@ const useSpyBottomStyles = makeStyles(theme => ({
 const SpyBottom = ({ gameID, countMax, setFinished, player, socket}) => {
   const classes = useSpyBottomStyles();
   const [spyHint, setSpyHint] = useState("");
-  const [count, setCount] = useState(0);
+  const [count, setCount] = useState(1);
   // const onClickDone = () => setFinished(true);
   const onClickMin = () => setCount(Math.max(count - 1, 0));
   const onClickMax = () => setCount(Math.min(count + 1, countMax));
@@ -86,6 +86,9 @@ const SpyBottom = ({ gameID, countMax, setFinished, player, socket}) => {
       spyHint,
       count
     );
+
+    setSpyHint("");
+    setCount(1);
   }
 
   return (
@@ -181,13 +184,13 @@ const SidebarBottom = ({ setFinished, isSpy, countMax, gameID, player, socket })
   );
 };
 
-// SidebarBottom.propTypes = {
-//   isSpy: PropTypes.bool.isRequired,
-//   countMax: PropTypes.number.isRequired,
-//   setFinished: PropTypes.func.isRequired,
-//   gameID: PropTypes.string.isRequired,
-//   player: PropTypes.string.isRequired,
-//   socket: PropTypes.object.isRequired,
-// };
+SidebarBottom.propTypes = {
+  isSpy: PropTypes.bool.isRequired,
+  countMax: PropTypes.number.isRequired,
+  setFinished: PropTypes.func.isRequired,
+  gameID: PropTypes.string.isRequired,
+  player: PropTypes.string.isRequired,
+  socket: PropTypes.object.isRequired,
+};
 
 export default SidebarBottom;

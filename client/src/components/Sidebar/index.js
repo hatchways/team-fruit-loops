@@ -29,7 +29,7 @@ const styles = () => ({
   },
 });
 
-const Sidebar = ({ classes, setFinished, state, isSpy, countMax, gameID, socket, player, ...topProps }) => (
+const Sidebar = ({ classes, setFinished, state, isSpy, getCurrentSpymaster, countMax, gameID, socket, player, ...topProps }) => (
   <Drawer
     variant="permanent"
     className={classes.root}
@@ -39,7 +39,7 @@ const Sidebar = ({ classes, setFinished, state, isSpy, countMax, gameID, socket,
       {
         isSpy === true
           ? null
-          : <SidebarTop state={state} player={state.player} {...topProps}/>
+          : <SidebarTop state={state} player={state.player} getCurrentSpymaster={getCurrentSpymaster} {...topProps}/>
       }
       <SidebarChat player={state.player}/>
       <SidebarBottom setFinished={setFinished} isSpy={isSpy} countMax={countMax} gameID={gameID} player={state.player} socket={socket}/>
@@ -49,15 +49,16 @@ const Sidebar = ({ classes, setFinished, state, isSpy, countMax, gameID, socket,
 
 const GameSidebar = withStyles(styles)(Sidebar)
 
-// GameSidebar.propTypes = {
-//   player: PropTypes.string.isRequired,
-//   state: PropTypes.object.isRequired,
-//   isSpy: PropTypes.bool.isRequired,
-//   countMax: PropTypes.number.isRequired,
-//   setFinished: PropTypes.func.isRequired,
-//   gameID: PropTypes.string.isRequired,
-//   socket: PropTypes.object.isRequired,
-// };
+GameSidebar.propTypes = {
+  player: PropTypes.string.isRequired,
+  state: PropTypes.object.isRequired,
+  isSpy: PropTypes.bool.isRequired,
+  getCurrentSpymaster: PropTypes.string.isRequired,
+  countMax: PropTypes.number.isRequired,
+  setFinished: PropTypes.func.isRequired,
+  gameID: PropTypes.string.isRequired,
+  socket: PropTypes.object.isRequired,
+};
 
 export {
   GameSidebar as default,

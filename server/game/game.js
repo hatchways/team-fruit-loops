@@ -2,7 +2,7 @@ const dictionary = require('./dictionary/dictionary');
 const shuffle = require('./utils/shuffle');
 const role = require('./role');
 const INIT_TIMER = 20;
-const INIT_GUESS_CHANCE = 2;
+const INIT_GUESS_CHANCE = 1;
 
 // Initialize game with 4 players and roles are randomly assigned
 const initGame = () => {
@@ -12,8 +12,8 @@ const initGame = () => {
     redCardNum: 8,
     greyCardNum: 8,
     blackCardNum: 1,
-    redPoints: 0,
-    bluePoints: 0,
+    redPoints: 8,
+    bluePoints: 8,
     turn: 'blue',
     guessNum: INIT_GUESS_CHANCE,
     hint: undefined,
@@ -180,6 +180,9 @@ Game.prototype.guesserNextMove = function(player, word) {
   if (turn === 'blue' && !this.gameState.blueGuessers.includes(player))
     throw new Error(`${player} is not a guesser from team blue.`);
 
+  if (this.gameState.hint === undefined)
+    throw new Error('A guesser must wait until a spy gives hints.');
+
   this.gameState.boardState[word].status = this.gameState.cards[word];
   switch(this.gameState.cards[word]) {
     // if select a black card, ends game and the opponent wins.
@@ -189,7 +192,7 @@ Game.prototype.guesserNextMove = function(player, word) {
       break;
     // if select a blue card, increase blue point and make turn to blue team.
     case 'blue':
-      this.gameState.bluePoints++;
+      this.gameState.bluePoints--;
       this.gameState.guessNum--;
       if (this.gameState.guessNum === 0)
         return this.endTurn();
@@ -199,14 +202,14 @@ Game.prototype.guesserNextMove = function(player, word) {
       }
 
       this.gameState.turn = 'blue';
-      if (this.gameState.bluePoints === this.gameState.blueCardNum) {
+      if (this.gameState.bluePoints === 0) {
         this.gameState.isEnd = true;
         this.gameState.winner = 'blue';
       }
       break;
     // if select a red card, increase red point and make turn to red team.
     case 'red':
-      this.gameState.redPoints++;
+      this.gameState.redPoints--;
       this.gameState.guessNum--;
       if (this.gameState.guessNum === 0)
         return this.endTurn();
@@ -215,7 +218,7 @@ Game.prototype.guesserNextMove = function(player, word) {
         return this.endTurn();
       }
       
-      if (this.gameState.redPoints === this.gameState.redCardNum) {
+      if (this.gameState.redPoints === 0) {
         this.gameState.isEnd = true;
         this.gameState.winner = 'red';
       }
@@ -251,6 +254,10 @@ Game.prototype.spyNextMove = function(player, hint, hintNum) {
 
   this.gameState.hint = hint;
   this.gameState.guessNum = hintNum + this.gameState.guessNum;
+
+  // Reset game timer for guessers
+  this.gameState.timer = INIT_TIMER;
+  
   return this.gameState;
 }
 
@@ -258,11 +265,11 @@ Game.prototype.endTurn = function() {
   if (!this.gameState.isStart || this.gameState.isEnd)
     throw new Error('Game is not started yet');
 
-  if (this.gameState.redPoints === this.gameState.redCardNum) {
+  if (this.gameState.redPoints === 0) {
     this.gameState.isEnd = true;
     this.gameState.winner = 'red';
   }
-  if (this.gameState.bluePoints === this.gameState.blueCardNum) {
+  if (this.gameState.bluePoints === 0) {
     this.gameState.isEnd = true;
     this.gameState.winner = 'blue';
   }

@@ -42,6 +42,21 @@ const api = {
 const isSpy = ({ player, gameState: { redSpy, blueSpy } }) =>
   player === redSpy || player === blueSpy
 
+const getCurrentSpymaster = ({ gameState: { turn, redSpy, blueSpy } }) => {
+  if (turn === 'blue') return blueSpy
+  else if (turn === 'red') return redSpy
+  else return 'N/A'
+}
+
+const getTeamSpymaster = ({
+  player,
+  gameState: { redSpy, redGuessers, blueSpy, blueGuessers }
+}) => {
+  if (player === redSpy || redGuessers.includes(player)) return redSpy
+  else if (player === blueSpy || blueGuessers.includes(player)) return blueSpy
+  else return 'N/A'
+}
+
 const GamePage = ({ classes, state, setState, socket }) => {
   const { gameID } = useParams()
   const { gameState, player } = state
@@ -67,7 +82,7 @@ const GamePage = ({ classes, state, setState, socket }) => {
   useEffect(() => {
     socket.on('guesserNextMove', (payload, err) => {
       if (!err) {
-        setState({ gameState: payload })
+        setState({ player: state.player, gameID: gameID, gameState: payload })
       } else {
         console.log(err)
       }
@@ -75,18 +90,20 @@ const GamePage = ({ classes, state, setState, socket }) => {
 
     socket.on('spyNextMove', (payload, err) => {
       if (!err) {
-        setState({ gameState: payload })
+        setState({ player: state.player, gameID: gameID, gameState: payload })
+
+        console.log(payload)
       } else {
         console.log(err)
       }
     })
 
     socket.on('endTurn', payload => {
-      setState({ gameState: payload })
+      setState({ player: state.player, gameID: gameID, gameState: payload })
     })
 
     socket.on('restartGame', payload => {
-      setState({ gameState: payload })
+      setState({ player: state.player, gameID: gameID, gameState: payload })
     })
   }, [socket])
 
@@ -95,36 +112,40 @@ const GamePage = ({ classes, state, setState, socket }) => {
   }
 
   // event handler for selecting a card
-  const onNextMove = async word => {
-    const type = 'nextMove'
-    const res = await fetch(api[type].url(gameID), {
-      method: api[type].method,
-      headers: api[type].headers,
-      body: api[type].body(player, word)
-    })
+  // const onNextMove = async word => {
+  //   const type = 'nextMove'
+  //   const res = await fetch(api[type].url(gameID), {
+  //     method: api[type].method,
+  //     headers: api[type].headers,
+  //     body: api[type].body(player, word)
+  //   })
 
-    if (res.status < 200 || res.status >= 300) {
-      const next = await res.json()
-      console.log(next)
-    }
-  }
-
-  // const onNextMove = word => {
-  //   socket.emit('guesserNextMove', gameID, player, word)
+  //   if (res.status < 200 || res.status >= 300) {
+  //     const next = await res.json()
+  //     console.log(next)
+  //   }
   // }
 
-  // event handler for restarting the game
-  const onRestart = async () => {
-    const type = 'restart'
-    const res = await fetch(api[type].url(gameID), {
-      method: api[type].method,
-      headers: api[type].headers
-    })
+  const onNextMove = word => {
+    socket.emit('guesserNextMove', gameID, player, word)
+  }
 
-    if (res.status < 200 || res.status >= 300) {
-      const next = await res.json()
-      console.log(next)
-    }
+  // event handler for restarting the game
+  // const onRestart = async () => {
+  //   const type = 'restart'
+  //   const res = await fetch(api[type].url(gameID), {
+  //     method: api[type].method,
+  //     headers: api[type].headers
+  //   })
+
+  //   if (res.status < 200 || res.status >= 300) {
+  //     const next = await res.json()
+  //     console.log(next)
+  //   }
+  // }
+
+  const onRestart = () => {
+    socket.emit('restartGame', gameID)
   }
 
   return (
@@ -139,11 +160,12 @@ const GamePage = ({ classes, state, setState, socket }) => {
       <GameSidebar
         state={state}
         player={state.player}
-        count={4}
+        count={state.gameState.guessNum}
         countMax={5}
-        token='Animals'
+        token={state.gameState.hint || ''}
         setFinished={undefined}
         isSpy={isSpy(state)}
+        getCurrentSpymaster={getCurrentSpymaster(state)}
         gameID={gameID}
         socket={socket}
       />
@@ -158,12 +180,12 @@ const GamePage = ({ classes, state, setState, socket }) => {
   )
 }
 
-// GamePage.propTypes = {
-//   classes: PropTypes.object.isRequired,
-//   socket: PropTypes.object.isRequired,
-//   state: PropTypes.object.isRequired,
-//   setState: PropTypes.object.isRequired
-// }
+GamePage.propTypes = {
+  classes: PropTypes.object.isRequired,
+  socket: PropTypes.object.isRequired,
+  state: PropTypes.object.isRequired,
+  setState: PropTypes.object.isRequired
+}
 
 const Game = withStyles(styles)(GamePage)
 
