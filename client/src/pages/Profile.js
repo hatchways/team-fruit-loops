@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { useHistory } from "react-router-dom";
+import axios from "axios";
 
 import { Button, TextField, Typography, Container } from "@material-ui/core";
 
@@ -8,8 +9,6 @@ import EditIcon from "@material-ui/icons/Edit";
 import SendIcon from "@material-ui/icons/Send";
 
 import UploadImage from "../components/uploadImage";
-
-import axios from "axios";
 
 const useStyles = makeStyles((theme) => ({
   root: {
