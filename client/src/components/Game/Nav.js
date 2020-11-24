@@ -78,15 +78,15 @@ const Scorecard = ({ classes, score, team, }) => (
   </div>
 );
 
-const Navbar = props => {
-  const {classes, state: {gameState: {bluePoints, redPoints}}} = props;
+const Navbar = ({ classes, state, onRestart}) => {
+  const {gameState: {bluePoints, redPoints}} = state;
   const [miniMenu, setMiniMenu] = useState(null);
   const [fullMenu, setFullMenu] = useState(null);
   const toggleMenu = type => ({ currentTarget }) => (
-      type === "full"
-        ? setFullMenu(fullMenu === null ? currentTarget : null)
-        : setMiniMenu(miniMenu === null ? currentTarget : null)
-    );
+    type === "full"
+      ? setFullMenu(fullMenu === null ? currentTarget : null)
+      : setMiniMenu(miniMenu === null ? currentTarget : null)
+  );
 
   return (
     <AppBar className={classes.root}>
@@ -113,7 +113,7 @@ const Navbar = props => {
           </Hidden>
           <Hidden smDown>
           <Grid item container className={classes.navEnd}>
-            <Button className={classes.game} variant="outlined">
+            <Button onClick={() => onRestart()} className={classes.game} variant="outlined">
               New Game
             </Button>
             <Avatar alt="Sofia" />
@@ -145,7 +145,7 @@ const Navbar = props => {
           anchorEl={miniMenu}
           open={Boolean(miniMenu)}
           onClose={toggleMenu("mini")}>
-          <MenuItem selected={false} onClick={toggleMenu("mini")}>New
+          <MenuItem selected={false} onClick={() => onRestart()}>New
             Game
           </MenuItem>
           <MenuItem onClick={toggleMenu("mini")}>

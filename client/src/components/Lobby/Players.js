@@ -29,9 +29,9 @@ const isSelf = ({
     case "blue spy":
       return blueSpy === player;
     case "red guesser":
-      return redGuessers.includes(player) && currPlayer === player;
+      return redGuessers.includes(player) && player === currPlayer;
     case "blue guesser":
-      return blueGuessers.includes(player) && currPlayer === player;
+      return blueGuessers.includes(player) && player === currPlayer;
     default:
       if (process.env.NODE_ENV === "development") {
         console.log(`Error - unknown case: ${role}`);
@@ -40,14 +40,14 @@ const isSelf = ({
   };
 };
 
-const Player = ({ click, player, self, role }) => (
+const Player = ({ click, host, player, self, role }) => (
   <Grid item xs={12} key={player}>
     <Button
       key={player}
       startIcon={<Check style={{fill: "rgb(95, 184, 115)"}}/>}
       endIcon={self && <Cancel onClick={click(role)}/>}>
       <Typography align="center">
-        { `${player} - ${lookup[role]}${self ? ' (You)' : '' }` }
+        { `${player}${host === player ? '(host)' : ''} - ${lookup[role]}${self ? ' (You)' : '' }` }
       </Typography>
     </Button>
   </Grid>
@@ -66,6 +66,7 @@ const LobbyPlayers = ({ state, call, }) => {
         blueSpy !== undefined &&
           <Player
             self={isSelf(state, "blue spy")}
+            host={state.gameState.playerList[0]}
             role={"blue spy"}
             player={blueSpy}
             click={click} />
@@ -74,6 +75,7 @@ const LobbyPlayers = ({ state, call, }) => {
         redSpy !== undefined &&
           <Player
             self={isSelf(state, "red spy")}
+            host={state.gameState.playerList[0]}
             role={"red spy"}
             player={redSpy}
             click={click} />
@@ -82,6 +84,7 @@ const LobbyPlayers = ({ state, call, }) => {
         redGuessers.map(player => (
           <Player
             self={isSelf(state, "red guesser", player)}
+            host={state.gameState.playerList[0]}
             role={"red guesser"}
             key={player}
             player={player}
@@ -92,6 +95,7 @@ const LobbyPlayers = ({ state, call, }) => {
         blueGuessers.map(player => (
           <Player
             self={isSelf(state, "blue guesser", player)}
+            host={state.gameState.playerList[0]}
             role={"blue guesser"}
             key={player}
             player={player}
