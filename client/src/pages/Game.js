@@ -34,7 +34,11 @@ const GamePage = ({ classes, state, }) => {
 
   return (
     <Container>
-      <Finished finished={finished} winner={winner}/>
+      <Finished
+        finished={finished}
+        winner={winner}
+        bluePoints={state.gameState.bluePoints}
+        redPoints={state.gameState.redPoints}/>
       <GameSidebar
         state={state}
         player={state.player}
