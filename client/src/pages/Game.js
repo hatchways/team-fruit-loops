@@ -67,6 +67,7 @@ const GamePage = ({ classes, state, setState, socket }) => {
   // from front end.
   useEffect(() => {
     const updateHandler = next => {
+      // // Re-enable comment if you want to continuously monitor game state
       // if (process.env.NODE_ENV === 'development') {
       //   console.log('update recieved: ', next)
       // }
@@ -113,39 +114,12 @@ const GamePage = ({ classes, state, setState, socket }) => {
     return <Redirect to='/match' />
   }
 
-  // event handler for selecting a card
-  // const onNextMove = async word => {
-  //   const type = 'nextMove'
-  //   const res = await fetch(api[type].url(gameID), {
-  //     method: api[type].method,
-  //     headers: api[type].headers,
-  //     body: api[type].body(player, word)
-  //   })
-
-  //   if (res.status < 200 || res.status >= 300) {
-  //     const next = await res.json()
-  //     console.log(next)
-  //   }
-  // }
-
+  // Event handler for selecting a card
   const onNextMove = word => {
     socket.emit('guesserNextMove', gameID, player, word)
   }
 
-  // event handler for restarting the game
-  // const onRestart = async () => {
-  //   const type = 'restart'
-  //   const res = await fetch(api[type].url(gameID), {
-  //     method: api[type].method,
-  //     headers: api[type].headers
-  //   })
-
-  //   if (res.status < 200 || res.status >= 300) {
-  //     const next = await res.json()
-  //     console.log(next)
-  //   }
-  // }
-
+  // Event handler for restarting the game
   const onRestart = () => {
     socket.emit('restartGame', gameID)
   }

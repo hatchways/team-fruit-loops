@@ -69,7 +69,6 @@ const SpyBottom = ({ gameID, countMax, setFinished, player, socket}) => {
   const classes = useSpyBottomStyles();
   const [spyHint, setSpyHint] = useState("");
   const [count, setCount] = useState(1);
-  // const onClickDone = () => setFinished(true);
   const onClickMin = () => setCount(Math.max(count - 1, 0));
   const onClickMax = () => setCount(Math.min(count + 1, countMax));
 
@@ -104,9 +103,7 @@ const SpyBottom = ({ gameID, countMax, setFinished, player, socket}) => {
       <Divider className={classes.hDivider}/>
       <Grid item xs={12} md={8}>
         <TextField
-          // multiline
           value={spyHint}
-          // onChange={({ target: { value }}) => setMessage(value)}
           onChange={handleSpyHintChange}
           className={classes.text}
           placeholder="Type here..."
@@ -133,7 +130,6 @@ const SpyBottom = ({ gameID, countMax, setFinished, player, socket}) => {
           label="+"/>
       </Grid>
       <Button
-        // onClick={onClickDone}
         onClick={handleSpyHintSubmit}
         className={classes.done}
         variant="outlined">
