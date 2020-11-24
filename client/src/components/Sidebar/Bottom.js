@@ -65,11 +65,11 @@ const useSpyBottomStyles = makeStyles(theme => ({
   }
 }));
 
-const SpyBottom = ({ countMax, setFinished, }) => {
+const SpyBottom = ({ countMax, }) => {
   const classes = useSpyBottomStyles();
   const [message, setMessage] = useState("");
   const [count, setCount] = useState(0);
-  const onClickDone = () => setFinished(true);
+  const onClickDone = () => console.log("clicked done");
   const onClickMin = () => setCount(Math.max(count - 1, 0));
   const onClickMax = () => setCount(Math.min(count + 1, countMax));
 
@@ -119,7 +119,7 @@ const SpyBottom = ({ countMax, setFinished, }) => {
 
 SpyBottom.propTypes = {
   countMax: PropTypes.number.isRequired,
-  setFinished: PropTypes.func.isRequired,
+  socket: PropTypes.object.isRequired,
 };
 
 const useStyles = makeStyles(theme => ({
@@ -137,13 +137,21 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const SidebarBottom = ({ setFinished, isSpy, countMax, }) => {
+const SidebarBottom = ({ isSpy, emitChat, ...props }) => {
   const classes = useStyles();
   const [message, setMessage] = useState("");
 
   if (isSpy) {
-    return <SpyBottom setFinished={setFinished} countMax={countMax} />;
+    return <SpyBottom setFinished={props.setFinished} countMax={props.countMax}/>;
   }
+
+  const chatHandler = ({ keyCode }) => {
+    if (keyCode !== 13) {
+      return ;
+    }
+    emitChat(message);
+    setMessage("");
+  };
 
   return (
     <div className={classes.bottom}>
@@ -152,6 +160,7 @@ const SidebarBottom = ({ setFinished, isSpy, countMax, }) => {
           multiline
           value={message}
           onChange={({ target: { value }}) => setMessage(value)}
+          onKeyDown={chatHandler}
           className={classes.text}
           placeholder="Type here..."/>
     </div>
@@ -161,7 +170,7 @@ const SidebarBottom = ({ setFinished, isSpy, countMax, }) => {
 SidebarBottom.propTypes = {
   isSpy: PropTypes.bool.isRequired,
   countMax: PropTypes.number.isRequired,
-  setFinished: PropTypes.func.isRequired,
+  emitChat: PropTypes.func.isRequired,
 };
 
 export default SidebarBottom;

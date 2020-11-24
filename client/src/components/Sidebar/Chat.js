@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { withStyles } from "@material-ui/core/styles";
 import {
   List, ListItem, ListItemText,
@@ -17,7 +17,7 @@ const mockChat = [
   {type: "chat", author: "Tommy", text: "Why dog?"},
   {type: "chat", author: "Bonnie", text: "Dog is an animal!"},
   {type: "action", author: "Tommy", text: "voted for 'Dog'"},
-  { type: "notification", text: "All team voted for 'Dog'", },
+  {type: "notification", text: "All team voted for 'Dog'"},
 ];
 
 const styles = theme => ({
@@ -36,9 +36,20 @@ const styles = theme => ({
   }
 });
 
-const Chat = ({ player, classes }) => {
-  const [chats, ] = useState(mockChat);
+const Chat = ({ player, classes, socket }) => {
+  const [chats, setChats] = useState(mockChat);
   const isSelf = author => author === player ? "You" : author;
+
+  useEffect(() => {
+    const newChatHandler = (type, author, text) => {
+      if (process.env.NODE_ENV !== "production") {
+        console.log(`Received (${type}): ${author} ${text}`);
+      }
+      setChats([...chats, {type, author, text}]);
+    }
+
+    socket.on("chat", newChatHandler)
+  }, [setChats, socket, chats]);
 
   return (
     <List className={classes.window}>
@@ -73,6 +84,7 @@ const Chat = ({ player, classes }) => {
 Chat.propTypes = {
   player: PropTypes.string.isRequired,
   classes: PropTypes.object.isRequired,
+  socket: PropTypes.object.isRequired,
 };
 
 const SidebarChat = withStyles(styles)(Chat);

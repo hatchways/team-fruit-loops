@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { withStyles } from "@material-ui/core/styles";
 import {
   Grid,
@@ -28,9 +28,16 @@ const isSpy = ({player, gameState: {redSpy, blueSpy}}) => (
   player === redSpy || player === blueSpy
 );
 
-const GamePage = ({ classes, state, }) => {
+const GamePage = ({ classes, state, socket, gameID, ...props }) => {
   const [winner, ] = useState("blue"),
-    [finished, setFinished] = useState(false);
+    [finished, ] = useState(false);
+
+  useEffect(() => {
+    if (process.env.NODE_ENV !== "production") {
+      console.log("Joining game: ", gameID);
+    }
+    socket.emit("join", gameID);
+  }, [socket, gameID]);
 
   return (
     <Container>
@@ -40,12 +47,13 @@ const GamePage = ({ classes, state, }) => {
         bluePoints={state.gameState.bluePoints}
         redPoints={state.gameState.redPoints}/>
       <GameSidebar
+        gameID={gameID}
         state={state}
+        socket={socket}
         player={state.player}
         count={4}
         countMax={5}
         token="Animals"
-        setFinished={setFinished}
         isSpy={isSpy(state)}/>
       <Grid item container xs={9}
         align="center"
@@ -69,6 +77,7 @@ GamePage.propTypes = {
   classes: PropTypes.object.isRequired,
   socket: PropTypes.object.isRequired,
   state: PropTypes.object.isRequired,
+  gameID: PropTypes.string.isRequired,
 };
 
 const Game = withStyles(styles)(GamePage);

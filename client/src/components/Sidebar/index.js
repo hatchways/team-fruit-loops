@@ -29,33 +29,43 @@ const styles = () => ({
   },
 });
 
-const Sidebar = ({ classes, setFinished, state, isSpy, countMax, ...topProps }) => (
-  <Drawer
-    variant="permanent"
-    className={classes.root}
-    classes={{paper: classes.paper}}>
-    <Toolbar className={classes.toolbar}/>
-    <div className={classes.sidebar}>
-      {
-        isSpy === true
-          ? null
-          : <SidebarTop state={state} player={state.player} {...topProps}/>
-      }
-      <SidebarChat player={state.player}/>
-      <SidebarBottom setFinished={setFinished} isSpy={isSpy} countMax={countMax}/>
-    </div>
-  </Drawer>
-);
+const Sidebar = ({ classes, socket, state, isSpy, countMax, gameID, ...props }) => {
+  const emitChat = message => {
+    if (process.env.NODE_ENV !== "production") {
+      console.log(`emitted chat: ${state.player} - ${message}`)
+    }
+    socket.emit("chat", gameID, "chat", state.player, message);
+  };
 
-const GameSidebar = withStyles(styles)(Sidebar)
+  return (
+    <Drawer
+      variant="permanent"
+      className={classes.root}
+      classes={{paper: classes.paper}}>
+      <Toolbar className={classes.toolbar}/>
+      <div className={classes.sidebar}>
+        {
+          isSpy === true
+            ? null
+            : <SidebarTop state={state} player={state.player} {...props}/>
+        }
+        <SidebarChat socket={socket} player={state.player}/>
+        <SidebarBottom emitChat={emitChat} isSpy={isSpy} countMax={countMax}/>
+      </div>
+    </Drawer>
+  );
+};
 
-GameSidebar.propTypes = {
+Sidebar.propTypes = {
   player: PropTypes.string.isRequired,
+  gameID: PropTypes.string.isRequired,
   state: PropTypes.object.isRequired,
   isSpy: PropTypes.bool.isRequired,
   countMax: PropTypes.number.isRequired,
-  setFinished: PropTypes.func.isRequired,
+  socket: PropTypes.object.isRequired,
 };
+
+const GameSidebar = withStyles(styles)(Sidebar)
 
 export {
   GameSidebar as default,
