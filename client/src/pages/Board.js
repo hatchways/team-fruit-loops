@@ -8,9 +8,9 @@ const BoardWrapper = ({ state, setState, socket}) => {
   // from front end.
   useEffect(() => {
     const updateHandler = next => {
-      if (process.env.NODE_ENV === 'development') {
-        console.log("update recieved: ", next);
-      }
+      // if (process.env.NODE_ENV === 'development') {
+      //   console.log("update recieved: ", next);
+      // }
       state.gameState = next;
       setState({player: state.player, gameState: state.gameState});
     }

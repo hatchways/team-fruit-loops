@@ -2,7 +2,7 @@ const dictionary = require('./dictionary/dictionary');
 const shuffle = require('./utils/shuffle');
 const role = require('./role');
 const INIT_TIMER = 20;
-const INIT_GUESS_CHANCE = 2;
+const INIT_GUESS_CHANCE = 1;
 
 // Initialize game with 4 players and roles are randomly assigned
 const initGame = () => {
@@ -234,8 +234,8 @@ Game.prototype.spyNextMove = function (player, hint, hintNum) {
   if (this.gameState.hint !== undefined)
     throw new Error(`${this.gameState.turn} spy has already given a hint.`);
 
-  if (typeof(hintNum) !== 'number')
-    throw new Error(`hitNum is not a number: ${hintNum}`);
+  // if (typeof(hintNum) !== 'number')
+  //   throw new Error(`hintNum is not a number: ${hintNum}`);
 
   if (hintNum <= 0)
     throw new Error('Invalid number of hints');

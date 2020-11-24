@@ -39,7 +39,7 @@ const Test = (props) => {
   // Spy's provided word hint
   const [spyHint, setSpyHint] = useState("");
   // Spy's provided number of guesses given hint
-  const [spyGuesses, setSpyGuesses] = useState(0);
+  const [spyGuesses, setSpyGuesses] = useState(1);
 
   useLayoutEffect(() => {
     let id = "";
@@ -110,30 +110,41 @@ const Test = (props) => {
           })
           .catch((err) => {});
       });
-  }, [testPlayers]);
+  }, []);
 
   useEffect(() => {
-    const updateHandler = (next) => {
-      console.log("update recieved");
-      setGameState(next);
-    };
-    // Join the game-lobby
+    console.log("join emit function");
     props.socket.emit("join", "demo-id");
+  }, []);
 
-    props.socket.on("update", updateHandler);
-  }, [props.socket]);
+  useEffect(() => {
+    props.socket.on("guesserNextMove", (payload, err) => {
+      if (!err) {
+        setGameState(payload);
+      } else {
+        console.log(err);
+      }
+    });
+
+    props.socket.on("spyNextMove", (payload, err) => {
+      if (!err) {
+        setGameState(payload);
+      } else {
+        console.log(err);
+      }
+    });
+
+    props.socket.on("endTurn", (payload) => {
+      setGameState(payload);
+    });
+
+    props.socket.on("restartGame", (payload) => {
+      setGameState(payload);
+    });
+  }, [props.socket]); //only re-run the effect if new message comes in
 
   const handleGuesserTurn = (e, word) => {
-    // console.log("Button pressed: " + word);
-    axios
-      .put(`/game/${gameId}/next-move`, {
-        player: player,
-        word: word,
-      })
-      .then((res) => {})
-      .catch((err) => {
-        console.log(err.response.data.error);
-      });
+    props.socket.emit("guesserNextMove", "demo-id", player, word);
   };
 
   // Custom functions
@@ -264,6 +275,40 @@ const Test = (props) => {
 
             <Button variant="contained" onClick={handleHintSubmit}>
               Submit Hint
+            </Button>
+
+            {/* Socket Buttons */}
+            <Button
+              variant="contained"
+              onClick={() => {
+                props.socket.emit(
+                  "spyNextMove",
+                  "demo-id",
+                  player,
+                  spyHint,
+                  spyGuesses
+                );
+              }}
+            >
+              Spymaster Move
+            </Button>
+
+            <Button
+              variant="contained"
+              onClick={() => {
+                props.socket.emit("endTurn", "demo-id");
+              }}
+            >
+              End Turn
+            </Button>
+
+            <Button
+              variant="contained"
+              onClick={() => {
+                props.socket.emit("restartGame", "demo-id");
+              }}
+            >
+              Restart
             </Button>
           </div>
         </>

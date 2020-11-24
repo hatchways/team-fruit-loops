@@ -15,7 +15,7 @@ import RemoveIcon from "@material-ui/icons/Remove";
 import axios from "axios";
 
 // Modal component that appears when the game ends
-import GameOverComponent from "./game/GameOverComponent";
+import GameOverComponent from "./Game/GameOverComponent";
 
 const useStyles = makeStyles((theme) => ({
   card: (props) => ({
