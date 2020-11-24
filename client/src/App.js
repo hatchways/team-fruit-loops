@@ -12,190 +12,166 @@ import Login from "./pages/Login";
 import Profile from "./pages/Profile";
 import Match from "./pages/Match";
 import Lobby from "./pages/Lobby";
+import Game from "./pages/Game";
 import Test from "./pages/Test";
-import BoardWrapper from "./pages/Board";
 
 import "./App.css";
 
+// sample state
+const test = {
+  "playerList": ["Bonnie", "1", "3", "4"],
+  "waitingList": [],
+  "redSpy": "1",
+  "redGuessers": ["4"],
+  "blueSpy": "Bonnie",
+  "blueGuessers": ["3"],
+  "isReady": true,
+  "isStart": true,
+  "cards": {
+      "banyan": "grey",
+      "alb": "grey",
+      "yarn": "blue",
+      "chop": "grey",
+      "alpaca": "blue",
+      "jail": "blue",
+      "gauge": "red",
+      "marble": "red",
+      "hedge": "red",
+      "scrutiny": "red",
+      "botany": "grey",
+      "CD": "red",
+      "croup": "blue",
+      "brook": "grey",
+      "steamroller": "blue",
+      "cutting": "grey",
+      "designation": "blue",
+      "stew": "blue",
+      "merchandise": "grey",
+      "adrenalin": "grey",
+      "output": "blue",
+      "chrome": "black",
+      "stacking": "red",
+      "meaning": "red",
+      "origin": "red"
+  },
+  "blueCardNum": 8,
+  "redCardNum": 8,
+  "whiteCardNum": 8,
+  "blackCardNum": 1,
+  "redPoints": 0,
+  "bluePoints": 0,
+  "turn": "blue",
+  "guessNum": 0,
+  "isEnd": false,
+  "boardState": {
+      "banyan": {
+        "status": "covered"
+      },
+      "alb": {
+        "status": "covered"
+      },
+      "yarn": {
+        "status": "covered"
+      },
+      "chop": {
+        "status": "covered"
+      },
+      "alpaca": {
+        "status": "covered"
+      },
+      "jail": {
+        "status": "covered"
+      },
+     "gauge": {
+        "status": "covered"
+      },
+      "marble": {
+        "status": "covered"
+      },
+      "hedge": {
+        "status": "covered"
+      },
+      "scrutiny": {
+        "status": "covered"
+      },
+      "botany": {
+        "status": "covered"
+      },
+      "CD": {
+        "status": "covered"
+      },
+      "croup": {
+        "status": "covered"
+      },
+      "brook": {
+        "status": "covered"
+      },
+      "steamroller": {
+        "status": "covered"
+      },
+      "cutting": {
+        "status": "covered"
+      },
+      "designation": {
+        "status": "covered"
+      },
+      "stew": {
+        "status": "covered"
+      },
+      "merchandise": {
+        "status": "covered"
+      },
+      "adrenalin": {
+        "status": "covered"
+      },
+      "output": {
+        "status": "covered"
+      },
+      "chrome": {
+        "status": "covered"
+      },
+      "stacking": {
+        "status": "covered"
+      },
+      "meaning": {
+        "status": "covered"
+      },
+      "origin": {
+        "status": "covered"
+      }
+  },
+  "timer": 10
+};
+
 let socket = socketIOClient();
 function App() {
-  const [state, setState] = useState({
-    player: "Bonnie",
-    // gameState: undefined,
-    gameState: {
-      playerList: ["Player 1", "Player 2", "Player 3", "Player 4"],
-      waitingList: [],
-      redSpy: "Bonnie",
-      redGuessers: ["Bonnie"],
-      blueSpy: "Bonnie",
-      blueGuessers: ["Bonnie"],
-      isReady: true,
-      isStart: true,
-      cards: {
-        speed: "grey",
-        wallet: "grey",
-        security: "red",
-        canteen: "grey",
-        cornet: "blue",
-        sock: "blue",
-        timeline: "blue",
-        font: "blue",
-        street: "red",
-        data: "blue",
-        "arch-rival": "red",
-        appeal: "grey",
-        pathology: "red",
-        jot: "red",
-        senate: "red",
-        potential: "red",
-        skunk: "grey",
-        wine: "grey",
-        weather: "black",
-        hip: "blue",
-        hiking: "red",
-        punctuation: "grey",
-        future: "blue",
-        bias: "blue",
-        wind: "grey",
-      },
-      blueCardNum: 8,
-      redCardNum: 8,
-      greyCardNum: 8,
-      blackCardNum: 1,
-      redPoints: 0,
-      bluePoints: 0,
-      turn: "blue",
-      guessNum: 2,
-      isEnd: false,
-      boardState: {
-        speed: {
-          status: "covered",
-        },
-        wallet: {
-          status: "covered",
-        },
-        security: {
-          status: "covered",
-        },
-        canteen: {
-          status: "covered",
-        },
-        cornet: {
-          status: "covered",
-        },
-        sock: {
-          status: "covered",
-        },
-        timeline: {
-          status: "covered",
-        },
-        font: {
-          status: "covered",
-        },
-        street: {
-          status: "covered",
-        },
-        data: {
-          status: "covered",
-        },
-        "arch-rival": {
-          status: "covered",
-        },
-        appeal: {
-          status: "covered",
-        },
-        pathology: {
-          status: "covered",
-        },
-        jot: {
-          status: "covered",
-        },
-        senate: {
-          status: "covered",
-        },
-        potential: {
-          status: "covered",
-        },
-        skunk: {
-          status: "covered",
-        },
-        wine: {
-          status: "covered",
-        },
-        weather: {
-          status: "covered",
-        },
-        hip: {
-          status: "covered",
-        },
-        hiking: {
-          status: "covered",
-        },
-        punctuation: {
-          status: "covered",
-        },
-        future: {
-          status: "covered",
-        },
-        bias: {
-          status: "covered",
-        },
-        wind: {
-          status: "covered",
-        },
-      },
-      timer: 20,
-    },
-  });
   const [gameID, setGameID] = useState(undefined);
+  const [state, setState] = useState({player: "Bonnie", gameState: test});
+  const withGameState = Component => props => (
+      <Component
+        state={state}
+        setState={setState}
+        gameID={gameID}
+        setGameID={setGameID}
+        socket={socket}
+        {...props}
+      />
+    );
 
   return (
     <MuiThemeProvider theme={theme}>
       <CssBaseline />
-      <Navbar />
-      <Toolbar />
       <BrowserRouter>
+        <Navbar state={state}/>
+        <Toolbar />
         <Switch>
           <Redirect exact from="/" to="/signup" />
           <Route path="/signup" component={Signup} />
           <Route path="/login" component={Login} />
           <PrivateRoute path="/profile" component={Profile} />
-          <Route
-            path="/match"
-            render={(props) => (
-              <Match
-                state={state}
-                setState={setState}
-                gameID={gameID}
-                setGameID={setGameID}
-                socket={socket}
-                {...props}
-              />
-            )}
-          />
-          <Route
-            path="/lobby/:gameID"
-            render={(props) => (
-              <Lobby
-                state={state}
-                setState={setState}
-                gameID={gameID}
-                socket={socket}
-                {...props}
-              />
-            )}
-          />
-          <Route
-            path="/board/:gameID"
-            render={(props) => (
-              <BoardWrapper
-                state={state}
-                setState={setState}
-                socket={socket}
-                {...props}
-              />
-            )}
-          />
+          <Route path="/match" render={withGameState(Match)}/>
+          <Route path="/lobby/:gameID" render={withGameState(Lobby)}/>
+          <Route path="/game" render={withGameState(Game)}/>
           <Route
             path="/test"
             render={(props) => <Test socket={socket} {...props} />}
