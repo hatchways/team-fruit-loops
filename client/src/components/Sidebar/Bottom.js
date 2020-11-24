@@ -29,7 +29,7 @@ const useSpyBottomStyles = makeStyles(theme => ({
     marginRight: theme.spacing(1),
   },
   chip: {
-    borderRadius: "5px",
+    borderRadius: "8px",
     display: "inline-block",
     marginLeft: theme.spacing(0.5),
     marginRight: theme.spacing(0.5),
@@ -41,11 +41,12 @@ const useSpyBottomStyles = makeStyles(theme => ({
   prompt: {
     backgroundColor: "rgb(75, 75, 75);",
     color: "white",
+    marginTop: theme.spacing(1),
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
-    borderRadius: "5px",
+    borderRadius: "8px",
   },
   triangle: {
     content: ' ',

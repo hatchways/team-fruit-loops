@@ -1,13 +1,16 @@
-import React from "react";
+import React, { forwardRef } from "react";
 import { useHistory } from "react-router-dom";
 import { withStyles } from "@material-ui/core/styles";
 import {
   Button,
   Dialog, DialogTitle, DialogContent,
   Grid,
+  Slide,
   Typography,
 } from "@material-ui/core";
 import PropTypes from 'prop-types';
+
+import Skull from "../../assets/filename.svg";
 
 const styles = theme => ({
   root: {
@@ -36,29 +39,39 @@ const styles = theme => ({
   }
 });
 
-const FinishedComponent = ({ classes, finished, winner }) => {
+const Transition = forwardRef((props, ref) => (
+  <Slide direction="up" ref={ref} {...props} />
+));
+
+const FinishedComponent = ({ classes, finished, winner, bluePoints, redPoints }) => {
   const history = useHistory();
   const onNewGameClick = () => history.push("/match");
 
   return (
-    <Dialog open={finished} className={classes.root}>
+    <Dialog
+      open={finished}
+      className={classes.root}
+      TransitionComponent={Transition}>
       <DialogTitle>Game Over!</DialogTitle>
       <DialogContent>
         <Grid container direction="column" alignItems="center">
+          <img src={Skull} alt="Skull"/>
           <Typography
             className={Object.entries({
               [classes.red]: winner === "red",
               [classes.blue]: winner === "blue",
             })
-            .filter(([, v]) => v === false ? false : true)
-            .map(([k, ]) => k)
-            .join(" ")}>
+            .reduce((css, [k, v]) => (css + (v === true ? k + " " : "")), "")}>
             { winner === "blue" ? "Blue" : "Red" } Wins
           </Typography>
           <div>
-            <Typography className={[classes.blue, classes.label].join(" ")}>6</Typography>
+            <Typography className={[classes.blue, classes.label].join(" ")}>
+              { bluePoints }
+            </Typography>
             <Typography className={classes.middle}>:</Typography>
-            <Typography className={[classes.red, classes.label].join(" ")}>6</Typography>
+            <Typography className={[classes.red, classes.label].join(" ")}>
+              { redPoints }
+            </Typography>
           </div>
           <Button className={classes.newGame} onClick={onNewGameClick}>
               New Game
@@ -73,6 +86,8 @@ FinishedComponent.propTypes = {
   finished: PropTypes.bool.isRequired,
   classes: PropTypes.object.isRequired,
   winner: PropTypes.string.isRequired,
+  bluePoints: PropTypes.number.isRequired,
+  redPoints: PropTypes.number.isRequired,
 }
 
 const Finished = withStyles(styles)(FinishedComponent);

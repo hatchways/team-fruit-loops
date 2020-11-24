@@ -26,7 +26,7 @@ const styles = theme => ({
 
 const isSpy = ({player, gameState: {redSpy, blueSpy}}) => (
   player === redSpy || player === blueSpy
-)
+);
 
 const GamePage = ({ classes, state, }) => {
   const [winner, ] = useState("blue"),
@@ -34,7 +34,11 @@ const GamePage = ({ classes, state, }) => {
 
   return (
     <Container>
-      <Finished finished={finished} winner={winner}/>
+      <Finished
+        finished={finished}
+        winner={winner}
+        bluePoints={state.gameState.bluePoints}
+        redPoints={state.gameState.redPoints}/>
       <GameSidebar
         state={state}
         player={state.player}
@@ -65,7 +69,7 @@ GamePage.propTypes = {
   classes: PropTypes.object.isRequired,
   socket: PropTypes.object.isRequired,
   state: PropTypes.object.isRequired,
-}
+};
 
 const Game = withStyles(styles)(GamePage);
 

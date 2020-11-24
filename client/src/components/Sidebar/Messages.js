@@ -14,7 +14,7 @@ const own = theme => ({
     padding: theme.spacing(1),
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
-    borderRadius: "5px",
+    borderRadius: "8px",
     marginLeft: theme.spacing(1),
   },
   floatRight: {
@@ -32,12 +32,7 @@ const own = theme => ({
   },
 });
 
-const Own = ({
-  classes,
-  text,
-  inline = false,
-  direction = "bottomRight",
-}) => (
+const Own = ({ classes, text, inline = false, direction = "bottomRight", }) => (
   <div className={
     Object.entries({
       [classes.inline]: inline,
@@ -46,9 +41,7 @@ const Own = ({
       [classes.bottomRight]: direction === "bottomRight",
       [classes.floatRight]: direction === "bottomRight",
     })
-    .filter(([, v]) => v === false ? false : true)
-    .map(([k,]) => k)
-    .join(" ")}>
+    .reduce((css, [k, v]) => (css + (v === true ? k + " " : "")), "")}>
     { text }
   </div>
 );
@@ -73,6 +66,8 @@ const other = theme => ({
     paddingBottom: theme.spacing(1),
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
+    borderRadius: "8px",
+    borderTopLeftRadius: "0px",
   },
 });
 
