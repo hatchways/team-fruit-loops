@@ -45,11 +45,13 @@ const Transition = forwardRef((props, ref) => (
 
 const FinishedComponent = ({ classes, finished, winner, bluePoints, redPoints }) => {
   const history = useHistory();
-  const onNewGameClick = () => history.push("/match");
+  const onNewGameClick = () => {
+    history.push("/match");
+  }
 
   return (
     <Dialog
-      open={finished}
+      open={finished && winner !== undefined}
       className={classes.root}
       TransitionComponent={Transition}>
       <DialogTitle>Game Over!</DialogTitle>
