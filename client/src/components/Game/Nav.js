@@ -78,7 +78,7 @@ const Scorecard = ({ classes, score, team, }) => (
   </div>
 );
 
-const Navbar = ({ classes, state, onRestart}) => {
+const Navbar = ({ classes, state, setState, onRestart}) => {
   const {gameState: {bluePoints, redPoints}} = state;
   const [miniMenu, setMiniMenu] = useState(null);
   const [fullMenu, setFullMenu] = useState(null);
@@ -114,7 +114,7 @@ const Navbar = ({ classes, state, onRestart}) => {
           <Hidden smDown>
           <Grid item container className={classes.navEnd}>
             <Button onClick={() => onRestart()} className={classes.game} variant="outlined">
-              New Game
+              Restart
             </Button>
             <Avatar alt="Sofia" />
             <Button
@@ -145,8 +145,8 @@ const Navbar = ({ classes, state, onRestart}) => {
           anchorEl={miniMenu}
           open={Boolean(miniMenu)}
           onClose={toggleMenu("mini")}>
-          <MenuItem selected={false} onClick={() => onRestart()}>New
-            Game
+          <MenuItem selected={false} onClick={() => onRestart()}>
+            Restart
           </MenuItem>
           <MenuItem onClick={toggleMenu("mini")}>
             Profile

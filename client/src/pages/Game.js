@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from 'react'
-import { Redirect } from 'react-router-dom'
-import { useParams } from 'react-router'
-import { withStyles } from '@material-ui/core/styles'
-import { Grid, Container, Toolbar } from '@material-ui/core'
-import PropTypes from 'prop-types'
+import React, { useEffect } from "react";
+import { Redirect } from "react-router-dom";
+import { useParams } from 'react-router';
+import { withStyles } from "@material-ui/core/styles";
+import {
+  Container,
+} from "@material-ui/core";
+import PropTypes from 'prop-types';
 
-import Finished from '../components/Game/Finished'
-import GameSidebar, { sidebarWidth } from '../components/Sidebar'
-import Board from '../components/Game/Board'
-import GameNavbar from '../components/Game/Nav'
+import Finished from "../components/Game/Finished";
+import GameSidebar from "../components/Sidebar";
+import Board from "../components/Game/Board";
+import GameNavbar from "../components/Game/Nav";
 
 const styles = theme => ({
   root: {
@@ -150,12 +152,14 @@ const GamePage = ({ classes, state, setState, socket }) => {
 
   return (
     <Container className={classes.root}>
-      <GameNavbar state={state} onRestart={onRestart} />
+      <GameNavbar
+        setState={setState}
+        state={state}
+        onRestart={onRestart}
+      />
       <Finished
-        finished={state.gameState.isEnd}
-        winner={state.gameState.winner}
-        bluePoints={state.gameState.bluePoints}
-        redPoints={state.gameState.redPoints}
+        setState={setState}
+        state={state}
       />
       <GameSidebar
         state={state}
@@ -184,8 +188,8 @@ GamePage.propTypes = {
   classes: PropTypes.object.isRequired,
   socket: PropTypes.object.isRequired,
   state: PropTypes.object.isRequired,
-  setState: PropTypes.object.isRequired
-}
+  setState: PropTypes.func.isRequired,
+};
 
 const Game = withStyles(styles)(GamePage)
 

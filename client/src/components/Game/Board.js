@@ -129,7 +129,7 @@ const Board = ({ state, setState, gameID, socket, onNextMove }) => {
       </Grid>
       <Container className={classes.prompt} spacing={3}>
       <Paper className={classes.paper}> Time remaining: {gameState.timer} </Paper>
-      <Paper className={classes.paper}className={classes.paper}>
+      <Paper className={classes.paper}>
         Turn: {gameState.turn}
       </Paper>
       <Paper className={classes.paper}>
