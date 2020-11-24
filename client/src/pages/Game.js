@@ -94,24 +94,24 @@ const GamePage = ({ classes, state, setState, socket }) => {
     return <Redirect to='/match' />
   }
 
-  // // event handler for selecting a card
-  // const onNextMove = async word => {
-  //   const type = 'nextMove'
-  //   const res = await fetch(api[type].url(gameID), {
-  //     method: api[type].method,
-  //     headers: api[type].headers,
-  //     body: api[type].body(player, word)
-  //   })
+  // event handler for selecting a card
+  const onNextMove = async word => {
+    const type = 'nextMove'
+    const res = await fetch(api[type].url(gameID), {
+      method: api[type].method,
+      headers: api[type].headers,
+      body: api[type].body(player, word)
+    })
 
-  //   if (res.status < 200 || res.status >= 300) {
-  //     const next = await res.json()
-  //     console.log(next)
-  //   }
-  // }
-
-  const onNextMove = word => {
-    socket.emit('guesserNextMove', gameID, player, word)
+    if (res.status < 200 || res.status >= 300) {
+      const next = await res.json()
+      console.log(next)
+    }
   }
+
+  // const onNextMove = word => {
+  //   socket.emit('guesserNextMove', gameID, player, word)
+  // }
 
   // event handler for restarting the game
   const onRestart = async () => {
@@ -158,12 +158,12 @@ const GamePage = ({ classes, state, setState, socket }) => {
   )
 }
 
-GamePage.propTypes = {
-  classes: PropTypes.object.isRequired,
-  socket: PropTypes.object.isRequired,
-  state: PropTypes.object.isRequired,
-  setState: PropTypes.object.isRequired
-}
+// GamePage.propTypes = {
+//   classes: PropTypes.object.isRequired,
+//   socket: PropTypes.object.isRequired,
+//   state: PropTypes.object.isRequired,
+//   setState: PropTypes.object.isRequired
+// }
 
 const Game = withStyles(styles)(GamePage)
 

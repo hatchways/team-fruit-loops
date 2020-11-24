@@ -181,10 +181,13 @@ const SidebarBottom = ({ setFinished, isSpy, countMax, gameID, player, socket })
   );
 };
 
-SidebarBottom.propTypes = {
-  isSpy: PropTypes.bool.isRequired,
-  countMax: PropTypes.number.isRequired,
-  setFinished: PropTypes.func.isRequired,
-};
+// SidebarBottom.propTypes = {
+//   isSpy: PropTypes.bool.isRequired,
+//   countMax: PropTypes.number.isRequired,
+//   setFinished: PropTypes.func.isRequired,
+//   gameID: PropTypes.string.isRequired,
+//   player: PropTypes.string.isRequired,
+//   socket: PropTypes.object.isRequired,
+// };
 
 export default SidebarBottom;

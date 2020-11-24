@@ -55,7 +55,7 @@ const socketio = server => {
           thrownError = err.message
         }
 
-        io.in(gameID).emit('guesserNextMove', gameState, thrownError)
+        io.in(gameID).emit('spyNextMove', gameState, thrownError)
       }
     })
 

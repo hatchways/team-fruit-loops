@@ -49,13 +49,15 @@ const Sidebar = ({ classes, setFinished, state, isSpy, countMax, gameID, socket,
 
 const GameSidebar = withStyles(styles)(Sidebar)
 
-GameSidebar.propTypes = {
-  player: PropTypes.string.isRequired,
-  state: PropTypes.object.isRequired,
-  isSpy: PropTypes.bool.isRequired,
-  countMax: PropTypes.number.isRequired,
-  setFinished: PropTypes.func.isRequired,
-};
+// GameSidebar.propTypes = {
+//   player: PropTypes.string.isRequired,
+//   state: PropTypes.object.isRequired,
+//   isSpy: PropTypes.bool.isRequired,
+//   countMax: PropTypes.number.isRequired,
+//   setFinished: PropTypes.func.isRequired,
+//   gameID: PropTypes.string.isRequired,
+//   socket: PropTypes.object.isRequired,
+// };
 
 export {
   GameSidebar as default,
