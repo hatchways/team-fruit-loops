@@ -1,101 +1,125 @@
-import React, { useState, useEffect } from "react";
-import { Redirect } from "react-router-dom";
-import { useParams } from 'react-router';
-import { withStyles } from "@material-ui/core/styles";
-import {
-  Grid,
-  Container,
-  Toolbar,
-} from "@material-ui/core";
-import PropTypes from 'prop-types';
+import React, { useState, useEffect } from 'react'
+import { Redirect } from 'react-router-dom'
+import { useParams } from 'react-router'
+import { withStyles } from '@material-ui/core/styles'
+import { Grid, Container, Toolbar } from '@material-ui/core'
+import PropTypes from 'prop-types'
 
-import Finished from "../components/Game/Finished";
-import GameSidebar, { sidebarWidth } from "../components/Sidebar";
-import Board from "../components/Game/Board";
-import GameNavbar from "../components/Game/Nav";
+import Finished from '../components/Game/Finished'
+import GameSidebar, { sidebarWidth } from '../components/Sidebar'
+import Board from '../components/Game/Board'
+import GameNavbar from '../components/Game/Nav'
 
 const styles = theme => ({
   root: {
-    display: "flex",
-    padding: "0",
-    margin: "0",
-    maxWidth: "100vw",
+    display: 'flex',
+    padding: '0',
+    margin: '0',
+    maxWidth: '100vw'
   }
-});
+})
 
 const api = {
-  "nextMove": {
+  nextMove: {
     url: id => `/game/${id}/next-move`,
-    method: "PUT",
+    method: 'PUT',
     headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
+      Accept: 'application/json',
+      'Content-Type': 'application/json'
     },
-    body: (player, word) => JSON.stringify({ player, word }),
+    body: (player, word) => JSON.stringify({ player, word })
   },
-  "restart": {
+  restart: {
     url: id => `/game/${id}/restart`,
-    method: "PUT",
+    method: 'PUT',
     headers: {
-      Accept: "application/json",
+      Accept: 'application/json'
     },
-    body: () => "",
-  },
-};
+    body: () => ''
+  }
+}
 
-
-const isSpy = ({player, gameState: {redSpy, blueSpy}}) => (
+const isSpy = ({ player, gameState: { redSpy, blueSpy } }) =>
   player === redSpy || player === blueSpy
-);
 
-const GamePage = ({ classes, state, setState, socket}) => {
-  const { gameID } = useParams();
-  const {gameState, player} = state;
+const GamePage = ({ classes, state, setState, socket }) => {
+  const { gameID } = useParams()
+  const { gameState, player } = state
 
   // This is responsible for re-rendering if websocket receives update
   // from front end.
   useEffect(() => {
     const updateHandler = next => {
-      if (process.env.NODE_ENV === 'development') {
-        console.log("update recieved: ", next);
-      }
-      state.gameState = next;
-      setState({player: state.player, gameState: state.gameState});
+      // if (process.env.NODE_ENV === 'development') {
+      //   console.log('update recieved: ', next)
+      // }
+      state.gameState = next
+      setState({ player: state.player, gameState: state.gameState })
     }
 
-    socket.on("update", updateHandler);
+    socket.on('update', updateHandler)
     return () => {
-      socket.off("update", updateHandler);
+      socket.off('update', updateHandler)
     }
-  }, [setState, socket, state.gameState, state.player]);
+  }, [setState, socket, state.gameState, state.player])
 
+  // Socket handlers for next moves, ending turn, and restarting game
+  useEffect(() => {
+    socket.on('guesserNextMove', (payload, err) => {
+      if (!err) {
+        setState({ gameState: payload })
+      } else {
+        console.log(err)
+      }
+    })
+
+    socket.on('spyNextMove', (payload, err) => {
+      if (!err) {
+        setState({ gameState: payload })
+      } else {
+        console.log(err)
+      }
+    })
+
+    socket.on('endTurn', payload => {
+      setState({ gameState: payload })
+    })
+
+    socket.on('restartGame', payload => {
+      setState({ gameState: payload })
+    })
+  }, [socket])
 
   if (gameID === undefined || gameState === undefined) {
-    return (<Redirect to="/match" />);
+    return <Redirect to='/match' />
   }
 
-  // event handler for selecting a card
-  const onNextMove = async(word) => {
-    const type = "nextMove"
-    const res = await fetch(api[type].url(gameID), {
-      method: api[type].method,
-      headers: api[type].headers,
-      body: api[type].body(player, word),
-    });
+  // // event handler for selecting a card
+  // const onNextMove = async word => {
+  //   const type = 'nextMove'
+  //   const res = await fetch(api[type].url(gameID), {
+  //     method: api[type].method,
+  //     headers: api[type].headers,
+  //     body: api[type].body(player, word)
+  //   })
 
-    if (res.status < 200 || res.status >= 300) {
-      const next = await res.json()
-      console.log(next)
-    }
+  //   if (res.status < 200 || res.status >= 300) {
+  //     const next = await res.json()
+  //     console.log(next)
+  //   }
+  // }
+
+  const onNextMove = word => {
+    socket.emit('guesserNextMove', gameID, player, word)
   }
 
   // event handler for restarting the game
-  const onRestart = async() => {
-    const type = "restart"
+  const onRestart = async () => {
+    const type = 'restart'
     const res = await fetch(api[type].url(gameID), {
       method: api[type].method,
-      headers: api[type].headers,
-    });
+      headers: api[type].headers
+    })
 
     if (res.status < 200 || res.status >= 300) {
       const next = await res.json()
@@ -105,10 +129,7 @@ const GamePage = ({ classes, state, setState, socket}) => {
 
   return (
     <Container className={classes.root}>
-      <GameNavbar
-        state={state}
-        onRestart={onRestart}
-      />
+      <GameNavbar state={state} onRestart={onRestart} />
       <Finished
         finished={state.gameState.isEnd}
         winner={state.gameState.winner}
@@ -120,9 +141,11 @@ const GamePage = ({ classes, state, setState, socket}) => {
         player={state.player}
         count={4}
         countMax={5}
-        token="Animals"
+        token='Animals'
         setFinished={undefined}
         isSpy={isSpy(state)}
+        gameID={gameID}
+        socket={socket}
       />
       <Board
         state={state}
@@ -132,16 +155,16 @@ const GamePage = ({ classes, state, setState, socket}) => {
         socket={socket}
       />
     </Container>
-  );
-};
+  )
+}
 
 GamePage.propTypes = {
   classes: PropTypes.object.isRequired,
   socket: PropTypes.object.isRequired,
   state: PropTypes.object.isRequired,
-  setState: PropTypes.object.isRequired,
-};
+  setState: PropTypes.object.isRequired
+}
 
-const Game = withStyles(styles)(GamePage);
+const Game = withStyles(styles)(GamePage)
 
-export default Game;
+export default Game

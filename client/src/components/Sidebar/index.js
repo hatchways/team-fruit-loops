@@ -29,7 +29,7 @@ const styles = () => ({
   },
 });
 
-const Sidebar = ({ classes, setFinished, state, isSpy, countMax, ...topProps }) => (
+const Sidebar = ({ classes, setFinished, state, isSpy, countMax, gameID, socket, player, ...topProps }) => (
   <Drawer
     variant="permanent"
     className={classes.root}
@@ -42,7 +42,7 @@ const Sidebar = ({ classes, setFinished, state, isSpy, countMax, ...topProps }) 
           : <SidebarTop state={state} player={state.player} {...topProps}/>
       }
       <SidebarChat player={state.player}/>
-      <SidebarBottom setFinished={setFinished} isSpy={isSpy} countMax={countMax}/>
+      <SidebarBottom setFinished={setFinished} isSpy={isSpy} countMax={countMax} gameID={gameID} player={state.player} socket={socket}/>
     </div>
   </Drawer>
 );

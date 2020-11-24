@@ -126,4 +126,6 @@ module.exports = {
   endTurn,
   restart,
   execute,
+
+  globalState,
 }

@@ -65,13 +65,28 @@ const useSpyBottomStyles = makeStyles(theme => ({
   }
 }));
 
-const SpyBottom = ({ countMax, setFinished, }) => {
+const SpyBottom = ({ gameID, countMax, setFinished, player, socket}) => {
   const classes = useSpyBottomStyles();
-  const [message, setMessage] = useState("");
+  const [spyHint, setSpyHint] = useState("");
   const [count, setCount] = useState(0);
-  const onClickDone = () => setFinished(true);
+  // const onClickDone = () => setFinished(true);
   const onClickMin = () => setCount(Math.max(count - 1, 0));
   const onClickMax = () => setCount(Math.min(count + 1, countMax));
+
+  const handleSpyHintChange = (event) => {
+    // Spy can only submit one "word", with no spaces
+    setSpyHint(event.target.value.split(" ").join(""));
+  };
+
+  const handleSpyHintSubmit = (event) => {
+    socket.emit(
+      "spyNextMove",
+      gameID,
+      player,
+      spyHint,
+      count
+    );
+  }
 
   return (
     <Grid container justify="center" className={classes.bottom}>
@@ -86,11 +101,18 @@ const SpyBottom = ({ countMax, setFinished, }) => {
       <Divider className={classes.hDivider}/>
       <Grid item xs={12} md={8}>
         <TextField
-          multiline
-          value={message}
-          onChange={({ target: { value }}) => setMessage(value)}
+          // multiline
+          value={spyHint}
+          // onChange={({ target: { value }}) => setMessage(value)}
+          onChange={handleSpyHintChange}
           className={classes.text}
-          placeholder="Type here..."/>
+          placeholder="Type here..."
+          
+          onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === "NumpadEnter") {
+              handleSpyHintSubmit();
+            }
+          }}/>
       </Grid>
       <Grid container item justify="center" xs={12} md={4}>
         <Chip
@@ -108,7 +130,8 @@ const SpyBottom = ({ countMax, setFinished, }) => {
           label="+"/>
       </Grid>
       <Button
-        onClick={onClickDone}
+        // onClick={onClickDone}
+        onClick={handleSpyHintSubmit}
         className={classes.done}
         variant="outlined">
         Done
@@ -137,12 +160,12 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const SidebarBottom = ({ setFinished, isSpy, countMax, }) => {
+const SidebarBottom = ({ setFinished, isSpy, countMax, gameID, player, socket }) => {
   const classes = useStyles();
   const [message, setMessage] = useState("");
 
   if (isSpy) {
-    return <SpyBottom setFinished={setFinished} countMax={countMax} />;
+    return <SpyBottom setFinished={setFinished} countMax={countMax} gameID={gameID} player={player} socket={socket} />;
   }
 
   return (
