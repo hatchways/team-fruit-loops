@@ -34,7 +34,7 @@ router.post("/", function (req, res, next) {
             };
 
             // Correct credentials have been provided; create JWT
-            const access_token = createAccessToken(payload, "30m");
+            const access_token = createAccessToken(payload, "12h");
 
             jwt.verify(
               access_token,

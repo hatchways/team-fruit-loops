@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import { useHistory } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 
 import {
   Button,
   TextField,
-  Link,
   Typography,
   Container,
   Snackbar,
@@ -50,9 +49,13 @@ const useStyles = makeStyles((theme) => ({
     width: "120px",
     height: "40px",
   },
+  link: {
+    textDecoration: "none",
+    color: theme.palette.primary.main
+  }
 }));
 
-const Login = () => {
+const Login = ({setAccountValues}) => {
   const classes = useStyles();
   let history = useHistory();
 
@@ -75,7 +78,13 @@ const Login = () => {
     axios
       .post("/login", values)
       .then((res) => {
-        // If login is successful, redirect to profile page
+        // If login is successful, save info to global state variable and redirect to profile page
+        setAccountValues({
+          name: res.data.user.name,
+          email: res.data.user.email,
+          imageUrl: res.data.user.imageUrl
+        })
+
         history.push("/profile");
       })
       .catch((err) => {
@@ -131,7 +140,7 @@ const Login = () => {
             Sign In
           </Button>
           <Typography align="center">
-            Don't have an account? <Link href="/signup">{"Sign Up"}</Link>
+            Don't have an account? <Link to="/signup" className={classes.link}>{"Sign Up"}</Link>
           </Typography>
         </form>
       </div>

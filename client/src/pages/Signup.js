@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import { useHistory } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 
 import {
   Button,
   TextField,
-  Link,
   Typography,
   Container,
   Snackbar,
@@ -50,6 +49,10 @@ const useStyles = makeStyles((theme) => ({
     width: "120px",
     height: "40px",
   },
+  link: {
+    textDecoration: "none",
+    color: theme.palette.primary.main
+  }
 }));
 
 const Signup = () => {
@@ -189,7 +192,7 @@ const Signup = () => {
             Create Account
           </Button>
           <Typography>
-            Already have an account? <Link href="/login">{"Sign In"}</Link>
+            Already have an account? <Link to="/login" className={classes.link}>{"Sign In"}</Link>
           </Typography>
         </form>
       </div>
