@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import {
   Button,
@@ -161,7 +161,6 @@ const useStyles = makeStyles(theme => ({
 const SidebarBottom = ({ isSpy, countMax, gameID, player, socket }) => {
   const classes = useStyles();
   const [message, setMessage] = useState("");
-  let textInput = useRef(null);
 
   const chatHandler = ({ keyCode }) => {
     if (keyCode !== 13 || message === "") {
@@ -171,7 +170,6 @@ const SidebarBottom = ({ isSpy, countMax, gameID, player, socket }) => {
       console.log(`Emitting chat: ${player} - ${message}`);
     }
     socket.emit("chat", gameID, "chat", message, player);
-    textInput.current.value = "";
     setMessage("");
   };
 
@@ -191,7 +189,6 @@ const SidebarBottom = ({ isSpy, countMax, gameID, player, socket }) => {
         <TextField
           multiline
           value={message}
-          inputRef={textInput}
           onChange={({ target: { value }}) => setMessage(value)}
           onKeyDown={chatHandler}
           className={classes.text}
