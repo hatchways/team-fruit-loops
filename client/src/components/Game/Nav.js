@@ -88,8 +88,6 @@ const Navbar = ({ classes, state, setState, onRestart, accountValues }) => {
       : setMiniMenu(miniMenu === null ? currentTarget : null)
   );
 
-    console.log(accountValues);
-
   return (
     <AppBar className={classes.root}>
       <Toolbar className={classes.toolbar}>
