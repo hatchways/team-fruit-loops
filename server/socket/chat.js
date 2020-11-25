@@ -1,10 +1,10 @@
-const handleChatEvent = socket => (gameID, type, author, text) => {
-  console.log(`Received ${type} in game ${gameID}: ${author} - ${text}`);
-  // socket.to(gameID).emit('chat', type, author, text);
-  // emit to sender as well
-  socket.in(gameID).emit("chat", type, "tom", text);
+const chatMessage = io => (gameID, type, text, author) => {
+  if (process.env.NODE_ENV !== "production") {
+    console.log(`Received ${type} in game ${gameID} from ${author}: ${text}`);
+  }
+  io.in(gameID).emit("chat", type, text, author);
 };
 
 module.exports = {
-  handleChatEvent,
+  chatMessage,
 }

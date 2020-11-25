@@ -29,12 +29,12 @@ const styles = () => ({
   },
 });
 
-const Sidebar = ({ classes, socket, state, isSpy, countMax, gameID, ...props }) => {
-  const emitChat = message => {
+const Sidebar = ({ classes, socket, state, isSpy, countMax, player, gameID, ...props }) => {
+  const emitChat = (type, message) => {
     if (process.env.NODE_ENV !== "production") {
-      console.log(`emitted chat: ${state.player} - ${message}`)
+      console.log(`emitted ${type}: ${player} - ${message}`)
     }
-    socket.emit("chat", gameID, "chat", state.player, message);
+    socket.emit("chat", gameID, type, message, player);
   };
 
   return (
@@ -49,7 +49,7 @@ const Sidebar = ({ classes, socket, state, isSpy, countMax, gameID, ...props }) 
             ? null
             : <SidebarTop state={state} player={state.player} {...props}/>
         }
-        <SidebarChat socket={socket} player={state.player}/>
+        <SidebarChat socket={socket} player={player}/>
         <SidebarBottom emitChat={emitChat} isSpy={isSpy} countMax={countMax}/>
       </div>
     </Drawer>

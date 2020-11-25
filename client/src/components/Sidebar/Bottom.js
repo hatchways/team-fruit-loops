@@ -65,7 +65,7 @@ const useSpyBottomStyles = makeStyles(theme => ({
   }
 }));
 
-const SpyBottom = ({ countMax, }) => {
+const SpyBottom = ({ countMax, chatHandler, }) => {
   const classes = useSpyBottomStyles();
   const [message, setMessage] = useState("");
   const [count, setCount] = useState(0);
@@ -89,6 +89,7 @@ const SpyBottom = ({ countMax, }) => {
           multiline
           value={message}
           onChange={({ target: { value }}) => setMessage(value)}
+          onKeyDown={chatHandler}
           className={classes.text}
           placeholder="Type here..."/>
       </Grid>
@@ -141,17 +142,20 @@ const SidebarBottom = ({ isSpy, emitChat, ...props }) => {
   const classes = useStyles();
   const [message, setMessage] = useState("");
 
-  if (isSpy) {
-    return <SpyBottom setFinished={props.setFinished} countMax={props.countMax}/>;
-  }
-
   const chatHandler = ({ keyCode }) => {
-    if (keyCode !== 13) {
+    if (keyCode !== 13 || message === "") {
       return ;
     }
-    emitChat(message);
+    emitChat("chat", message);
     setMessage("");
   };
+
+  if (isSpy) {
+    return <SpyBottom
+      chatHandler={props.chatHandler}
+      countMax={props.countMax}/>;
+  }
+
 
   return (
     <div className={classes.bottom}>

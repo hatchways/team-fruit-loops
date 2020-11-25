@@ -1,7 +1,9 @@
-const { handleChatEvent } = require("./chat");
+const chat = require("./chat");
 
 const events = {
-  "chat": handleChatEvent,
+  "chat": chat.chatMessage,
+  "action": chat.chatMessage,
+  "notification": chat.chatMessage,
 };
 
 const socketio = server => {
@@ -19,7 +21,7 @@ const socketio = server => {
     });
 
     for (let [event, handler] of Object.entries(events)) {
-      socket.on(event, handler(socket));
+      socket.on(event, handler(io));
     }
   })
   return io;
