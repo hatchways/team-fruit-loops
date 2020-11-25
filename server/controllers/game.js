@@ -78,7 +78,10 @@ const start = (req, res, next) => {
 
   const io = req.app.get('socketio');
   const game = res.locals.game;
-  setInterval(() => {
+  const timer = setInterval(() => {
+    if (game.gameState.isEnd)
+      clearInterval(timer);
+
     game.timerCountDown();
     io.to(req.params.id).emit('update', game.gameState);
   }, 1000);
@@ -126,4 +129,6 @@ module.exports = {
   endTurn,
   restart,
   execute,
+
+  globalState,
 }

@@ -125,9 +125,67 @@ Notification.propTypes = {
   text: PropTypes.string.isRequired,
 };
 
+// Message box for Spymaster Hint
+const spymasterHint = theme => ({
+  plain: {
+    color: "white",
+    width: "max-content",
+    padding: theme.spacing(1),
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+    borderRadius: "8px",
+    marginLeft: theme.spacing(1),
+  },
+  red: {
+    backgroundColor: "rgb(255, 62, 59)",
+    backgroundImage: "linear-gradient(to right, rgb(255, 62, 59), rgb(254, 100, 63))",
+  },
+  blue: {
+    backgroundColor: "rgb(59, 66, 255)",
+    backgroundImage: "linear-gradient(to right, rgb(59, 66, 255), rgb(95, 63, 254))",
+  },
+  floatRight: {
+    float: "right",
+  },
+  inline: {
+    display: "inline-block",
+    marginRight: theme.spacing(1),
+  },
+  topLeft: {
+    borderTopLeftRadius: "0px",
+  },
+  bottomRight: {
+    borderBottomRightRadius: "0px",
+  },
+});
+
+const SpymasterHint = ({ classes, text, inline = false, direction = "bottomRight", turn }) => (
+  <div className={
+    Object.entries({
+      [classes.inline]: inline,
+      [classes.plain]: true,
+      [classes.topLeft]: direction === "topLeft",
+      [classes.bottomRight]: direction === "bottomRight",
+      [classes.floatRight]: direction === "bottomRight",
+      [classes.red]: turn === "red",
+      [classes.blue]: turn === "blue",
+    })
+    .reduce((css, [k, v]) => (css + (v === true ? k + " " : "")), "")}>
+    { text }
+  </div>
+);
+
+SpymasterHint.propTypes = {
+  classes: PropTypes.object.isRequired,
+  text: PropTypes.string.isRequired,
+  inline: PropTypes.bool,
+  direction: PropTypes.string,
+};
+
 const OwnMessage = withStyles(own)(Own),
   OtherMessage = withStyles(other)(Other),
   EventMessage = withStyles(event)(Event),
-  NotificationMessage = withStyles(notification)(Notification);
+  NotificationMessage = withStyles(notification)(Notification),
+  SpymasterHintMessage = withStyles(spymasterHint)(SpymasterHint);
 
-export { OwnMessage, OtherMessage, EventMessage, NotificationMessage };
+export { OwnMessage, OtherMessage, EventMessage, NotificationMessage, SpymasterHintMessage };

@@ -65,13 +65,34 @@ const useSpyBottomStyles = makeStyles(theme => ({
   }
 }));
 
-const SpyBottom = ({ countMax, chatHandler, }) => {
+const SpyBottom = ({ gameID, countMax, setFinished, player, socket}) => {
   const classes = useSpyBottomStyles();
-  const [message, setMessage] = useState("");
-  const [count, setCount] = useState(0);
-  const onClickDone = () => console.log("clicked done");
+  const [spyHint, setSpyHint] = useState("");
+  const [count, setCount] = useState(1);
   const onClickMin = () => setCount(Math.max(count - 1, 0));
   const onClickMax = () => setCount(Math.min(count + 1, countMax));
+
+  const handleSpyHintChange = (event) => {
+    // Spy can only submit one "word", with no spaces
+    setSpyHint(event.target.value.split(" ").join(""));
+  };
+
+  const handleSpyHintSubmit = () => {
+    socket.emit(
+      "spyNextMove",
+      gameID,
+      player,
+      spyHint,
+      count
+    );
+
+    setSpyHint("");
+    setCount(1);
+  }
+
+  const onKeyDown = ({ key }) => (
+    (key === "Enter" || key === "NumpadEnter") && handleSpyHintSubmit()
+  );
 
   return (
     <Grid container justify="center" className={classes.bottom}>
@@ -86,12 +107,11 @@ const SpyBottom = ({ countMax, chatHandler, }) => {
       <Divider className={classes.hDivider}/>
       <Grid item xs={12} md={8}>
         <TextField
-          multiline
-          value={message}
-          onChange={({ target: { value }}) => setMessage(value)}
-          onKeyDown={chatHandler}
+          value={spyHint}
+          onChange={handleSpyHintChange}
           className={classes.text}
-          placeholder="Type here..."/>
+          placeholder="Type here..."
+          onKeyDown={onKeyDown}/>
       </Grid>
       <Grid container item justify="center" xs={12} md={4}>
         <Chip
@@ -109,7 +129,7 @@ const SpyBottom = ({ countMax, chatHandler, }) => {
           label="+"/>
       </Grid>
       <Button
-        onClick={onClickDone}
+        onClick={handleSpyHintSubmit}
         className={classes.done}
         variant="outlined">
         Done
@@ -138,7 +158,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const SidebarBottom = ({ isSpy, emitChat, ...props }) => {
+const SidebarBottom = ({ isSpy, countMax, gameID, player, socket }) => {
   const classes = useStyles();
   const [message, setMessage] = useState("");
 
@@ -146,14 +166,21 @@ const SidebarBottom = ({ isSpy, emitChat, ...props }) => {
     if (keyCode !== 13 || message === "") {
       return ;
     }
-    emitChat("chat", message);
+    if (process.env.NODE_ENV !== "production") {
+      console.log(`Emitting chat: ${player} - ${message}`);
+    }
+    socket.emit("chat", "chat", message, player);
     setMessage("");
   };
 
   if (isSpy) {
-    return <SpyBottom
-      chatHandler={props.chatHandler}
-      countMax={props.countMax}/>;
+    return (
+      <SpyBottom
+        countMax={countMax}
+        gameID={gameID}
+        player={player}
+        socket={socket}/>
+    );
   }
 
 
@@ -175,6 +202,10 @@ SidebarBottom.propTypes = {
   isSpy: PropTypes.bool.isRequired,
   countMax: PropTypes.number.isRequired,
   emitChat: PropTypes.func.isRequired,
+  setFinished: PropTypes.func.isRequired,
+  gameID: PropTypes.string.isRequired,
+  player: PropTypes.string.isRequired,
+  socket: PropTypes.object.isRequired,
 };
 
 export default SidebarBottom;
