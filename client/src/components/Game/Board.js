@@ -4,6 +4,8 @@ import { Redirect } from "react-router-dom";
 import {
   Grid,
   Button,
+  Container,
+  Paper
 } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
@@ -15,7 +17,22 @@ const useStyles = makeStyles((theme) => ({
     textTransform: 'capitalize',
     "text-align": "center",
     whiteSpace: "nowrap",
-    backgroundColor: props.status === "covered" ? "white" : props.status,
+    backgroundColor:
+          props.status === 'covered'
+        ? 'white'
+        : props.status === 'black'
+        ? 'rgb(0, 0, 0)'
+        : props.status === 'red'
+        ? 'rgb(255, 62, 59)'
+        : 'rgb(95, 63, 254)',
+    backgroundImage:
+      props.status === 'covered'
+        ? 'white'
+        : props.status === 'black'
+        ? 'linear-gradient(to right, rgb(0, 0, 0), rgb(138, 138, 138))'
+        : props.status === 'red'
+        ? 'linear-gradient(to right, rgb(255, 62, 59), rgb(254, 100, 63))'
+        : 'linear-gradient(to right, rgb(59, 66, 255), rgb(95, 63, 254))',
     color: props.status !== "covered" ? "white" :
            props.color === undefined ? "black" : props.color,
     '&:hover': {
@@ -25,12 +42,21 @@ const useStyles = makeStyles((theme) => ({
     },
   }),
   board: {
-    height: 500,
-    width: "100%",
+    margin: "10vh 0 0 0",
+    padding: "20px",
+    height: "90vh",
+    width: "100vw",
   },
   grid: {
-    height: "inherit",
-    width: "inherit",
+    height: "100%",
+    width: "100%",
+  },
+  prompt: {
+    display: "flex",
+  },
+  paper: {
+    padding: "5px",
+    margin: "10px"
   }
 }));
 
@@ -43,26 +69,6 @@ const getRole = (player, gameState) => {
 }
 
 const isSpy = role => role === "blue spy" || role === "red spy";
-
-const api = {
-  "nextMove": {
-    url: id => `/game/${id}/next-move`,
-    method: "PUT",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    },
-    body: (player, word) => JSON.stringify({ player, word }),
-  },
-  "restart": {
-    url: id => `/game/${id}/restart`,
-    method: "PUT",
-    headers: {
-      Accept: "application/json",
-    },
-    body: () => "",
-  },
-};
 
 const Card = ({status, color, word, onClick}) => {
   const classes = useStyles({status: status, color: color});
@@ -77,7 +83,7 @@ const Card = ({status, color, word, onClick}) => {
   );
 };
 
-const Board = ({ state, setState, gameID, socket}) => {
+const Board = ({ state, setState, gameID, socket, onNextMove }) => {
   const classes = useStyles();
   const {player, gameState} = state;
   if (gameState === undefined) {
@@ -98,34 +104,7 @@ const Board = ({ state, setState, gameID, socket}) => {
   const wordsGrid = [];
   while(words.length) wordsGrid.push(words.splice(0,5));
 
-  // event handler for selecting a card
-  const onNextMove = async(word) => {
-    const type = "nextMove"
-    const res = await fetch(api[type].url(gameID), {
-      method: api[type].method,
-      headers: api[type].headers,
-      body: api[type].body(player, word),
-    });
 
-    if (res.status < 200 || res.status >= 300) {
-      const next = await res.json()
-      console.log(next)
-    }
-  }
-
-  // event handler for restarting the game
-  const onRestart = async() => {
-    const type = "restart"
-    const res = await fetch(api[type].url(gameID), {
-      method: api[type].method,
-      headers: api[type].headers,
-    });
-
-    if (res.status < 200 || res.status >= 300) {
-      const next = await res.json()
-      console.log(next)
-    }
-  }
 
   return (
     <div className={classes.board}>
@@ -148,23 +127,21 @@ const Board = ({ state, setState, gameID, socket}) => {
         )
       }
       </Grid>
-      <div> Time remaining: {gameState.timer} </div>
-      <div>
+      <Container className={classes.prompt} spacing={3}>
+      <Paper className={classes.paper}> Time remaining: {gameState.timer} </Paper>
+      <Paper className={classes.paper}>
         Turn: {gameState.turn}
-      </div>
-      <div>
+      </Paper>
+      <Paper className={classes.paper}>
         Player: {player}
-      </div>
-      <div>
+      </Paper>
+      <Paper className={classes.paper}>
         Role: {getRole(player, gameState)}
-      </div>
-      <div>
+      </Paper>
+      <Paper className={classes.paper}>
         Remaining guess number: {gameState.guessNum}
-      </div>
-      <div>
-        Winner: {gameState.winner === undefined ? '' : gameState.winner}
-      </div>
-      <Button onClick={() => onRestart()}> restart </Button>
+      </Paper>
+      </Container>
     </div>
   )
 }
