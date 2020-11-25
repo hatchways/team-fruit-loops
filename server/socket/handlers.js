@@ -1,4 +1,4 @@
-const chatMessage = io => (gameID, type, text, author) => {
+const chat = io => (gameID, type, text, author) => {
   if (process.env.NODE_ENV !== "production") {
     console.log(`Received ${type} in game ${gameID} from ${author}: ${text}`);
   }
@@ -6,5 +6,5 @@ const chatMessage = io => (gameID, type, text, author) => {
 };
 
 module.exports = {
-  chatMessage,
+  chat,
 }

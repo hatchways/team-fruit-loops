@@ -1,9 +1,7 @@
-const chat = require("./chat");
+const handlers = require("./handlers");
 
 const events = {
-  "chat": chat.chatMessage,
-  "action": chat.chatMessage,
-  "notification": chat.chatMessage,
+  "chat": handlers.chat,
 };
 
 const socketio = server => {
