@@ -21,26 +21,6 @@ const styles = theme => ({
   }
 })
 
-// const api = {
-//   nextMove: {
-//     url: id => `/game/${id}/next-move`,
-//     method: 'PUT',
-//     headers: {
-//       Accept: 'application/json',
-//       'Content-Type': 'application/json'
-//     },
-//     body: (player, word) => JSON.stringify({ player, word })
-//   },
-//   restart: {
-//     url: id => `/game/${id}/restart`,
-//     method: 'PUT',
-//     headers: {
-//       Accept: 'application/json'
-//     },
-//     body: () => ''
-//   }
-// }
-
 const isSpy = ({ player, gameState: { redSpy, blueSpy } }) =>
   player === redSpy || player === blueSpy
 
