@@ -50,15 +50,6 @@ const getCurrentSpymaster = ({ gameState: { turn, redSpy, blueSpy } }) => {
   else return 'N/A'
 }
 
-// const getTeamSpymaster = ({
-//   player,
-//   gameState: { redSpy, redGuessers, blueSpy, blueGuessers }
-// }) => {
-//   if (player === redSpy || redGuessers.includes(player)) return redSpy
-//   else if (player === blueSpy || blueGuessers.includes(player)) return blueSpy
-//   else return 'N/A'
-// }
-
 const GamePage = ({ classes, state, setState, socket }) => {
   const { gameID } = useParams()
   const { gameState, player } = state
@@ -162,7 +153,6 @@ GamePage.propTypes = {
   classes: PropTypes.object.isRequired,
   socket: PropTypes.object.isRequired,
   state: PropTypes.object.isRequired,
-  gameID: PropTypes.string.isRequired,
   setState: PropTypes.func.isRequired,
 };
 

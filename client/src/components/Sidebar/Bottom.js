@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import {
   Button,
@@ -161,6 +161,7 @@ const useStyles = makeStyles(theme => ({
 const SidebarBottom = ({ isSpy, countMax, gameID, player, socket }) => {
   const classes = useStyles();
   const [message, setMessage] = useState("");
+  let textInput = useRef(null);
 
   const chatHandler = ({ keyCode }) => {
     if (keyCode !== 13 || message === "") {
@@ -169,7 +170,8 @@ const SidebarBottom = ({ isSpy, countMax, gameID, player, socket }) => {
     if (process.env.NODE_ENV !== "production") {
       console.log(`Emitting chat: ${player} - ${message}`);
     }
-    socket.emit("chat", "chat", message, player);
+    socket.emit("chat", gameID, "chat", message, player);
+    textInput.current.value = "";
     setMessage("");
   };
 
@@ -183,13 +185,13 @@ const SidebarBottom = ({ isSpy, countMax, gameID, player, socket }) => {
     );
   }
 
-
   return (
     <div className={classes.bottom}>
       <Divider className={classes.hDivider}/>
         <TextField
           multiline
           value={message}
+          inputRef={textInput}
           onChange={({ target: { value }}) => setMessage(value)}
           onKeyDown={chatHandler}
           className={classes.text}
@@ -201,8 +203,6 @@ const SidebarBottom = ({ isSpy, countMax, gameID, player, socket }) => {
 SidebarBottom.propTypes = {
   isSpy: PropTypes.bool.isRequired,
   countMax: PropTypes.number.isRequired,
-  emitChat: PropTypes.func.isRequired,
-  setFinished: PropTypes.func.isRequired,
   gameID: PropTypes.string.isRequired,
   player: PropTypes.string.isRequired,
   socket: PropTypes.object.isRequired,

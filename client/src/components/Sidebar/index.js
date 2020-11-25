@@ -41,7 +41,7 @@ const Sidebar = ({ classes, state, isSpy, countMax, gameID, socket, ...props }) 
           ? null
           : <SidebarTop state={state} player={state.player} {...props}/>
       }
-      <SidebarChat player={state.player}/>
+      <SidebarChat player={state.player} socket={socket}/>
       <SidebarBottom
         isSpy={isSpy}
         countMax={countMax}
@@ -59,7 +59,6 @@ Sidebar.propTypes = {
   isSpy: PropTypes.bool.isRequired,
   getCurrentSpymaster: PropTypes.string.isRequired,
   countMax: PropTypes.number.isRequired,
-  gameID: PropTypes.string.isRequired,
   socket: PropTypes.object.isRequired,
 };
 

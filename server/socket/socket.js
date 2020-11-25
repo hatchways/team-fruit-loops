@@ -4,46 +4,9 @@ const events = {
   "chat": handlers.chat,
   "guesserNextMove": handlers.guesserNextMove,
   "spyNextMove": handlers.spyNextMove,
+  "endTurn": handlers.endTurn,
+  "restartGame": handlers.restartGame,
 };
-
-
-// Spymaster's turn: Submit hint and number of guesses
-socket.on('spyNextMove', (gameID, player, hint, guesses) => {
-  if (gameController.globalState[gameID]) {
-    let gameState = {}
-    let thrownError
-
-    try {
-      gameState = gameController.globalState[gameID].gameEngine.spyNextMove(
-        player,
-        hint,
-        guesses
-      )
-    } catch (err) {
-      thrownError = err.message
-    }
-
-    io.in(gameID).emit('spyNextMove', gameState, thrownError)
-  }
-})
-
-socket.on('endTurn', gameID => {
-  if (gameController.globalState[gameID]) {
-    io.in(gameID).emit(
-      'endTurn',
-      gameController.globalState[gameID].gameEngine.endTurn()
-    )
-  }
-})
-
-socket.on('restartGame', gameID => {
-  if (gameController.globalState[gameID]) {
-    io.in(gameID).emit(
-      'restartGame',
-      gameController.globalState[gameID].gameEngine.restart()
-    )
-  }
-})
 
 const socketio = server => {
   const io = require('socket.io')(server, {
