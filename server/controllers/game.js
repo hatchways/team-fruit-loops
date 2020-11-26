@@ -34,15 +34,29 @@ const execute = (req, res) => {
 const ping = (req, res) => {
   return res.status(200).json({gameState: globalState[req.params.id].gameEngine.gameState});
 }
-
+const display = (req, res) => {
+  return res.status(200).json({games: globalState})
+}
 // create a new ID and game instance, register instance in global dict by ID
 const create = (req, res) => {
-  const {player} = req.body;
-  const id = uuidv4();
+  const {player, socketID, type, maxPlayerNum = 4} = req.body;
 
   try {
+    const id = uuidv4();
+    const socket = req.app.get('socketio').sockets.sockets.get(socketID);
+    console.log(`Adding ${socket.id} to ${id}`);
+    socket.join(id);
+
     const game = new Game(player);
-    globalState[id] = {gameEngine: game, id: id}
+    globalState[id] = {
+      gameEngine: game,
+      id: id,
+      maxPlayerNum: maxPlayerNum,
+      isPublic: type === 'public',
+      activePlayers: {
+        [socketID]: player,
+      },
+    };
     return res.status(201).json({id: id, gameState: game.gameState});
   }
   catch (e) {
@@ -52,10 +66,31 @@ const create = (req, res) => {
 
 // join adds player to game
 const join = (req, res, next) => {
-  const {player} = req.body;
-  res.locals.method = res.locals.game.join;
-  res.locals.params = [player];
-  next();
+  const {player, socketID} = req.body;
+  try {
+    const io = req.app.get('socketio')
+    const socket = io.sockets.sockets.get(socketID);
+    console.log(`Adding ${socket.id} to ${req.params.id}`);
+    socket.join(req.params.id);
+
+    const room = globalState[req.params.id]
+    const activePlayers = Object.values(room.activePlayers)
+    const playerList = room.gameEngine.gameState.playerList
+    console.log(activePlayers)
+    if (!activePlayers.includes(player) && playerList.includes(player)) {
+      room.activePlayers[socketID] = player;
+      return res.status(200).json({gameState: room.gameEngine.gameState})
+    }
+    else {
+      const gameState = res.locals.game.join(player);
+      room.activePlayers[socketID] = player;
+      io.to(req.params.id).emit('update', gameState);
+      return res.status(200).json({gameState: gameState});
+    }
+  }
+  catch (e) {
+    return res.status(400).json({error: e.message});
+  }
 }
 
 const assign = (req, res, next) => {
@@ -129,6 +164,6 @@ module.exports = {
   endTurn,
   restart,
   execute,
-
+  display,
   globalState,
 }
