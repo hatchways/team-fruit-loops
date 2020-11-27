@@ -64,7 +64,7 @@ const GameForm = ({ onCreateGame, playerName, setPlayerName }) => {
         <TextField
           id='playerNumber'
           select
-          label='Native select'
+          label='Max player number'
           value={playerNum}
           onChange={onPlayerNumberChange}
           SelectProps={{

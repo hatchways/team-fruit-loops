@@ -63,7 +63,7 @@ const getPublicGames = (req, res) => {
 
 // create a new ID and game instance, register instance in global dict by ID
 const create = (req, res) => {
-  const {player, name = player + '\'s game', socketID, isPublic = false, maxPlayerNum = 4} = req.body;
+  const {player, name = player + '\'s game', socketID, isPublic = false, maxPlayerNum = 8} = req.body;
 
   try {
     const id = uuidv4();
@@ -99,14 +99,15 @@ const join = (req, res, next) => {
     const activePlayers = Object.values(room.activePlayers)
     const playerList = room.gameEngine.gameState.playerList
 
-    if (room.maxPlayerNum <= playerList.length)
-      throw new Error(`There is no position available in ${room.gameName}`);
-
     if (!activePlayers.includes(player) && playerList.includes(player)) {
       room.activePlayers[socketID] = player;
+      socket.join(req.params.id);
       return res.status(200).json({gameState: room.gameEngine.gameState})
     }
     else {
+      if (room.maxPlayerNum <= playerList.length)
+        throw new Error(`There is no position available in ${room.gameName}`);
+
       const gameState = res.locals.game.join(player);
       room.activePlayers[socketID] = player;
       socket.join(req.params.id);
