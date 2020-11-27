@@ -37,9 +37,33 @@ const ping = (req, res) => {
 const display = (req, res) => {
   return res.status(200).json({games: globalState})
 }
+
+const getPublicGames = (req, res) => {
+  const gameList = [];
+  try {
+    for (game of Object.values(globalState)) {
+      if (game.isPublic) {
+        const gameState = game.gameEngine.gameState;
+        gameList.push({
+          id: game.id,
+          gameName: game.gameName,
+          maxPlayerNum: game.maxPlayerNum,
+          host: gameState.host,
+          playerNum: gameState.playerList.length,
+          isStart: gameState.isStart,
+        });
+      }
+    }
+    return res.status(200).json({gameList: gameList});
+  }
+  catch (e) {
+    return res.status(400).json({error: e.message});
+  }
+}
+
 // create a new ID and game instance, register instance in global dict by ID
 const create = (req, res) => {
-  const {player, socketID, type, maxPlayerNum = 4} = req.body;
+  const {player, name = player + '\'s game', socketID, isPublic = false, maxPlayerNum = 4} = req.body;
 
   try {
     const id = uuidv4();
@@ -49,13 +73,14 @@ const create = (req, res) => {
 
     const game = new Game(player);
     globalState[id] = {
-      gameEngine: game,
       id: id,
+      gameName: name,
       maxPlayerNum: maxPlayerNum,
-      isPublic: type === 'public',
+      isPublic: isPublic,
       activePlayers: {
         [socketID]: player,
       },
+      gameEngine: game,
     };
     return res.status(201).json({id: id, gameState: game.gameState});
   }
@@ -70,13 +95,13 @@ const join = (req, res, next) => {
   try {
     const io = req.app.get('socketio')
     const socket = io.sockets.sockets.get(socketID);
-    console.log(`Adding ${socket.id} to ${req.params.id}`);
-    socket.join(req.params.id);
-
     const room = globalState[req.params.id]
     const activePlayers = Object.values(room.activePlayers)
     const playerList = room.gameEngine.gameState.playerList
-    console.log(activePlayers)
+
+    if (room.maxPlayerNum <= playerList.length)
+      throw new Error(`There is no position available in ${room.gameName}`);
+
     if (!activePlayers.includes(player) && playerList.includes(player)) {
       room.activePlayers[socketID] = player;
       return res.status(200).json({gameState: room.gameEngine.gameState})
@@ -84,6 +109,9 @@ const join = (req, res, next) => {
     else {
       const gameState = res.locals.game.join(player);
       room.activePlayers[socketID] = player;
+      socket.join(req.params.id);
+      console.log(`Adding ${socket.id} to ${req.params.id}`);
+
       io.to(req.params.id).emit('update', gameState);
       return res.status(200).json({gameState: gameState});
     }
@@ -155,6 +183,7 @@ const restart = (req, res, next) => {
 module.exports = {
   validateGameId,
   ping,
+  getPublicGames,
   create,
   join,
   assign,

@@ -13,6 +13,7 @@ import Profile from "./pages/Profile";
 import Match from "./pages/Match";
 import Lobby from "./pages/Lobby";
 import Game from "./pages/Game";
+import Public from "./pages/Public";
 
 import "./App.css";
 
@@ -40,6 +41,7 @@ function App() {
           <Route path="/login" component={Login} />
           <PrivateRoute path="/profile" component={Profile} />
           <Route exact path="/match" render={withGameState(Match)}/>
+          <Route exact path="/public" render={withGameState(Public)}/>
           <Route  path="/lobby/:gameID" render={withGameState(Lobby)}/>
           <Route  path="/game/:gameID" render={withGameState(Game)}/>
         </Switch>

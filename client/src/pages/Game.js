@@ -21,41 +21,12 @@ const styles = theme => ({
   }
 })
 
-const api = {
-  nextMove: {
-    url: id => `/game/${id}/next-move`,
-    method: 'PUT',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json'
-    },
-    body: (player, word) => JSON.stringify({ player, word })
-  },
-  restart: {
-    url: id => `/game/${id}/restart`,
-    method: 'PUT',
-    headers: {
-      Accept: 'application/json'
-    },
-    body: () => ''
-  }
-}
-
 const isSpy = ({ player, gameState: { redSpy, blueSpy } }) =>
   player === redSpy || player === blueSpy
 
 const getCurrentSpymaster = ({ gameState: { turn, redSpy, blueSpy } }) => {
   if (turn === 'blue') return blueSpy
   else if (turn === 'red') return redSpy
-  else return 'N/A'
-}
-
-const getTeamSpymaster = ({
-  player,
-  gameState: { redSpy, redGuessers, blueSpy, blueGuessers }
-}) => {
-  if (player === redSpy || redGuessers.includes(player)) return redSpy
-  else if (player === blueSpy || blueGuessers.includes(player)) return blueSpy
   else return 'N/A'
 }
 
@@ -94,7 +65,6 @@ const GamePage = ({ classes, state, setState, socket }) => {
     socket.on('spyNextMove', (payload, err) => {
       if (!err) {
         setState({ player: state.player, gameID: gameID, gameState: payload })
-
         console.log(payload)
       } else {
         console.log(err)
@@ -108,7 +78,8 @@ const GamePage = ({ classes, state, setState, socket }) => {
     socket.on('restartGame', payload => {
       setState({ player: state.player, gameID: gameID, gameState: payload })
     })
-  }, [socket])
+
+  }, [socket, gameID, setState, state.player])
 
   if (gameID === undefined || gameState === undefined) {
     return <Redirect to='/match' />

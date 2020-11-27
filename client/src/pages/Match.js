@@ -1,5 +1,5 @@
 import React, { useState }from 'react';
-import { Redirect } from "react-router-dom";
+import { Redirect, useHistory } from "react-router-dom";
 import { withStyles } from '@material-ui/core/styles';
 import {
   Container,
@@ -119,6 +119,7 @@ const Match = withStyles(styles)(({ classes, state, setState, socket}) => {
   // local game id. used in join a game text field
   const [roomID, setRoomID] = useState('');
   const [name, setName] = useState('');
+  const history = useHistory();
 
   if (gameID !== undefined) {
     return <Redirect push to={`/lobby/${gameID}`}/>;
@@ -169,6 +170,10 @@ const Match = withStyles(styles)(({ classes, state, setState, socket}) => {
       setErr(nextState.error);
     }
   };
+
+  const onPublic = () => {
+    history.push('public/');
+  }
 
   return gameID !== undefined
     ? <Redirect push to={`/lobby/${gameID}`}/>
@@ -241,7 +246,7 @@ const Match = withStyles(styles)(({ classes, state, setState, socket}) => {
                 direction="column"
                 className={classes.newGame}
                 justify="center">
-                <Btn on={() => setErr("not implemented")} css={classes.public} text="Public"/>
+                <Btn on={onPublic} css={classes.public} text="Public"/>
                 <Btn on={call("private")} css={classes.private} text="Private"/>
               </Grid>
             </Grid>
