@@ -6,7 +6,7 @@ import { theme } from './themes/theme'
 
 import PrivateRoute from './components/PrivateRoute'
 
-import Navbar from './components/Navbar'
+import Navbar from './pages/Navbar'
 import Signup from './pages/Signup'
 import Login from './pages/Login'
 import Profile from './pages/Profile'
@@ -15,6 +15,7 @@ import Friends from './pages/Friends'
 import Match from './pages/Match'
 import Lobby from './pages/Lobby'
 import Game from './pages/Game'
+import Public from './pages/Public'
 
 import './App.css'
 
@@ -65,7 +66,6 @@ function App () {
         <Navbar state={state} accountValues={accountValues} />
         <Toolbar />
         <Switch>
-          <Redirect exact from='/' to='/signup' />
           <Route path='/signup' render={props => <Signup {...props} />} />
           <Route
             path='/login'
@@ -89,6 +89,7 @@ function App () {
             accountValues={accountValues}
           />
           <Route exact path='/match' render={withGameState(Match)} />
+          <Route exact path='/public' render={withGameState(Public)} />
           <Route path='/lobby/:gameID' render={withGameState(Lobby)} />
           <Route path='/game/:gameID' render={withGameState(Game)} />
         </Switch>

@@ -42,11 +42,8 @@ const Transition = forwardRef((props, ref) => (
   <Slide direction="up" ref={ref} {...props} />
 ));
 
-const FinishedComponent = ({ classes, setState, state}) => {
+const FinishedComponent = ({ classes, setState, state, onNewGame }) => {
   const {gameState: {bluePoints, redPoints, winner, isEnd}} = state;
-  const onNewGameClick = () => {
-    setState({player: state.player, gameID: undefined, gameState: undefined});
-  }
 
   return (
     <Dialog
@@ -74,7 +71,7 @@ const FinishedComponent = ({ classes, setState, state}) => {
               { redPoints }
             </Typography>
           </div>
-          <Button className={classes.newGame} onClick={onNewGameClick}>
+          <Button className={classes.newGame} onClick={onNewGame}>
               New Game
           </Button>
         </Grid>

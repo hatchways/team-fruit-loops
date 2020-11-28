@@ -8,9 +8,32 @@ const socketio = server => {
 
   io.on('connection', socket => {
     console.log(`${socket.id} connected.`)
-    socket.on('join', gameId => {
-      console.log(`Adding ${socket.id} to ${gameId}`)
-      socket.join(gameId)
+
+    socket.on('disconnecting', () => {
+      const gameList = Array.from(socket.rooms).filter(item => item!=socket.id)
+      console.log(`${socket.id} disconnecting`)
+      // remove the player from room
+      for (gameID of gameList) {
+        const activePlayers = gameController.globalState[gameID].activePlayers
+        // remove the player from the active player list
+        delete activePlayers[socket.id]
+        if (Object.keys(activePlayers).length === 0)
+          // remove the game if there are no active players
+          delete gameController.globalState[gameID]
+
+      }
+    })
+
+    socket.on('disconnect', () => {
+      console.log(`${socket.id} disconnected`)
+    })
+
+    socket.on('leave', (gameID) => {
+      const activePlayers = gameController.globalState[gameID].activePlayers
+      delete activePlayers[socket.id]
+      if (Object.keys(activePlayers).length === 0)
+        // remove the game if there are no active players
+        delete gameController.globalState[gameID]
     })
 
     socket.on('chat', (gameId, user, message) => {

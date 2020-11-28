@@ -65,7 +65,6 @@ const GamePage = ({ classes, state, setState, socket }) => {
     socket.on('spyNextMove', (payload, err) => {
       if (!err) {
         setState({ player: state.player, gameID: gameID, gameState: payload })
-
         console.log(payload)
       } else {
         console.log(err)
@@ -95,6 +94,11 @@ const GamePage = ({ classes, state, setState, socket }) => {
     socket.emit('restartGame', gameID)
   }
 
+  const onNewGame = () => {
+    socket.emit('leave', gameID)
+    setState({ player: state.player, gameID: undefined, gameState: undefined })
+  }
+
   return (
     <Container className={classes.root}>
       <GameNavbar
@@ -105,6 +109,7 @@ const GamePage = ({ classes, state, setState, socket }) => {
       <Finished
         setState={setState}
         state={state}
+        onNewGame={onNewGame}
       />
       <GameSidebar
         state={state}
@@ -123,7 +128,6 @@ const GamePage = ({ classes, state, setState, socket }) => {
         setState={setState}
         gameID={gameID}
         onNextMove={onNextMove}
-        socket={socket}
       />
     </Container>
   )
