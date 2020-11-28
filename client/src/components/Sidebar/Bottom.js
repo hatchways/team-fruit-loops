@@ -65,7 +65,7 @@ const useSpyBottomStyles = makeStyles(theme => ({
   }
 }));
 
-const SpyBottom = ({ gameID, countMax, setFinished, player, socket}) => {
+const SpyBottom = ({ gameID, countMax, setFinished, player, socket, getCurrentSpymaster, token}) => {
   const classes = useSpyBottomStyles();
   const [spyHint, setSpyHint] = useState("");
   const [count, setCount] = useState(1);
@@ -97,7 +97,7 @@ const SpyBottom = ({ gameID, countMax, setFinished, player, socket}) => {
         alignContent="center"
         alignItems="center"
         align="center">
-        <div className={classes.prompt}>Make your move!</div>
+        <div className={classes.prompt}>{getCurrentSpymaster === player ? (!token ? "Make your move!" : "Your team is guessing!") : ("Waiting for other team...")}</div>
         <div className={classes.triangle}></div>
       </Grid>
       <Divider className={classes.hDivider}/>
@@ -159,12 +159,12 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const SidebarBottom = ({ setFinished, isSpy, countMax, gameID, player, socket }) => {
+const SidebarBottom = ({ setFinished, isSpy, countMax, gameID, player, socket, getCurrentSpymaster, token }) => {
   const classes = useStyles();
   const [message, setMessage] = useState("");
 
   if (isSpy) {
-    return <SpyBottom setFinished={setFinished} countMax={countMax} gameID={gameID} player={player} socket={socket} />;
+    return <SpyBottom setFinished={setFinished} countMax={countMax} gameID={gameID} player={player} socket={socket} getCurrentSpymaster={getCurrentSpymaster} token={token}/>;
   }
 
   return (
@@ -187,6 +187,8 @@ SidebarBottom.propTypes = {
   gameID: PropTypes.string.isRequired,
   player: PropTypes.string.isRequired,
   socket: PropTypes.object.isRequired,
+  getCurrentSpymaster: PropTypes.string.isRequired,
+  token: PropTypes.string.isRequired,
 };
 
 export default SidebarBottom;

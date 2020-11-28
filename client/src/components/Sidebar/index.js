@@ -42,7 +42,7 @@ const Sidebar = ({ classes, setFinished, state, isSpy, getCurrentSpymaster, coun
           : <SidebarTop state={state} player={state.player} getCurrentSpymaster={getCurrentSpymaster} {...topProps}/>
       }
       <SidebarChat player={state.player}/>
-      <SidebarBottom setFinished={setFinished} isSpy={isSpy} countMax={countMax} gameID={gameID} player={state.player} socket={socket}/>
+      <SidebarBottom setFinished={setFinished} isSpy={isSpy} countMax={countMax} gameID={gameID} player={state.player} socket={socket} getCurrentSpymaster={getCurrentSpymaster} token={topProps.token}/>
     </div>
   </Drawer>
 );
