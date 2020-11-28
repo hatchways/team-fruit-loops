@@ -1,5 +1,5 @@
 import React from 'react'
-import { withRouter } from 'react-router-dom'
+import { withRouter, Link } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles'
 import { AppBar, Toolbar, Typography } from '@material-ui/core'
 
@@ -11,6 +11,9 @@ const useStyles = makeStyles(theme => ({
     zIndex: 1300,
     backgroundColor: 'white',
     // height: '10vh'
+  },
+  link: {
+    textDecoration: "none"
   }
 }))
 
@@ -25,7 +28,7 @@ const Navbar = ({ location, state, accountValues }) => {
   return (
     <AppBar className={classes.root}>
       <Toolbar>
-        <Typography variant='h1'>CLUEWORDS</Typography>
+        <Link to='/match' className={classes.link}><Typography variant='h1'>CLUEWORDS</Typography></Link>
       </Toolbar>
     </AppBar>
   )

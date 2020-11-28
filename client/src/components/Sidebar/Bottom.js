@@ -174,16 +174,17 @@ const SidebarBottom = ({ setFinished, isSpy, countMax, gameID, player, socket, g
   };
 
   if (isSpy) {
-    return
-    <SpyBottom
-      setFinished={setFinished}
-      countMax={countMax}
-      gameID={gameID}
-      player={player}
-      socket={socket}
-      getCurrentSpymaster={getCurrentSpymaster}
-      token={token}
-  />;
+    return (
+      <SpyBottom
+        setFinished={setFinished}
+        countMax={countMax}
+        gameID={gameID}
+        player={player}
+        socket={socket}
+        getCurrentSpymaster={getCurrentSpymaster}
+        token={token}
+      />
+    )
   }
 
   return (
