@@ -11,6 +11,7 @@ import {
   Button,
   Dialog, DialogTitle, DialogContent,
   IconButton,
+  Tooltip
 } from "@material-ui/core";
 import { Close, Link, } from "@material-ui/icons";
 
@@ -44,18 +45,6 @@ const api = {
     },
     body: (player, role) => JSON.stringify({ player, role }),
   }
-};
-
-// copy url to system clipboard by creating dummy html element to write value
-// into. added to document.body for `document.execCommand("copy")` to read
-const copy = id => e => {
-  e.preventDefault();
-  const dummy = document.createElement("input");
-  document.body.appendChild(dummy);
-  dummy.setAttribute("value", id);
-  dummy.select();
-  document.execCommand("copy");
-  document.body.removeChild(dummy);
 };
 
 const gameStyles = theme => ({
@@ -113,6 +102,9 @@ const Lobby = withStyles(gameStyles)(({ classes, state, setState, socket }) => {
   }
 
   const [err, setErr] = useState(undefined);
+  const [tooltipOpen, setTooltipOpen] = useState(false)
+  const [tooltipTimeout, setTooltipTimeout] = useState(undefined)
+
   const off = isOff(gameState, player);
   const isHost = player === gameState.playerList[0];
 
@@ -127,6 +119,26 @@ const Lobby = withStyles(gameStyles)(({ classes, state, setState, socket }) => {
       const next = await res.json()
       setErr(next.error);
     }
+  };
+
+  // copy url to system clipboard by creating dummy html element to write value
+  // into. added to document.body for `document.execCommand("copy")` to read
+  const copy = id => e => {
+    e.preventDefault();
+    const dummy = document.createElement("input");
+    document.body.appendChild(dummy);
+    dummy.setAttribute("value", id);
+    dummy.select();
+    document.execCommand("copy");
+    document.body.removeChild(dummy);
+  
+    if (tooltipTimeout) setTooltipTimeout(clearTimeout(tooltipTimeout))
+
+    setTooltipOpen(true)
+  
+    setTooltipTimeout(setTimeout(() => {
+      setTooltipOpen(false)
+    }, 2000))
   };
 
   useEffect(() => {
@@ -190,12 +202,14 @@ const Lobby = withStyles(gameStyles)(({ classes, state, setState, socket }) => {
                 <Typography variant="h5" className={classes.copy}>
                   Share match id:
                 </Typography>
+                <Tooltip title={`Copied game id ${gameID} to clipboard`} open={tooltipOpen}>
                 <Button
                   onClick={copy(gameID)}
                   variant="outlined"
                   startIcon={<Link/>}>
                   Copy
                 </Button>
+                </Tooltip>
               </Grid>
             </Grid>
             <Grid item xs={12} align="center">

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from "react-router-dom";
 import { makeStyles } from '@material-ui/core/styles';
 import {
@@ -110,14 +110,14 @@ const Public = ({state, setState, socket}) => {
     return nextState.gameList;
   }
 
-  const onRefresh = async () => {
+  const onRefresh = useCallback(async () => {
     const result = await getPublicGames();
     setGameList(result);
-  }
+  }, [setGameList])
 
   useEffect(() => {
     (onRefresh)();
-  }, []);
+  }, [onRefresh]);
 
   return (
     <Container className={classes.root}>
