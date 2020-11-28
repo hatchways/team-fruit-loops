@@ -1,4 +1,12 @@
-const gameController = require('../controllers/game')
+const handlers = require("./handlers");
+
+const events = {
+  "chat": handlers.chat,
+  "guesserNextMove": handlers.guesserNextMove,
+  "spyNextMove": handlers.spyNextMove,
+  "endTurn": handlers.endTurn,
+  "restartGame": handlers.restartGame,
+};
 
 const socketio = server => {
   const io = require('socket.io')(server, {
@@ -82,23 +90,14 @@ const socketio = server => {
       }
     })
 
-    socket.on('endTurn', gameID => {
-      if (gameController.globalState[gameID]) {
-        io.in(gameID).emit(
-          'endTurn',
-          gameController.globalState[gameID].gameEngine.endTurn()
-        )
-      }
-    })
+    socket.on("join", gameID => {
+      console.log(`Adding ${socket.id} to ${gameID}`);
+      socket.join(gameID);
+    });
 
-    socket.on('restartGame', gameID => {
-      if (gameController.globalState[gameID]) {
-        io.in(gameID).emit(
-          'restartGame',
-          gameController.globalState[gameID].gameEngine.restart()
-        )
-      }
-    })
+    for (let [event, handler] of Object.entries(events)) {
+      socket.on(event, handler(io));
+    }
   })
   return io
 }

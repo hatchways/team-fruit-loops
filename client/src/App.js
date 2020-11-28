@@ -17,17 +17,16 @@ import Lobby from './pages/Lobby'
 import Game from './pages/Game'
 import Public from './pages/Public'
 
-import './App.css'
-
 import axios from 'axios'
 
-let socket = socketIOClient()
-function App () {
+let socket = socketIOClient();
+function App() {
   const [state, setState] = useState({
     player: 'Bonnie',
     gameID: undefined,
     gameState: undefined
-  })
+  });
+  
   const [accountValues, setAccountValues] = useState({
     id: '',
     name: '',
