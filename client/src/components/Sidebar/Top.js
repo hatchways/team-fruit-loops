@@ -3,7 +3,7 @@ import { Divider, Typography } from '@material-ui/core'
 import { withStyles } from '@material-ui/core/styles'
 import PropTypes from 'prop-types'
 
-import { OwnMessage, SpymasterHintMessage } from './Messages'
+import { SpymasterHintMessage } from './Messages'
 
 const styles = theme => ({
   topper: {
