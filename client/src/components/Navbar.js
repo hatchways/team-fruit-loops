@@ -10,7 +10,7 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'center',
     zIndex: 1300,
     backgroundColor: 'white',
-    height: '10vh'
+    // height: '10vh'
   }
 }))
 
