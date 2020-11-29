@@ -32,26 +32,20 @@ const UploadImage = props => {
 
   const onDropAccepted = acceptedFiles => {
     let data = new FormData()
-    data.append('id', props.values['id'])
+    data.append('id', props.accountValues.id)
     data.append('image', acceptedFiles[0])
 
     axios
       .post('/uploadImage', data)
       .then(res => {
-        props.setValues({
-          id: props.values['id'],
-          name: props.values['name'],
-          email: props.values['email'],
-          imageUrl: res.data.imageUrl
-        })
-
-        props.setAccountValues({
-          name: props.values['name'],
-          email: props.values['email'],
+        props.handleAccountValuesChange({
+          id: props.accountValues.id,
+          name: props.accountValues.name,
+          email: props.accountValues.email,
           imageUrl: res.data.imageUrl
         })
       })
-      .catch(err => {})
+      .catch(() => {})
   }
 
   return (
@@ -61,13 +55,7 @@ const UploadImage = props => {
       minSize={0}
       maxSize={5242880}
     >
-      {({
-        getRootProps,
-        getInputProps,
-        isDragActive,
-        isDragReject,
-        fileRejections
-      }) => {
+      {({ getRootProps, getInputProps, isDragReject, fileRejections }) => {
         const isFileTooLarge =
           fileRejections.length > 0 && fileRejections[0].size > 5242880
         return (
@@ -78,10 +66,16 @@ const UploadImage = props => {
                   <CardMedia>
                     {/* Add a Date.now() append to force image refresh when uploaded */}
                     <Avatar
-                      src={`${props.values['imageUrl']}?${Date.now()}` || ''}
+                      src={
+                        props.accountValues.imageUrl && props.accountValues.imageUrl !== undefined
+                          ? `${props.accountValues.imageUrl}?${Date.now()}`
+                          : ''
+                      }
                       className={classes.avatar}
                     >
-                      {props.values['name'] ? props.values['name'][0] : ''}
+                      {props.accountValues.name
+                        ? props.accountValues.name[0]
+                        : ''}
                     </Avatar>
                   </CardMedia>
                   <input {...getInputProps()} />

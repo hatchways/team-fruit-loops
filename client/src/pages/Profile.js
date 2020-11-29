@@ -40,7 +40,7 @@ const useStyles = makeStyles(theme => ({
   editButton: {}
 }))
 
-const Profile = ({setAccountValues}) => {
+const Profile = ({ accountValues, handleAccountValuesChange }) => {
   const classes = useStyles()
   let history = useHistory()
   let textInput = useRef(null)
@@ -64,10 +64,16 @@ const Profile = ({setAccountValues}) => {
       .then(res => {})
       .catch(err => {})
       .finally(() => {
+        handleAccountValuesChange({
+          id: '',
+          name: '',
+          email: '',
+          imageURL: ''
+        })
         // Redirect to login page
         history.push('/login')
       })
-  }, [history])
+  }, [history, handleAccountValuesChange])
 
   const editName = () => {
     // Button is pressed while editing name field
@@ -107,31 +113,25 @@ const Profile = ({setAccountValues}) => {
     if (savedName !== values['name']) {
       axios
         .post('/account/update', values)
-        .then(res => {
+        .then((res) => {
+          handleAccountValuesChange({
+            id: res.data._id,
+            name: res.data.name,
+            email: res.data.email,
+            imageUrl: res.data.imageUrl
+          })
           setSavedName(values['name'])
         })
-        .catch(err => {})
+        .catch(() => {})
     }
   }
 
   useEffect(() => {
-    // Get account information from database
-    axios
-      .get('/account')
-      .then(res => {
-        setValues({
-          id: res.data._id,
-          name: res.data.name,
-          email: res.data.email,
-          imageUrl: res.data.imageUrl
-        })
-
-        setSavedName(res.data.name)
-      })
-      .catch(err => {
-        logout()
-      })
-  }, [logout])
+    // Populate the profile fields with account values stored in App.js
+    setValues(accountValues)
+    // Specifically set saved name with account values name for preservation
+    setSavedName(accountValues.name)
+  }, [accountValues])
 
   return (
     <Container component='main' maxWidth='xs'>
@@ -177,7 +177,10 @@ const Profile = ({setAccountValues}) => {
                   disabled
                 />
                 <Typography variant='subtitle1'>Profile Picture:</Typography>
-                <UploadImage values={values} setValues={setValues} setAccountValues={setAccountValues} />
+                <UploadImage
+                  accountValues={accountValues}
+                  handleAccountValuesChange={handleAccountValuesChange}
+                />
                 <br />
                 <Button
                   variant='contained'

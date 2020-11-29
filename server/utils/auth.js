@@ -5,11 +5,3 @@ exports.createAccessToken = (payload, duration) => {
     expiresIn: duration,
   });
 };
-
-exports.createRefreshToken = (email, userId) => {
-  const payload = {
-    email,
-    userId,
-  };
-  return jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET);
-};

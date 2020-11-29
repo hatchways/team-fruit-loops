@@ -80,6 +80,7 @@ const Login = ({setAccountValues}) => {
       .then((res) => {
         // If login is successful, save info to global state variable and redirect to profile page
         setAccountValues({
+          id: res.data.user._id,
           name: res.data.user.name,
           email: res.data.user.email,
           imageUrl: res.data.user.imageUrl

@@ -34,6 +34,10 @@ function App() {
     imageURL: ''
   })
 
+  const handleAccountValuesChange = (values) => {
+    setAccountValues(values)
+  }
+
   const withGameState = Component => props => (
     <Component
       state={state}
@@ -45,11 +49,14 @@ function App() {
   )
 
   useLayoutEffect(() => {
+    // TODO: Don't run this block if user isn't logged in
     axios
-      .get('/profile')
+      // .get('/profile')
+      .get('/account')
       .then(res => {
         setAccountValues({
-          id: res.data.id,
+          // id: res.data.id,
+          id: res.data._id,
           name: res.data.name,
           email: res.data.email,
           imageUrl: res.data.imageUrl
@@ -74,6 +81,7 @@ function App() {
                 {...props}
                 accountValues={accountValues}
                 setAccountValues={setAccountValues}
+                handleAccountValueChange={handleAccountValuesChange}
               />
             )}
           />
@@ -82,6 +90,7 @@ function App() {
             component={Profile}
             accountValues={accountValues}
             setAccountValues={setAccountValues}
+            handleAccountValuesChange={handleAccountValuesChange}
           />
           <PrivateRoute
             path='/friends'
