@@ -26,6 +26,7 @@
     "multer-s3": "^2.9.0",
     "nodemon": "^1.19.1",
     "socket.io": "^3.0.1",
+    "stripe": "^8.126.0",
     "uuid": "^8.3.1"
   },
   "devDependencies": {

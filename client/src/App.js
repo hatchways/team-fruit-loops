@@ -13,9 +13,9 @@ import Profile from "./pages/Profile";
 import Match from "./pages/Match";
 import Lobby from "./pages/Lobby";
 import Game from "./pages/Game";
+import Upgrade from "./pages/Upgrade";
 
 import "./App.css";
-
 
 let socket = socketIOClient();
 function App() {
@@ -39,6 +39,7 @@ function App() {
           <Route path="/signup" component={Signup} />
           <Route path="/login" component={Login} />
           <PrivateRoute path="/profile" component={Profile} />
+          <Route path="/upgrade" component={Upgrade}/>
           <Route exact path="/match" render={withGameState(Match)}/>
           <Route  path="/lobby/:gameID" render={withGameState(Lobby)}/>
           <Route  path="/game/:gameID" render={withGameState(Game)}/>
