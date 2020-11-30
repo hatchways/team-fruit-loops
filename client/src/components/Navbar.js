@@ -1,5 +1,5 @@
-import React from 'react'
-import { withRouter, Link } from 'react-router-dom'
+import React, { useState, useRef } from 'react'
+import { withRouter, Link, useHistory } from 'react-router-dom'
 import { makeStyles, useTheme } from '@material-ui/core/styles'
 import useMediaQuery from '@material-ui/core/useMediaQuery'
 
@@ -9,7 +9,13 @@ import {
   Typography,
   Grid,
   Button,
-  Avatar
+  Avatar,
+  MenuList,
+  MenuItem,
+  Paper,
+  Popper,
+  Grow,
+  ClickAwayListener
 } from '@material-ui/core'
 
 import { ArrowDropDown } from '@material-ui/icons'
@@ -29,10 +35,33 @@ const useStyles = makeStyles(theme => ({
   container: {}
 }))
 
-const Navbar = ({ location, state, accountValues }) => {
+const Navbar = ({ location, state, accountValues, logout }) => {
   const classes = useStyles()
   const theme = useTheme()
-  const bBreakpointUpXs = useMediaQuery(theme.breakpoints.up('xs'))
+  const history = useHistory()
+  const bBreakpointUpSm = useMediaQuery(theme.breakpoints.up('sm'))
+
+  const anchorRef = useRef(null)
+  const [bMenuOpen, setBMenuOpen] = useState(false)
+
+  const handleMenuToggle = () => {
+    setBMenuOpen(prevOpen => !prevOpen)
+  }
+
+  const handleMenuClose = event => {
+    if (anchorRef.current && anchorRef.current.contains(event.target)) {
+      return
+    }
+
+    setBMenuOpen(false)
+  }
+
+  const handleListKeyDown = event => {
+    if (event.key === 'Tab') {
+      event.preventDefault()
+      setBMenuOpen(false)
+    }
+  }
 
   // ISSUE: accountValues is not passing to the GameNavbar (stays as undefined)
   if (location.pathname === '/game') {
@@ -62,9 +91,12 @@ const Navbar = ({ location, state, accountValues }) => {
             xs={6}
             sm={4}
             className={`${classes.container} ${classes.brand}`}
-            justify={bBreakpointUpXs ? 'center' : 'flex-start'}
+            justify={bBreakpointUpSm ? 'center' : 'flex-start'}
           >
-            <Link to='/match' className={classes.brandTitle}>
+            <Link
+              to={accountValues.id ? '/menu' : '/login'}
+              className={classes.brandTitle}
+            >
               <Typography variant='h1'>CLUEWORDS</Typography>
             </Link>
           </Grid>
@@ -80,19 +112,71 @@ const Navbar = ({ location, state, accountValues }) => {
               <>
                 <Avatar
                   src={
-                    accountValues.imageUrl &&  accountValues.imageUrl !== undefined
+                    accountValues.imageUrl &&
+                    accountValues.imageUrl !== undefined
                       ? `${accountValues.imageUrl}?${Date.now()}`
                       : ''
                   }
                   alt={accountValues.name || ''}
                 />
                 <Button
-                  onClick={() => {}}
-                  className={classes.profile}
+                  ref={anchorRef}
+                  onClick={handleMenuToggle}
                   endIcon={<ArrowDropDown />}
                 >
                   My Profile
                 </Button>
+                <Popper
+                  open={bMenuOpen}
+                  anchorEl={anchorRef.current}
+                  // Place anchor at the bottom right of the button
+                  placement='bottom-end'
+                  // Support grow transition
+                  transition
+                  // Persist z-index from navbar
+                  disablePortal
+                >
+                  {({ TransitionProps }) => (
+                    <Grow
+                      {...TransitionProps}
+                      style={{
+                        // Handle from which part of the menu it will grow from
+                        transformOrigin: 'right top'
+                      }}
+                    >
+                      <Paper>
+                        <ClickAwayListener onClickAway={handleMenuClose}>
+                          <MenuList
+                            autoFocusItem={bMenuOpen}
+                            onKeyDown={handleListKeyDown}
+                          >
+                            <MenuItem
+                              component={Link}
+                              to={'/profile'}
+                              onClick={handleMenuClose}
+                            >
+                              Profile
+                            </MenuItem>
+                            <MenuItem
+                              onClick={event => {
+                                logout()
+                                  .then(() => {})
+                                  .catch(() => {})
+                                  .finally(() => {
+                                    handleMenuClose(event)
+                                    // Redirect to login page
+                                    history.push('/login')
+                                  })
+                              }}
+                            >
+                              Logout
+                            </MenuItem>
+                          </MenuList>
+                        </ClickAwayListener>
+                      </Paper>
+                    </Grow>
+                  )}
+                </Popper>
               </>
             ) : (
               <></>

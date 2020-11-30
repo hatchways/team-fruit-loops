@@ -1,6 +1,11 @@
 import React, { useState, useLayoutEffect } from 'react'
 import { MuiThemeProvider, CssBaseline, Toolbar } from '@material-ui/core'
-import { BrowserRouter, Route, Redirect, Switch } from 'react-router-dom'
+import {
+  BrowserRouter,
+  Route,
+  Redirect,
+  Switch
+} from 'react-router-dom'
 import socketIOClient from 'socket.io-client'
 import { theme } from './themes/theme'
 
@@ -9,6 +14,7 @@ import PrivateRoute from './components/PrivateRoute'
 import Navbar from './components/Navbar'
 import Signup from './pages/Signup'
 import Login from './pages/Login'
+import Menu from './pages/Menu'
 import Profile from './pages/Profile'
 import Friends from './pages/Friends'
 
@@ -19,14 +25,14 @@ import Public from './pages/Public'
 
 import axios from 'axios'
 
-let socket = socketIOClient();
-function App() {
+let socket = socketIOClient()
+function App () {
   const [state, setState] = useState({
     player: 'Bonnie',
     gameID: undefined,
     gameState: undefined
-  });
-  
+  })
+
   const [accountValues, setAccountValues] = useState({
     id: '',
     name: '',
@@ -34,8 +40,23 @@ function App() {
     imageURL: ''
   })
 
-  const handleAccountValuesChange = (values) => {
+  const handleAccountValuesChange = values => {
     setAccountValues(values)
+  }
+
+  const logout = async () => {
+    axios
+      .get('/logout')
+      .then(() => {})
+      .catch(() => {})
+      .finally(() => {
+        handleAccountValuesChange({
+          id: '',
+          name: '',
+          email: '',
+          imageURL: ''
+        })
+      })
   }
 
   const withGameState = Component => props => (
@@ -69,7 +90,7 @@ function App() {
     <MuiThemeProvider theme={theme}>
       <CssBaseline />
       <BrowserRouter>
-        <Navbar state={state} accountValues={accountValues} />
+        <Navbar state={state} accountValues={accountValues} logout={logout} />
         <Toolbar />
         <Switch>
           <Redirect exact from='/' to='/signup' />
@@ -84,6 +105,12 @@ function App() {
                 handleAccountValueChange={handleAccountValuesChange}
               />
             )}
+          />
+          <PrivateRoute
+            path='/menu'
+            component={Menu}
+            handleAccountValuesChange={handleAccountValuesChange}
+            logout={logout}
           />
           <PrivateRoute
             path='/profile'

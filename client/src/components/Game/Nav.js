@@ -116,8 +116,16 @@ const Navbar = ({ classes, state, setState, onRestart, accountValues }) => {
             <Button onClick={() => onRestart()} className={classes.game} variant="outlined">
               Restart
             </Button>
-            {/* <Avatar src={accountValues.imageUrl || ""} alt={accountValues.name || ""} /> */}
-            <Avatar alt='Sofia' />
+            {accountValues && accountValues.id ? <Avatar
+                  src={
+                    accountValues.imageUrl &&
+                    accountValues.imageUrl !== undefined
+                      ? `${accountValues.imageUrl}?${Date.now()}`
+                      : ''
+                  }
+                  alt={accountValues.name || ''}
+                /> : <></>}
+
             <Button
               onClick={toggleMenu("full")}
               className={classes.profile}

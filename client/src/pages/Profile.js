@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
-import { useHistory } from 'react-router-dom'
 import axios from 'axios'
 
 import { Button, TextField, Typography, Container } from '@material-ui/core'
@@ -13,6 +12,7 @@ import UploadImage from '../components/uploadImage'
 const useStyles = makeStyles(theme => ({
   root: {
     marginTop: theme.spacing(8),
+    marginBottom: theme.spacing(2),
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -31,18 +31,14 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(1),
     width: '100%'
   },
-  formButton: {
-    display: 'flex',
-    margin: '24px auto 32px',
-    width: '120px',
-    height: '40px'
-  },
-  editButton: {}
+  editButton: {
+    minWidth: '40px',
+    maxWidth: '40px'
+  }
 }))
 
 const Profile = ({ accountValues, handleAccountValuesChange }) => {
   const classes = useStyles()
-  let history = useHistory()
   let textInput = useRef(null)
 
   const [values, setValues] = useState({
@@ -57,23 +53,6 @@ const Profile = ({ accountValues, handleAccountValuesChange }) => {
 
   // Handle disabling of name field
   const [editState, setEditState] = useState(false)
-
-  const logout = useCallback(() => {
-    axios
-      .get('/logout')
-      .then(res => {})
-      .catch(err => {})
-      .finally(() => {
-        handleAccountValuesChange({
-          id: '',
-          name: '',
-          email: '',
-          imageURL: ''
-        })
-        // Redirect to login page
-        history.push('/login')
-      })
-  }, [history, handleAccountValuesChange])
 
   const editName = () => {
     // Button is pressed while editing name field
@@ -113,7 +92,7 @@ const Profile = ({ accountValues, handleAccountValuesChange }) => {
     if (savedName !== values['name']) {
       axios
         .post('/account/update', values)
-        .then((res) => {
+        .then(res => {
           handleAccountValuesChange({
             id: res.data._id,
             name: res.data.name,
@@ -181,15 +160,6 @@ const Profile = ({ accountValues, handleAccountValuesChange }) => {
                   accountValues={accountValues}
                   handleAccountValuesChange={handleAccountValuesChange}
                 />
-                <br />
-                <Button
-                  variant='contained'
-                  color='secondary'
-                  className={classes.formButton}
-                  onClick={logout}
-                >
-                  Logout
-                </Button>
               </form>{' '}
               <br />
             </>

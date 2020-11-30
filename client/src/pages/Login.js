@@ -86,7 +86,7 @@ const Login = ({setAccountValues}) => {
           imageUrl: res.data.user.imageUrl
         })
 
-        history.push("/profile");
+        history.push("/menu");
       })
       .catch((err) => {
         setSnackBarMessage(err.response.data.errors);

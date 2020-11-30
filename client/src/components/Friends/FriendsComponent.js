@@ -26,6 +26,9 @@ const useStyles = makeStyles(theme => ({
   noResults: {
     textAlign: 'center',
     color: 'gray'
+  },
+  avatar: {
+    border: '1px solid black'
   }
 }))
 

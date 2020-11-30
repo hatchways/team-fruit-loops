@@ -30,6 +30,9 @@ const useStyles = makeStyles(theme => ({
     flexDirection: 'column',
     alignItems: 'center',
     padding: theme.spacing(3, 5)
+  },
+  content: {
+    padding: theme.spacing(2)
   }
 }))
 
@@ -169,6 +172,8 @@ const Friends = props => {
             value={tabIndex}
             indicatorColor='primary'
             textColor='primary'
+            variant='scrollable'
+            scrollButtons='on'
             onChange={handleTabIndexChange}
             aria-label='Friends Tabs'
           >
@@ -187,7 +192,7 @@ const Friends = props => {
           </Tabs>
 
           {/* ISSUE: Need to determine a way to only show content once all states are fully loaded */}
-          <div>
+          <div className={classes.content}>
             {/* Display appropriate component based on tab index */}
             <div hidden={tabIndex !== 0}>
               <FriendsComponent
