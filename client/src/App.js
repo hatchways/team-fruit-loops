@@ -20,7 +20,7 @@ import "./App.css";
 let socket = socketIOClient();
 function App() {
   const [state, setState] = useState({
-    player: 'Bonnie',
+    player: 'testIntent2',
     gameID: undefined,
     gameState: undefined
   });
@@ -43,7 +43,7 @@ function App() {
           <Route path="/signup" component={Signup} />
           <Route path="/login" component={Login} />
           <PrivateRoute path="/profile/:player" component={Profile} />
-          <Route path="/stripe/:player" component={Upgrade}/>
+          <Route path="/stripe/:player" component={withGameState(Upgrade)}/>
           <Route exact path="/match" render={withGameState(Match)}/>
           <Route  path="/lobby/:gameID" render={withGameState(Lobby)}/>
           <Route  path="/game/:gameID" render={withGameState(Game)}/>
