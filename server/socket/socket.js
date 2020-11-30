@@ -58,7 +58,7 @@ const socketio = server => {
           thrownError = err.message
         }
 
-        io.to(gameID).emit('update', gameState, thrownError)
+        io.to(gameID).emit('update', gameState, thrownError, word)
       }
     })
 
@@ -66,7 +66,7 @@ const socketio = server => {
     socket.on('spyNextMove', (gameID, player, hint, guesses) => {
       if (gameController.globalState[gameID]) {
         let gameState = {}
-        let thrownError = undefined
+        let thrownError
 
         try {
           gameState = gameController.globalState[gameID].gameEngine.spyNextMove(
