@@ -32,6 +32,12 @@ const useStyles = makeStyles(theme => ({
   },
   avatar: {
     border: '1px solid black'
+  },
+  adornedEnd: {
+    paddingRight: 0
+  },
+  dialog: {
+    margin: theme.spacing(1)
   }
 }))
 
@@ -164,6 +170,8 @@ const AddFriendComponent = ({
   return (
     <>
       <TextField
+        variant='outlined'
+        margin='dense'
         fullWidth
         autoFocus
         placeholder='Search by name or email address'
@@ -177,10 +185,14 @@ const AddFriendComponent = ({
               color='primary'
               disabled={bLoading}
               onClick={handleSearchSubmit}
+              edge='end'
             >
               <SendIcon />
             </Button>
-          )
+          ),
+          classes: {
+            adornedEnd: classes.adornedEnd
+          }
         }}
       ></TextField>
       <List>
@@ -218,7 +230,7 @@ const AddFriendComponent = ({
                     <BlockIcon />
                   </IconButton>
                 </Tooltip>
-                <Tooltip title="Send Friend Request">
+                <Tooltip title='Send Friend Request'>
                   <IconButton
                     edge='end'
                     aria-label='Send Friend Request'
@@ -241,27 +253,35 @@ const AddFriendComponent = ({
         aria-labelledby='send-friend-request-title'
         aria-describedby='send-friend-request-description'
       >
-        <DialogTitle id='send-friend-request'>{'Add as Friend'}</DialogTitle>
-        <DialogContent>
-          <DialogContentText id='alert-dialog-description'>
-            Send friend request to{' '}
-            <span style={{ color: 'orange' }}>{friendRequestUser.name}</span>
-          </DialogContentText>
-          <TextField
-            fullWidth
-            value={friendRequestMessage}
-            onChange={handleFriendRequestMessageChange}
-            placeholder='Type message here...'
-          ></TextField>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleFriendRequestModalClose} color='primary'>
-            Cancel
-          </Button>
-          <Button onClick={handleFriendRequestSubmit} color='primary' autoFocus>
-            Send Friend Request
-          </Button>
-        </DialogActions>
+        <div className={classes.dialog}>
+          <DialogTitle id='send-friend-request'>{'Add as Friend'}</DialogTitle>
+          <DialogContent>
+            <DialogContentText id='alert-dialog-description'>
+              Send friend request to{' '}
+              <span style={{ color: 'orange' }}>{friendRequestUser.name}</span>
+            </DialogContentText>
+            <TextField
+              variant='outlined'
+              margin='dense'
+              fullWidth
+              value={friendRequestMessage}
+              onChange={handleFriendRequestMessageChange}
+              placeholder='Type message here...'
+            ></TextField>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleFriendRequestModalClose} color='primary'>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleFriendRequestSubmit}
+              color='primary'
+              autoFocus
+            >
+              Send Friend Request
+            </Button>
+          </DialogActions>
+        </div>
       </Dialog>
     </>
   )

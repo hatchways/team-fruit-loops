@@ -15,7 +15,8 @@ import {
   Paper,
   Popper,
   Grow,
-  ClickAwayListener
+  ClickAwayListener,
+  Divider
 } from '@material-ui/core'
 
 import { ArrowDropDown } from '@material-ui/icons'
@@ -63,7 +64,6 @@ const Navbar = ({ location, state, accountValues, logout }) => {
     }
   }
 
-  // ISSUE: accountValues is not passing to the GameNavbar (stays as undefined)
   if (location.pathname === '/game') {
     return (
       <GameNavbar
@@ -94,7 +94,7 @@ const Navbar = ({ location, state, accountValues, logout }) => {
             justify={bBreakpointUpSm ? 'center' : 'flex-start'}
           >
             <Link
-              to={accountValues.id ? '/menu' : '/login'}
+              to={accountValues.id ? '/match' : '/login'}
               className={classes.brandTitle}
             >
               <Typography variant='h1'>CLUEWORDS</Typography>
@@ -157,6 +157,14 @@ const Navbar = ({ location, state, accountValues, logout }) => {
                             >
                               Profile
                             </MenuItem>
+                            <MenuItem
+                              component={Link}
+                              to={'/friends'}
+                              onClick={handleMenuClose}
+                            >
+                              Friends
+                            </MenuItem>
+                            <Divider />
                             <MenuItem
                               onClick={event => {
                                 logout()

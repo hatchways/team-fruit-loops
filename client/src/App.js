@@ -14,7 +14,6 @@ import PrivateRoute from './components/PrivateRoute'
 import Navbar from './components/Navbar'
 import Signup from './pages/Signup'
 import Login from './pages/Login'
-import Menu from './pages/Menu'
 import Profile from './pages/Profile'
 import Friends from './pages/Friends'
 
@@ -105,12 +104,6 @@ function App () {
                 handleAccountValueChange={handleAccountValuesChange}
               />
             )}
-          />
-          <PrivateRoute
-            path='/menu'
-            component={Menu}
-            handleAccountValuesChange={handleAccountValuesChange}
-            logout={logout}
           />
           <PrivateRoute
             path='/profile'

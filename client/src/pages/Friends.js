@@ -33,6 +33,9 @@ const useStyles = makeStyles(theme => ({
   },
   content: {
     padding: theme.spacing(2)
+  },
+  dialog: {
+    margin: theme.spacing(1)
   }
 }))
 
@@ -247,21 +250,23 @@ const Friends = props => {
         aria-labelledby='blacklist-title'
         aria-describedby='blacklist-description'
       >
-        <DialogTitle id='blacklist-request'>{'Blacklist User'}</DialogTitle>
-        <DialogContent>
-          <DialogContentText id='blacklist-description'>
-            Are you sure you want to block{' '}
-            <span style={{ color: 'red' }}>{blockUser.name}</span>?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleBlacklistModalClose} color='primary'>
-            Cancel
-          </Button>
-          <Button onClick={handleBlacklistSubmit} color='primary' autoFocus>
-            Confirm
-          </Button>
-        </DialogActions>
+        <div className={classes.dialog}>
+          <DialogTitle id='blacklist-request'>{'Blacklist User'}</DialogTitle>
+          <DialogContent>
+            <DialogContentText id='blacklist-description'>
+              Are you sure you want to block{' '}
+              <span style={{ color: 'red' }}>{blockUser.name}</span>?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleBlacklistModalClose} color='primary'>
+              Cancel
+            </Button>
+            <Button onClick={handleBlacklistSubmit} color='primary' autoFocus>
+              Confirm
+            </Button>
+          </DialogActions>
+        </div>
       </Dialog>
 
       <Snackbar

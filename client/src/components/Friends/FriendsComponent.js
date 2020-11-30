@@ -29,6 +29,9 @@ const useStyles = makeStyles(theme => ({
   },
   avatar: {
     border: '1px solid black'
+  },
+  dialog: {
+    padding: theme.spacing(1)
   }
 }))
 
@@ -189,22 +192,28 @@ const FriendsComponent = ({
         aria-labelledby='send-friend-remove-title'
         aria-describedby='send-friend-remove-description'
       >
-        <DialogTitle id='send-friend-remove'>{'Remove Friend'}</DialogTitle>
-        <DialogContent>
-          <DialogContentText id='alert-dialog-description'>
-            Are you sure you want to remove{' '}
-            <span style={{ color: 'red' }}>{friendRemoveUser.name}</span> from
-            your friends list?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleFriendRemoveModalClose} color='primary'>
-            Cancel
-          </Button>
-          <Button onClick={handleFriendRemoveSubmit} color='primary' autoFocus>
-            Confirm
-          </Button>
-        </DialogActions>
+        <div className={classes.dialog}>
+          <DialogTitle id='send-friend-remove'>{'Remove Friend'}</DialogTitle>
+          <DialogContent>
+            <DialogContentText id='alert-dialog-description'>
+              Are you sure you want to remove{' '}
+              <span style={{ color: 'red' }}>{friendRemoveUser.name}</span> from
+              your friends list?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleFriendRemoveModalClose} color='primary'>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleFriendRemoveSubmit}
+              color='primary'
+              autoFocus
+            >
+              Confirm
+            </Button>
+          </DialogActions>
+        </div>
       </Dialog>
     </>
   )
