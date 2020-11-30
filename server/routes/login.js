@@ -19,8 +19,8 @@ router.post("/", function (req, res, next) {
   User.findOne({ email: email })
     .then((user) => {
       if (!user) {
-        // For security purposes, do not reveal in login that a user does not
-        // exist in the database
+        console.log(`User with email "${email}" doesn't exist`);
+        // Avoid information leakage: don't disclose user existence
         return res.status(404).json({
           errors: "Invalid credentials",
         });
@@ -29,6 +29,7 @@ router.post("/", function (req, res, next) {
           .compare(password, user.password)
           .then((isMatch) => {
             if (!isMatch) {
+              console.log(`Invalid login attempted on user=${user.name}`);
               return res.status(400).json({ errors: "Invalid credentials" });
             }
 
@@ -47,6 +48,7 @@ router.post("/", function (req, res, next) {
               secret,
               (err, decoded) => {
                 if (err) {
+                  console.log(`Error verifying JWT user=${user.name}`);
                   res.status(403).json({ errors: err });
                 }
                 if (decoded) {
@@ -56,6 +58,7 @@ router.post("/", function (req, res, next) {
                     sameSite: "strict",
                   });
 
+                  console.log(`Logged in user=${user.name}`);
                   return res.status(200).json({
                     token: access_token,
                     user: user,
@@ -65,11 +68,13 @@ router.post("/", function (req, res, next) {
             );
           })
           .catch((err) => {
+            console.log(`Error logging in user=${user.name}`);
             res.status(500).json({ errors: err });
           });
       }
     })
     .catch((err) => {
+      console.log(`Error finding user with email=${email}`);
       res.status(500).json({ errors: err });
     });
 });
