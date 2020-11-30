@@ -3,6 +3,7 @@ const createError = require("http-errors");
 const express = require("express");
 const { join } = require("path");
 const cookieParser = require("cookie-parser");
+const bodyParser = require('body-parser')
 const logger = require("morgan");
 
 const indexRouter = require("./routes/index");
@@ -38,8 +39,7 @@ app.use("/logout", logoutRouter);
 app.use("/profile", profileRouter);
 app.use("/uploadImage", uploadImageRouter);
 app.use("/account", accountRouter);
-
-app.use("/upgrade", stripeRouter);
+app.use('/stripe', stripeRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => next(createError(404)));

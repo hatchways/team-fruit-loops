@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Redirect } from "react-router-dom";
+import React, { useState, useEffect, } from "react";
+import { Redirect, useParams, } from "react-router-dom";
 import {
  CardElement,
  Elements,
@@ -44,7 +44,7 @@ const styles = theme => ({
 
 const api = {
   "createIntent": {
-    url: () => "/upgrade/create-intent",
+    url: player => `/stripe/${player}/intent`,
     method: () => "GET",
     headers: () => ({
       Accept: "application/json",
@@ -53,7 +53,7 @@ const api = {
   }
 };
 
-const CheckoutForm = ({ classes }) => {
+const CheckoutForm = ({ classes, player }) => {
   const stripe = useStripe();
   const elements = useElements();
   const [clientSecret, setClientSecret] = useState("");
@@ -73,14 +73,14 @@ const CheckoutForm = ({ classes }) => {
       const res = await stripe.confirmCardPayment(clientSecret, paymentData);
 
       if (res.error) {
-        throw new Error(`Payment failed`);
+        throw new Error("Payment failed");
       } else if (res.paymentIntent?.status !== "succeeded") {
         if (process.env.NODE_ENV !== "production") {
           console.log(res);
         }
       }
       if (process.env.NODE_ENV !== "production") {
-        console.log(`Transaction succeeded: ${res}`, res);
+        console.log(`Transaction succeeded: ${res.paymentIntent.id}`);
       }
     } catch(err) {
       if (process.env.NODE_ENV !== "production") {
@@ -93,20 +93,20 @@ const CheckoutForm = ({ classes }) => {
   useEffect(() => {
     const createPaymentIntent = async () => {
       try {
-        const res = await fetch(api["createIntent"].url(), {
+        const res = await fetch(api["createIntent"].url(player), {
           method: api["createIntent"].method(),
           headers: api["createIntent"].headers(),
         });
-        const { client_secret: secret, err } = await res.json();
-        if (err) {
+        const { secret, error } = await res.json();
+        if (error) {
           if (process.env.NODE_ENV !== "production") {
-            console.log(err);
+            console.log(`Error retrieving intent client secret: ${error.message}`);
           }
           return ;
         }
         setClientSecret(secret);
         if (process.env.NODE_ENV !== "production") {
-          console.log("Created secret ", secret, clientSecret);
+          console.log("Created secret ", secret);
         }
       } catch (err) {
         if (process.env.NODE_ENV !== "production") {
@@ -116,7 +116,7 @@ const CheckoutForm = ({ classes }) => {
     };
 
     createPaymentIntent();
-  }, []);
+  }, [player]);
 
   return (
     <form className={classes.form} onSubmit={handleSubmit}>
@@ -127,6 +127,7 @@ const CheckoutForm = ({ classes }) => {
 };
 
 const UpgradePage = ({ classes, publishableKey, ...props}) => {
+  const { player } = useParams()
   if (stripePubKey === undefined) {
     if (process.env.NODE_ENV !== 'production') {
       console.log("Error: Stripe key not found, redirecting");
@@ -141,7 +142,7 @@ const UpgradePage = ({ classes, publishableKey, ...props}) => {
       </Typography>
       <hr className={classes.underline} />
       <Elements stripe={loadStripe(stripePubKey)}>
-        <CheckoutForm classes={classes}/>
+        <CheckoutForm player={player} classes={classes}/>
       </Elements>
     </div>
   );

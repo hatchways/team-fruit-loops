@@ -1,12 +1,11 @@
-// Check to see if a user is logged in and authenticated
-// This route only returns cookie info
-
 const express = require("express");
 const router = express.Router();
 
-const { authenticateToken } = require("../controllers/auth");
+const authenticate = require("../controllers/authenticate");
 
-router.get("/", authenticateToken, (req, res) => {
+// Check to see if a user is logged in and authenticated
+// This route only returns cookie info
+router.get("/", authenticate.token, (req, res) => {
   let user = req.user;
 
   if (user) {

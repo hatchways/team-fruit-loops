@@ -19,7 +19,7 @@ import "./App.css";
 
 let socket = socketIOClient();
 function App() {
-  const [state, setState] = useState({player: 'Bonnie', gameID: undefined, gameState: undefined});
+  const [state, setState] = useState({player: 'testIntent2', gameID: undefined, gameState: undefined});
   const withGameState = Component => props => (
       <Component
         state={state}
@@ -38,8 +38,8 @@ function App() {
           <Redirect exact from="/" to="/signup" />
           <Route path="/signup" component={Signup} />
           <Route path="/login" component={Login} />
-          <PrivateRoute path="/profile" component={Profile} />
-          <Route path="/upgrade" component={Upgrade}/>
+          <PrivateRoute path="/profile/:player" component={Profile} />
+          <Route path="/stripe/:player" component={Upgrade}/>
           <Route exact path="/match" render={withGameState(Match)}/>
           <Route  path="/lobby/:gameID" render={withGameState(Lobby)}/>
           <Route  path="/game/:gameID" render={withGameState(Game)}/>

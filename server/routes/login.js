@@ -5,6 +5,12 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { createAccessToken } = require("../utils/auth");
 
+const secret = process.env.ACCESS_TOKEN_SECRET;
+
+if (secret === "") {
+  console.log("Errror: expected ACCESS_TOKEN_SECRET env var");
+}
+
 const User = require("../models/User");
 
 router.post("/", function (req, res, next) {
@@ -25,7 +31,7 @@ router.post("/", function (req, res, next) {
             if (!isMatch) {
               return res.status(400).json({ errors: "Invalid credentials" });
             }
-            
+
             const payload = {
               id: user._id,
               name: user.name,
@@ -38,7 +44,7 @@ router.post("/", function (req, res, next) {
 
             jwt.verify(
               access_token,
-              process.env.ACCESS_TOKEN_SECRET,
+              secret,
               (err, decoded) => {
                 if (err) {
                   res.status(403).json({ errors: err });
