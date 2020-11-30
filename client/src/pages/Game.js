@@ -37,12 +37,12 @@ const GamePage = ({ classes, state, setState, socket }) => {
   // This is responsible for re-rendering if websocket receives update
   // from front end.
   useEffect(() => {
-    const updateHandler = (nextState, err = undefined) => {
+    const updateHandler = (nextState, err = null) => {
       // // Re-enable comment if you want to continuously monitor game state
       // if (process.env.NODE_ENV === 'development') {
       //   console.log('update recieved: ', next)
       // }
-      if (err === undefined) 
+      if (err === null)
         setState({ player: player, gameState: nextState })
       else
         console.log(err)
@@ -86,7 +86,9 @@ const GamePage = ({ classes, state, setState, socket }) => {
         onNewGame={onNewGame}
       />
       <GameSidebar
+        gameID={gameID}
         state={state}
+        socket={socket}
         player={state.player}
         count={state.gameState.guessNum}
         countMax={5}
@@ -94,8 +96,6 @@ const GamePage = ({ classes, state, setState, socket }) => {
         setFinished={undefined}
         isSpy={isSpy(state)}
         getCurrentSpymaster={getCurrentSpymaster(state)}
-        gameID={gameID}
-        socket={socket}
       />
       <Board
         state={state}
