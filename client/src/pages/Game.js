@@ -42,9 +42,8 @@ const GamePage = ({ classes, state, setState, socket }) => {
       // if (process.env.NODE_ENV === 'development') {
       //   console.log('update recieved: ', next)
       // }
-      if (err === undefined) {
+      if (err === undefined) 
         setState({ player: player, gameState: nextState })
-      }
       else
         console.log(err)
     }
