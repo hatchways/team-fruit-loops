@@ -171,7 +171,7 @@ const SpymasterHint = ({ classes, text, inline = false, direction = "bottomRight
       [classes.blue]: turn === "blue",
     })
     .reduce((css, [k, v]) => (css + (v === true ? k + " " : "")), "")}>
-    { text }
+    { text !== "" ? text : " " }
   </div>
 );
 

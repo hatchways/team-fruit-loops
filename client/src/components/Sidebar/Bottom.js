@@ -77,7 +77,7 @@ const SpyBottom = ({ gameID, countMax, setFinished, player, socket}) => {
     setSpyHint(event.target.value.split(" ").join(""));
   };
 
-  const handleSpyHintSubmit = (event) => {
+  const handleSpyHintSubmit = () => {
     socket.emit(
       "spyNextMove",
       gameID,
@@ -89,6 +89,10 @@ const SpyBottom = ({ gameID, countMax, setFinished, player, socket}) => {
     setSpyHint("");
     setCount(1);
   }
+
+  const onKeyDown = ({ key }) => (
+    (key === "Enter" || key === "NumpadEnter") && handleSpyHintSubmit()
+  );
 
   return (
     <Grid container justify="center" className={classes.bottom}>
@@ -107,12 +111,7 @@ const SpyBottom = ({ gameID, countMax, setFinished, player, socket}) => {
           onChange={handleSpyHintChange}
           className={classes.text}
           placeholder="Type here..."
-          
-          onKeyDown={(event) => {
-            if (event.key === "Enter" || event.key === "NumpadEnter") {
-              handleSpyHintSubmit();
-            }
-          }}/>
+          onKeyDown={onKeyDown}/>
       </Grid>
       <Grid container item justify="center" xs={12} md={4}>
         <Chip
@@ -141,7 +140,7 @@ const SpyBottom = ({ gameID, countMax, setFinished, player, socket}) => {
 
 SpyBottom.propTypes = {
   countMax: PropTypes.number.isRequired,
-  setFinished: PropTypes.func.isRequired,
+  socket: PropTypes.object.isRequired,
 };
 
 const useStyles = makeStyles(theme => ({
@@ -159,12 +158,29 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const SidebarBottom = ({ setFinished, isSpy, countMax, gameID, player, socket }) => {
+const SidebarBottom = ({ isSpy, countMax, gameID, player, socket }) => {
   const classes = useStyles();
   const [message, setMessage] = useState("");
 
+  const chatHandler = ({ keyCode }) => {
+    if (keyCode !== 13 || message === "") {
+      return ;
+    }
+    if (process.env.NODE_ENV !== "production") {
+      console.log(`Emitting chat: ${player} - ${message}`);
+    }
+    socket.emit("chat", gameID, "chat", message, player);
+    setMessage("");
+  };
+
   if (isSpy) {
-    return <SpyBottom setFinished={setFinished} countMax={countMax} gameID={gameID} player={player} socket={socket} />;
+    return (
+      <SpyBottom
+        countMax={countMax}
+        gameID={gameID}
+        player={player}
+        socket={socket}/>
+    );
   }
 
   return (
@@ -174,6 +190,7 @@ const SidebarBottom = ({ setFinished, isSpy, countMax, gameID, player, socket })
           multiline
           value={message}
           onChange={({ target: { value }}) => setMessage(value)}
+          onKeyDown={chatHandler}
           className={classes.text}
           placeholder="Type here..."/>
     </div>
@@ -183,7 +200,6 @@ const SidebarBottom = ({ setFinished, isSpy, countMax, gameID, player, socket })
 SidebarBottom.propTypes = {
   isSpy: PropTypes.bool.isRequired,
   countMax: PropTypes.number.isRequired,
-  setFinished: PropTypes.func.isRequired,
   gameID: PropTypes.string.isRequired,
   player: PropTypes.string.isRequired,
   socket: PropTypes.object.isRequired,
