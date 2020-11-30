@@ -1,9 +1,9 @@
 const handlers = require("./handlers");
 
 const events = {
-  "disconnecting": handler.disconnecting,
-  "disconnect": handler.disconnect,
-  "leave": handler.leave,
+  "disconnecting": handlers.disconnecting,
+  "disconnect": handlers.disconnect,
+  "leave": handlers.leave,
   "chat": handlers.chat,
   "guesserNextMove": handlers.guesserNextMove,
   "spyNextMove": handlers.spyNextMove,
@@ -26,7 +26,7 @@ const socketio = server => {
     });
 
     for (let [event, handler] of Object.entries(events)) {
-      socket.on(event, handler(io));
+      socket.on(event, handler(io, socket));
     }
   })
   return io
