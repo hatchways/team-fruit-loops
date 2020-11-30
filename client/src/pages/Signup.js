@@ -99,9 +99,6 @@ const Signup = () => {
           axios
             .post("/login", values)
             .then((res) => {
-              if (process.env.NODE_ENV !== "production") {
-                console.log("Redirecting to /profile");
-              }
               history.push("/profile");
             })
             .catch((err) => {
