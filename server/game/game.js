@@ -47,6 +47,7 @@ function Game(creator) {
   this.gameState = {
     playerList: [creator],
     waitingList: [creator],
+    host: creator,
     redSpy: undefined,
     redGuessers: [],
     blueSpy: undefined,
@@ -217,7 +218,7 @@ Game.prototype.guesserNextMove = function(player, word) {
       if (this.gameState.turn === 'blue') {
         return this.endTurn();
       }
-      
+
       if (this.gameState.redPoints === 0) {
         this.gameState.isEnd = true;
         this.gameState.winner = 'red';
@@ -257,7 +258,7 @@ Game.prototype.spyNextMove = function(player, hint, hintNum) {
 
   // Reset game timer for guessers
   this.gameState.timer = INIT_TIMER;
-  
+
   return this.gameState;
 }
 

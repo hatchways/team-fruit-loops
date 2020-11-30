@@ -37,49 +37,22 @@ const GamePage = ({ classes, state, setState, socket }) => {
   // This is responsible for re-rendering if websocket receives update
   // from front end.
   useEffect(() => {
-    const updateHandler = next => {
+    const updateHandler = (nextState, err = null) => {
       // // Re-enable comment if you want to continuously monitor game state
       // if (process.env.NODE_ENV === 'development') {
       //   console.log('update recieved: ', next)
       // }
-      state.gameState = next
-      setState({ player: state.player, gameState: state.gameState })
+      if (err === null)
+        setState({ player: player, gameState: nextState })
+      else
+        console.log(err)
     }
 
     socket.on('update', updateHandler)
     return () => {
       socket.off('update', updateHandler)
     }
-  }, [setState, socket, state.gameState, state.player])
-
-  // Socket handlers for next moves, ending turn, and restarting game
-  useEffect(() => {
-    socket.on('guesserNextMove', (payload, err) => {
-      if (!err) {
-        setState({ player: state.player, gameID: gameID, gameState: payload })
-      } else {
-        console.log(err)
-      }
-    })
-
-    socket.on('spyNextMove', (payload, err) => {
-      if (!err) {
-        setState({ player: state.player, gameID: gameID, gameState: payload })
-
-        console.log(payload)
-      } else {
-        console.log(err)
-      }
-    })
-
-    socket.on('endTurn', payload => {
-      setState({ player: state.player, gameID: gameID, gameState: payload })
-    })
-
-    socket.on('restartGame', payload => {
-      setState({ player: state.player, gameID: gameID, gameState: payload })
-    })
-  }, [socket, setState, gameID, state.player])
+  }, [setState, socket, gameID, player])
 
   if (gameID === undefined || gameState === undefined) {
     return <Redirect to='/match' />
@@ -95,6 +68,11 @@ const GamePage = ({ classes, state, setState, socket }) => {
     socket.emit('restartGame', gameID)
   }
 
+  const onNewGame = () => {
+    socket.emit('leave', gameID)
+    setState({ player: state.player, gameID: undefined, gameState: undefined })
+  }
+
   return (
     <Container className={classes.root}>
       <GameNavbar
@@ -105,6 +83,7 @@ const GamePage = ({ classes, state, setState, socket }) => {
       <Finished
         setState={setState}
         state={state}
+        onNewGame={onNewGame}
       />
       <GameSidebar
         gameID={gameID}
@@ -123,7 +102,6 @@ const GamePage = ({ classes, state, setState, socket }) => {
         setState={setState}
         gameID={gameID}
         onNextMove={onNextMove}
-        socket={socket}
       />
     </Container>
   )
