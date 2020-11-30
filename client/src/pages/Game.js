@@ -140,7 +140,9 @@ const GamePage = ({ classes, state, setState, socket }) => {
         onNewGame={onNewGame}
       />
       <GameSidebar
+        gameID={gameID}
         state={state}
+        socket={socket}
         player={state.player}
         count={state.gameState.guessNum}
         countMax={5}
@@ -148,8 +150,6 @@ const GamePage = ({ classes, state, setState, socket }) => {
         setFinished={undefined}
         isSpy={isSpy(state)}
         getCurrentSpymaster={getCurrentSpymaster(state)}
-        gameID={gameID}
-        socket={socket}
       />
       <Board
         state={state}
