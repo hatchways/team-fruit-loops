@@ -62,7 +62,6 @@ const GameTable = ({ gameList, onJoin, onRefresh }) => {
       status: value.isStart ? "started" : "waiting"
     }
   })
-  console.log(rows)
 
   return (
     <div className={classes.root}>
