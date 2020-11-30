@@ -16,10 +16,13 @@ import Game from "./pages/Game";
 
 import "./App.css";
 
-
 let socket = socketIOClient();
 function App() {
-  const [state, setState] = useState({player: 'Bonnie', gameID: undefined, gameState: undefined});
+  const [state, setState] = useState({
+    player: 'Bonnie',
+    gameID: undefined,
+    gameState: undefined
+  });
   const withGameState = Component => props => (
       <Component
         state={state}
