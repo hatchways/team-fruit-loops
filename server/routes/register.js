@@ -46,6 +46,9 @@ router.post("/", function (req, res, next) {
     .then((user) => {
       // Email address already taken
       if (user) {
+        if (process.env.NODE_ENV !== "production") {
+          console.log(`Email address ${emaiL} already taken`);
+        }
         return res.status(422).json({ errors: "Email address already in use" });
       } else {
         // Everything valid; create account
@@ -63,10 +66,15 @@ router.post("/", function (req, res, next) {
           user
             .save()
             .then(() => {
-              // Successfully created user
+              if (process.env.NODE_ENV !== "production") {
+                console.log(`User registered: ${email} - ${name}`);
+              }
               res.sendStatus(201);
             })
             .catch((err) => {
+              if (process.env.NODE_ENV !== "production") {
+                console.log(`Error hashing password: ${err}`);
+              }
               res.status(500).json({
                 errors: err,
               });
@@ -75,6 +83,9 @@ router.post("/", function (req, res, next) {
       }
     })
     .catch((err) => {
+      if (process.env.NODE_ENV !== "production") {
+        console.log(`Error finding user: ${err}`);
+      }
       res.status(500).json({
         errors: err,
       });

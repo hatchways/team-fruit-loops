@@ -7,6 +7,8 @@ import {
  useStripe,
 } from '@stripe/react-stripe-js';
 import {
+  CircularProgress,
+  Container,
   Button,
   Typography,
 } from "@material-ui/core";
@@ -40,6 +42,16 @@ const styles = theme => ({
     marginTop: theme.spacing(1),
     width: "100%",
   },
+  hidden: {
+    visibility: "collapse",
+  },
+  pay: {
+    marginTop: theme.spacing(1),
+    display: "block",
+    backgroundColor: "rgb(38, 182, 92)",
+    color: "white",
+    width: "30%",
+  },
 });
 
 const api = {
@@ -57,6 +69,7 @@ const CheckoutForm = ({ classes, player }) => {
   const stripe = useStripe();
   const elements = useElements();
   const [clientSecret, setClientSecret] = useState("");
+  const [viewState, setViewState] = useState("loading");
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -65,12 +78,12 @@ const CheckoutForm = ({ classes, player }) => {
     }
 
     try {
-      const paymentData = {
+      const data = {
         payment_method: {
           card: elements.getElement(CardElement)
         }
       };
-      const res = await stripe.confirmCardPayment(clientSecret, paymentData);
+      const res = await stripe.confirmCardPayment(clientSecret, data);
 
       if (res.error) {
         throw new Error("Payment failed");
@@ -82,10 +95,12 @@ const CheckoutForm = ({ classes, player }) => {
       if (process.env.NODE_ENV !== "production") {
         console.log(`Transaction succeeded: ${res.paymentIntent.id}`);
       }
+      setViewState("success");
     } catch(err) {
       if (process.env.NODE_ENV !== "production") {
         console.log(err);
       }
+      setViewState("error");
     }
   }
 
@@ -97,36 +112,74 @@ const CheckoutForm = ({ classes, player }) => {
           method: api["createIntent"].method(),
           headers: api["createIntent"].headers(),
         });
-        const { secret, error } = await res.json();
-        if (error) {
+        const { secret, error, paid } = await res.json();
+        switch (true) {
+        case paid === true:
+          setViewState("success");
+          break ;
+        case error !== undefined:
           if (process.env.NODE_ENV !== "production") {
             console.log(`Error retrieving intent client secret: ${error.message}`);
           }
-          return ;
-        }
-        setClientSecret(secret);
-        if (process.env.NODE_ENV !== "production") {
-          console.log("Created secret ", secret);
+          break ;
+        default:
+          setClientSecret(secret);
+          setViewState("pay");
+          if (process.env.NODE_ENV !== "production") {
+            console.log("Created secret ", secret);
+          }
         }
       } catch (err) {
         if (process.env.NODE_ENV !== "production") {
           console.log(err);
         }
+        setViewState("error");
       }
     };
 
     createPaymentIntent();
   }, [player]);
 
-  return (
-    <form className={classes.form} onSubmit={handleSubmit}>
-      <CardElement/>
-      <Button onClick={handleSubmit}>Pay</Button>
-    </form>
-  );
+  switch (viewState) {
+  default:
+  case "error":
+    return (
+      <Container align="center">
+        <Typography textAlign="center">
+          Error in payment: please try another method
+        </Typography>
+      </Container>
+    );
+  case "success":
+    return (
+      <Container align="center">
+        <Typography>
+          Payment Successful. Enjoy your private games!
+        </Typography>
+      </Container>
+    );
+  case "loading":
+  case "pay":
+    return (
+      <Container align="center">
+        <CircularProgress className={viewState === "loading" ? null : classes.hidden}/>
+        <div className={viewState === "pay" ? null : classes.hidden}>
+          <form className={classes.form} onSubmit={handleSubmit}>
+            <CardElement/>
+            <Button
+              className={classes.pay}
+              variant="outlined"
+              onClick={handleSubmit}>
+              Pay
+            </Button>
+          </form>
+        </div>
+      </Container>
+    );
+  }
 };
 
-const UpgradePage = ({ classes, publishableKey, ...props}) => {
+const UpgradeComponent = ({ classes, publishableKey, ...props}) => {
   const { player } = useParams()
   if (stripePubKey === undefined) {
     if (process.env.NODE_ENV !== 'production') {
@@ -148,6 +201,6 @@ const UpgradePage = ({ classes, publishableKey, ...props}) => {
   );
 };
 
-const Upgrade = withStyles(styles)(UpgradePage);
+const Upgrade = withStyles(styles)(UpgradeComponent);
 
 export default Upgrade;

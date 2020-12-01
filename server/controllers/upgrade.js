@@ -20,17 +20,16 @@ const stripe = stripeConfig(stripeSecretKey);
 const intent = async (req, res) => {
   try {
     const player = await User.findOne({ name: req.params.player }).exec();
-    if (player.account.membership === "full") {
-      res.status(409).send({ error: "Error: ${player.name} already paid" });
-    } else if (player.account.paymentIntent === undefined) {
+    if (player.account.privateGames === true) {
+      const body = { error: "Error: ${player.name} already paid", paid: true, };
+      res.status(409).send(body);
+    } else if (player.account.paymentSecret === undefined) {
       const intent = { amount: 500, currency: "usd" };
       const paymentIntent = await stripe.paymentIntents.create(intent);
       player.account.paymentID = paymentIntent.id;
       player.account.paymentSecret = paymentIntent.client_secret;
       await player.save();
-      if (process.env.NODE_ENV !== "production") {
-        console.log(`Created client secret: ${paymentIntent.client_secret}`);
-      }
+      console.log(`Created ${player.name} payment intent: ${paymentIntent.id}`);
       res.status(201).send({ secret: player.account.paymentSecret, });
     } else {
       res.status(409).send({ secret: player.account.paymentSecret, });
@@ -64,20 +63,22 @@ const webhook = async (req, res) => {
   }
 
   switch (event.type) {
+  case "charge.succeeded":
   case "payment_intent.succeeded":
-    const intent = event.data.object;
+    const intent = event.data.object.payment_intent;
     try {
-      const player = await User.findOne({ "account.paymentID": intent.id }).exec();
+      const player = await User.findOne({ "account.paymentID": intent }).exec();
 
       if (player === null) {
-        throw new Error(`Player containing ${intent.id} not found`);
+        throw new Error(`Player containing ${intent} not found`);
+      } else if (player.account.privateGames === false) {
+        player.account.privateGames = true;
+        player.account.paymentSecret = undefined;
+        await player.save();
       }
-      player.account.privateGames = true;
-      player.account.paymentSecret = undefined;
-      await player.save();
-      console.log("Payment Intent ${intent.id)} was saved");
+      console.log(`Payment Intent ${intent} was saved`);
     } catch (err) {
-      console.log(`Webhook Error updating player charge: intent=${intent} err${err}`);
+      console.log(`Webhook Error updating player intent ${intent}: ${err}`);
     }
     break ;
   default:
