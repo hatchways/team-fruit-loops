@@ -23,12 +23,63 @@ const disconnect = (io, socket) => () => {
 };
 
 const leave = (io, socket) => gameID => {
-  const activePlayers = gameController.globalState[gameID].activePlayers;
-  delete activePlayers[socket.id];
-  // remove the game if there are no active players
-  if (Object.keys(activePlayers).length === 0)
-    delete gameController.globalState[gameID];
+  const room = gameController.globalState[gameID];
+  if (room) {
+    const activePlayers = room.activePlayers;
+    delete activePlayers[socket.id];
+    // remove the game if there are no active players
+    if (Object.keys(activePlayers).length === 0)
+      delete gameController.globalState[gameID];
+  }
+  io.emit('publicGames', gameController.getPublicGames());
 };
+
+const execute = (io, room, method, params, selectedWord = undefined) => {
+  const {id, gameEngine} = room;
+  try {
+    const gameState = method.apply(gameEngine, params);
+    //console.log(gameState)
+    io.to(id).emit('update', {gameState: gameState, word: selectedWord});
+  }
+  catch (e) {
+    console.log(`Error: ${e.message}`);
+    io.to(id).emit('update', {error: e.message});
+  }
+}
+
+const assign = io => (gameID, player, role) => {
+  const room = gameController.globalState[gameID];
+  if (room) {
+    const game = room.gameEngine;
+    execute(io, room, game.assignRole, [player, role]);
+  }
+}
+
+const unassign = io => (gameID, player, role) => {
+  const room = gameController.globalState[gameID];
+  if (room) {
+    const game = room.gameEngine;
+    execute(io, room, game.unassignRole, [player, role]);
+  }
+}
+
+const start = io => gameID => {
+  const room = gameController.globalState[gameID];
+  if (room) {
+    const game = room.gameEngine;
+    const timer = setInterval(() => {
+      if (game.gameState.isEnd)
+        clearInterval(timer);
+
+      if (game.timerCountDown())
+        io.to(gameID).emit('timer', {gameState: game.gameState, timer: game.gameState.timer});
+      else
+        io.to(gameID).emit('timer', {timer: game.gameState.timer});
+    }, 1000);
+    execute(io, room, game.start, []);
+  }
+  io.emit('publicGames', gameController.getPublicGames());
+}
 
 // Propagate players chats & chat notifications to all in gameID
 const chat = io => (gameID, type, text, author) => {
@@ -40,70 +91,53 @@ const chat = io => (gameID, type, text, author) => {
 
 // Guesser's turn: Submit selected word
 const guesserNextMove = io => (gameID, player, word) => {
-  console.log(gameController.globalState)
-
-  if (gameController.globalState[gameID]) {
-    let gameState = {}
-    let thrownError
-
-    try {
-      gameState = gameController.globalState[
-        gameID
-      ].gameEngine.guesserNextMove(player, word)
-    } catch (err) {
-      console.log(err)
-      thrownError = err.message
-    }
-
-    io.to(gameID).emit('update', gameState, thrownError, word)
+  const room = gameController.globalState[gameID];
+  if (room) {
+    const game = room.gameEngine;
+    execute(io, room, game.guesserNextMove, [player, word], word);
   }
 }
 
 // Spymaster's turn: Submit hint and number of guesses
 const spyNextMove = io => (gameID, player, hint, guesses) => {
-  if (gameController.globalState[gameID]) {
-    let gameState = {}
-    let thrownError
-
-    try {
-      gameState = gameController.globalState[gameID].gameEngine.spyNextMove(
-        player,
-        hint,
-        guesses
-      )
-    } catch (err) {
-      thrownError = err.message
-    }
-
-    io.to(gameID).emit('update', gameState, thrownError)
+  const room = gameController.globalState[gameID];
+  if (room) {
+    const game = room.gameEngine;
+    execute(io, room, game.spyNextMove, [player, hint, guesses]);
   }
 }
 
 const endTurn = io => gameID => {
-  if (gameController.globalState[gameID]) {
-    io.to(gameID).emit(
-      'update',
-      gameController.globalState[gameID].gameEngine.endTurn()
-    )
+  const room = gameController.globalState[gameID];
+  if (room) {
+    const game = room.gameEngine;
+    execute(io, room, game.endTurn, []);
   }
 }
 
 const restartGame = io => gameID => {
-  if (gameController.globalState[gameID]) {
-    io.to(gameID).emit(
-      'update',
-      gameController.globalState[gameID].gameEngine.restart()
-    )
+  const room = gameController.globalState[gameID];
+  if (room) {
+    const game = room.gameEngine;
+    execute(io, room, game.restart, []);
   }
+}
+
+const refresh = io => () => {
+  io.emit('publicGames', gameController.getPublicGames());
 }
 
 module.exports = {
   disconnecting,
   disconnect,
   leave,
+  assign,
+  unassign,
+  start,
   chat,
   guesserNextMove,
   spyNextMove,
   endTurn,
   restartGame,
+  refresh
 }

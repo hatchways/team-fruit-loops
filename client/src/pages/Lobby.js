@@ -19,33 +19,16 @@ import LobbyPlayers from "../components/Lobby/Players";
 import LobbyRoles from "../components/Lobby/Roles";
 import LobbyWaiting from "../components/Lobby/Waiting"
 
-const api = {
-  "assign": {
-    url: id => `/game/${id}/assign`,
-    method: "PUT",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    },
-    body: (player, role) => JSON.stringify({ player, role }),
-  },
-  "start": {
-    url: id => `/game/${id}/start`,
-    method: "PUT",
-    headers: {
-      Accept: "application/json",
-    },
-    body: () => "",
-  },
-  "remove": {
-    url: id => `/game/${id}/unassign`,
-    method: "PUT",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    },
-    body: (player, role) => JSON.stringify({ player, role }),
-  }
+// copy url to system clipboard by creating dummy html element to write value
+// into. added to document.body for `document.execCommand("copy")` to read
+const copy = id => e => {
+  e.preventDefault();
+  const dummy = document.createElement("input");
+  document.body.appendChild(dummy);
+  dummy.setAttribute("value", id);
+  dummy.select();
+  document.execCommand("copy");
+  document.body.removeChild(dummy);
 };
 
 const gameStyles = theme => ({
@@ -109,19 +92,6 @@ const Lobby = withStyles(gameStyles)(({ classes, state, setState, socket }) => {
   const off = isOff(gameState, player);
   const isHost = player === gameState.playerList[0];
 
-  const call = async (type, role) => {
-    const res = await fetch(api[type].url(gameID), {
-      method: api[type].method,
-      headers: api[type].headers,
-      body: api[type].body(state.player, role),
-    });
-
-    if (res.status < 200 || res.status >= 300) {
-      const next = await res.json()
-      setErr(next.error);
-    }
-  };
-
   // copy url to system clipboard by creating dummy html element to write value
   // into. added to document.body for `document.execCommand("copy")` to read
   const copy = id => e => {
@@ -132,30 +102,43 @@ const Lobby = withStyles(gameStyles)(({ classes, state, setState, socket }) => {
     dummy.select();
     document.execCommand("copy");
     document.body.removeChild(dummy);
-  
+
     if (tooltipTimeout) setTooltipTimeout(clearTimeout(tooltipTimeout))
 
     setTooltipOpen(true)
-  
+
     setTooltipTimeout(setTimeout(() => {
       setTooltipOpen(false)
     }, 2000))
   };
 
   useEffect(() => {
-    const updateHandler = next => {
+    const updateHandler = ({gameState, error}) => {
       if (process.env.NODE_ENV === 'development') {
-        console.log("update recieved: ", next);
+        console.log("update recieved: ", gameState);
       }
-      state.gameState = next;
-      setState({player: state.player, gameState: state.gameState});
+
+      if (error === undefined)
+        setState({player: player, gameState: gameState});
     }
 
     socket.on("update", updateHandler);
     return () => {
       socket.off("update", updateHandler);
     }
-  }, [setState, socket, state.gameState, state.player]);
+  }, [setState, socket, player]);
+
+  const onAssign = (role) => {
+    socket.emit('assign', gameID, player, role)
+  }
+
+  const onUnassign = (role) => {
+    socket.emit('unassign', gameID, player, role)
+  }
+
+  const onStart = () => {
+    socket.emit('start', gameID);
+  }
 
   return state.gameState.isStart ?
     <Redirect push to={`/game/${gameID}`}/> :
@@ -187,7 +170,7 @@ const Lobby = withStyles(gameStyles)(({ classes, state, setState, socket }) => {
               <Typography align="center" variant="h6">
                 Available roles
               </Typography>
-              <LobbyRoles call={call} off={off} state={state}/>
+              <LobbyRoles onAssign={onAssign} off={off} state={state}/>
             </Grid>
             <Grid item container xs={12} align="center" direction="row">
               <Grid item xs={4}>
@@ -200,7 +183,7 @@ const Lobby = withStyles(gameStyles)(({ classes, state, setState, socket }) => {
                 <Typography variant="h5" className={classes.player}>
                   Players ready for match:
                 </Typography>
-                <LobbyPlayers call={call} state={state} />
+                <LobbyPlayers onUnassign={onUnassign} state={state} />
               </Grid>
               <Grid item xs={1}>
                 <Divider orientation="vertical" className={classes.vDivider}/>
@@ -220,7 +203,7 @@ const Lobby = withStyles(gameStyles)(({ classes, state, setState, socket }) => {
               </Grid>
             </Grid>
             <Grid item xs={12} align="center">
-              <Button disabled={!(gameState.isReady && isHost)} onClick={() => call("start", "")} variant="outlined">
+              <Button disabled={!(gameState.isReady && isHost)} onClick={onStart} variant="outlined">
                 Start Match
               </Button>
             </Grid>

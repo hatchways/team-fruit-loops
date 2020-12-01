@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect, useCallback, useState } from "react";
 import { Redirect } from "react-router-dom";
 import { useParams } from 'react-router';
 import { withStyles } from "@material-ui/core/styles";
@@ -53,8 +53,9 @@ const getCurrentSpymaster = ({ gameState: { turn, redSpy, blueSpy } }) => {
 }
 
 const GamePage = ({ classes, state, setState, socket, accountValues, logout }) => {
-  const { gameID } = useParams()
-  const { gameState, player } = state
+  const { gameID } = useParams();
+  const { gameState, player } = state;
+  const [timer, setTimer] = useState(20);
 
   const [tick] = useSound(tickSfx);
   const [correctGuess] = useSound(correctGuessSfx);
@@ -67,13 +68,10 @@ const GamePage = ({ classes, state, setState, socket, accountValues, logout }) =
     incorrectGuess,
     gameWin,
     gameLose
-  }
+  };
 
   const playSoundEffects = useCallback((nextState, err, word) => {
-    if (nextState.timer < 10)
-      sounds.tick();
-
-    if (err !== null) return;
+    if (err !== undefined) return;
 
     if (state.gameState.winner === undefined && nextState.winner !== undefined) {
       if (nextState.winner === getTeam(state))
@@ -95,23 +93,34 @@ const GamePage = ({ classes, state, setState, socket, accountValues, logout }) =
   // This is responsible for re-rendering if websocket receives update
   // from front end.
   useEffect(() => {
-    const updateHandler = (nextState, err = null, word = undefined) => {
+    const updateHandler = ({gameState, error, word}) => {
       // // Re-enable comment if you want to continuously monitor game state
       // if (process.env.NODE_ENV === 'development') {
       //   console.log('update recieved: ', next)
       // }
-      playSoundEffects(nextState, err, word);
+      playSoundEffects(gameState, error, word);
+      if (error === undefined)
+        setState({ player: player, gameState: gameState });
+    }
 
-      if (err === null)
-        setState({ player: player, gameState: nextState })
-      else
-        console.log(err)
+    const timerHandler = ({gameState, timer}) => {
+      if (timer < 10)
+        sounds.tick();
+        
+      if (gameState)
+        setState({ player: player, gameState: gameState });
+
+      setTimer(timer);
     }
-    socket.on('update', updateHandler)
+
+    socket.on('update', updateHandler);
+    socket.on('timer', timerHandler);
+
     return () => {
-      socket.off('update', updateHandler)
+      socket.off('update', updateHandler);
+      socket.off('timer', timerHandler);
     }
-  }, [setState, socket, gameID, player, playSoundEffects])
+  }, [setState, setTimer, sounds, socket, player, playSoundEffects]);
 
   if (gameID === undefined || gameState === undefined) {
     return <Redirect to='/match' />
@@ -119,17 +128,17 @@ const GamePage = ({ classes, state, setState, socket, accountValues, logout }) =
 
   // Event handler for selecting a card
   const onNextMove = word => {
-    socket.emit('guesserNextMove', gameID, player, word)
+    socket.emit('guesserNextMove', gameID, player, word);
   }
 
   // Event handler for restarting the game
   const onRestart = () => {
-    socket.emit('restartGame', gameID)
+    socket.emit('restartGame', gameID);
   }
 
   const onNewGame = () => {
     socket.emit('leave', gameID)
-    setState({ player: state.player, gameID: undefined, gameState: undefined })
+    setState({ player: state.player, gameID: undefined, gameState: undefined });
   }
 
   return (
@@ -161,6 +170,7 @@ const GamePage = ({ classes, state, setState, socket, accountValues, logout }) =
       />
       <Board
         state={state}
+        timer={timer}
         setState={setState}
         gameID={gameID}
         onNextMove={onNextMove}
