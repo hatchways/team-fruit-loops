@@ -17,22 +17,16 @@ const useStyles = makeStyles((theme) => ({
     textTransform: 'capitalize',
     "text-align": "center",
     whiteSpace: "nowrap",
-    backgroundColor:
+    background:
           props.status === 'covered'
-        ? 'white'
-        : props.status === 'black'
-        ? 'rgb(0, 0, 0)'
-        : props.status === 'red'
-        ? 'rgb(255, 62, 59)'
-        : 'rgb(95, 63, 254)',
-    backgroundImage:
-      props.status === 'covered'
         ? 'white'
         : props.status === 'black'
         ? 'linear-gradient(to right, rgb(0, 0, 0), rgb(138, 138, 138))'
         : props.status === 'red'
-        ? 'linear-gradient(to right, rgb(255, 62, 59), rgb(254, 100, 63))'
-        : 'linear-gradient(to right, rgb(59, 66, 255), rgb(95, 63, 254))',
+        ? 'linear-gradient(to right, rgb(255, 0, 0), rgb(220, 20, 60))'
+        : props.status === 'blue'
+        ? 'linear-gradient(to right, rgb(0, 0, 255), rgb(30, 144, 255))'
+        : 'linear-gradient(to right, rgb(128, 128, 128), rgb(192, 192, 192))',
     color: props.status !== "covered" ? "white" :
            props.color === undefined ? "black" : props.color,
     '&:hover': {
@@ -83,7 +77,7 @@ const Card = ({status, color, word, onClick}) => {
   );
 };
 
-const Board = ({ state, setState, gameID, socket, onNextMove }) => {
+const Board = ({ state, setState, gameID, onNextMove }) => {
   const classes = useStyles();
   const {player, gameState} = state;
   if (gameState === undefined) {

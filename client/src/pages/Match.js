@@ -1,5 +1,5 @@
 import React, { useState }from 'react';
-import { Redirect } from "react-router-dom";
+import { Redirect, useHistory } from "react-router-dom";
 import { withStyles } from '@material-ui/core/styles';
 import {
   Container,
@@ -97,14 +97,14 @@ const api = {
   "private": {
     url: () => "/game",
     method: "POST",
-    contentType: "application/x-www-form-urlencoded",
-    body: player => `player=${player}`,
+    contentType: "application/json",
+    body: (player, socketID) => JSON.stringify({ player, socketID }),
   },
   "join": {
     url: id => `/game/${id}/join`,
     method: "PUT",
     contentType: "application/json",
-    body: player => JSON.stringify({ player }),
+    body: (player, socketID) => JSON.stringify({ player, socketID }),
   },
   "random": {
     url: () => {
@@ -119,6 +119,7 @@ const Match = withStyles(styles)(({ classes, state, setState, socket}) => {
   // local game id. used in join a game text field
   const [roomID, setRoomID] = useState('');
   const [name, setName] = useState('');
+  const history = useHistory();
 
   if (gameID !== undefined) {
     return <Redirect push to={`/lobby/${gameID}`}/>;
@@ -131,12 +132,11 @@ const Match = withStyles(styles)(({ classes, state, setState, socket}) => {
         "Content-Type": api[type].contentType,
         Accept: "application/json",
       },
-      body: api[type].body(player),
+      body: api[type].body(player, socket.id),
     });
 
     const nextState = await res.json();
     if (res.status >= 200 && res.status < 300) {
-      socket.emit('join', nextState.id);
       setState({
         player: player,
         gameID: nextState.id,
@@ -149,7 +149,6 @@ const Match = withStyles(styles)(({ classes, state, setState, socket}) => {
 
   const join = (id, name) => async () => {
     const testName = name;
-    socket.emit('join', id);
     const type = 'join';
     const res = await fetch(api[type].url(id), {
       method: api[type].method,
@@ -157,7 +156,7 @@ const Match = withStyles(styles)(({ classes, state, setState, socket}) => {
         "Content-Type": api[type].contentType,
         Accept: "application/json",
       },
-      body: api[type].body(testName),
+      body: api[type].body(testName, socket.id),
     });
 
     const nextState = await res.json();
@@ -171,6 +170,10 @@ const Match = withStyles(styles)(({ classes, state, setState, socket}) => {
       setErr(nextState.error);
     }
   };
+
+  const onPublic = () => {
+    history.push('public/');
+  }
 
   return gameID !== undefined
     ? <Redirect push to={`/lobby/${gameID}`}/>
@@ -243,7 +246,7 @@ const Match = withStyles(styles)(({ classes, state, setState, socket}) => {
                 direction="column"
                 className={classes.newGame}
                 justify="center">
-                <Btn on={() => setErr("not implemented")} css={classes.public} text="Public"/>
+                <Btn on={onPublic} css={classes.public} text="Public"/>
                 <Btn on={call("private")} css={classes.private} text="Private"/>
               </Grid>
             </Grid>

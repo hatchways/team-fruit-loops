@@ -14,6 +14,7 @@ import Match from "./pages/Match";
 import Lobby from "./pages/Lobby";
 import Game from "./pages/Game";
 import Upgrade from "./pages/Upgrade";
+import Public from "./pages/Public";
 
 import "./App.css";
 
@@ -45,6 +46,7 @@ function App() {
           <PrivateRoute path="/profile/:player" component={Profile} />
           <Route path="/stripe/:player" component={withGameState(Upgrade)}/>
           <Route exact path="/match" render={withGameState(Match)}/>
+          <Route exact path="/public" render={withGameState(Public)}/>
           <Route  path="/lobby/:gameID" render={withGameState(Lobby)}/>
           <Route  path="/game/:gameID" render={withGameState(Game)}/>
         </Switch>
