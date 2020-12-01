@@ -298,10 +298,12 @@ Game.prototype.timerCountDown = function() {
   if (this.gameState.timer <= 0) {
     this.gameState.timer = INIT_TIMER;
     this.endTurn();
+    return true;
   }
   else {
     this.gameState.timer--;
   }
+  return false;
 }
 
 module.exports = Game;

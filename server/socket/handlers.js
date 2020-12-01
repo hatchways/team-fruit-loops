@@ -71,8 +71,10 @@ const start = io => gameID => {
       if (game.gameState.isEnd)
         clearInterval(timer);
 
-      game.timerCountDown();
-      io.to(gameID).emit('timer', game.gameState.timer);
+      if (game.timerCountDown())
+        io.to(gameID).emit('timer', {gameState: game.gameState, timer: game.gameState.timer});
+      else
+        io.to(gameID).emit('timer', {timer: game.gameState.timer});
     }, 1000);
     execute(io, room, game.start, []);
   }

@@ -18,7 +18,6 @@ import { Close, Link, } from "@material-ui/icons";
 import LobbyPlayers from "../components/Lobby/Players";
 import LobbyRoles from "../components/Lobby/Roles";
 
-
 // copy url to system clipboard by creating dummy html element to write value
 // into. added to document.body for `document.execCommand("copy")` to read
 const copy = id => e => {
@@ -92,20 +91,6 @@ const Lobby = withStyles(gameStyles)(({ classes, state, setState, socket }) => {
   const off = isOff(gameState, player);
   const isHost = player === gameState.playerList[0];
 
-
-  const call = async (type, role) => {
-    const res = await fetch(api[type].url(gameID), {
-      method: api[type].method,
-      headers: api[type].headers,
-      body: api[type].body(state.player, role),
-    });
-
-    if (res.status < 200 || res.status >= 300) {
-      const next = await res.json()
-      setErr(next.error);
-    }
-  };
-
   // copy url to system clipboard by creating dummy html element to write value
   // into. added to document.body for `document.execCommand("copy")` to read
   const copy = id => e => {
@@ -116,11 +101,11 @@ const Lobby = withStyles(gameStyles)(({ classes, state, setState, socket }) => {
     dummy.select();
     document.execCommand("copy");
     document.body.removeChild(dummy);
-  
+
     if (tooltipTimeout) setTooltipTimeout(clearTimeout(tooltipTimeout))
 
     setTooltipOpen(true)
-  
+
     setTooltipTimeout(setTimeout(() => {
       setTooltipOpen(false)
     }, 2000))

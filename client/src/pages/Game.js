@@ -48,7 +48,7 @@ const GamePage = ({ classes, state, setState, socket }) => {
   const { gameID } = useParams();
   const { gameState, player } = state;
   const [timer, setTimer] = useState(20);
-  
+
   const [tick] = useSound(tickSfx);
   const [correctGuess] = useSound(correctGuessSfx);
   const [incorrectGuess] = useSound(incorrectGuessSfx);
@@ -95,9 +95,12 @@ const GamePage = ({ classes, state, setState, socket }) => {
         setState({ player: player, gameState: gameState });
     }
 
-    const timerHandler = (timer) => {
+    const timerHandler = ({gameState, timer}) => {
       if (timer < 10)
         sounds.tick();
+        
+      if (gameState)
+        setState({ player: player, gameState: gameState });
 
       setTimer(timer);
     }

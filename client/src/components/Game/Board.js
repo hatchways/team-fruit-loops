@@ -35,9 +35,9 @@ const useStyles = makeStyles((theme) => ({
     },
   }),
   board: {
-    margin: "10vh 0 0 0",
+    margin: 'auto',
     padding: "20px",
-    height: "90vh",
+    height: "85vh",
     width: "100vw",
   },
   grid: {
