@@ -5,7 +5,6 @@ import {
   Grid,
   Button,
   Container,
-  Paper
 } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
@@ -53,6 +52,9 @@ const useStyles = makeStyles((theme) => ({
     color: props.promptColor,
     "margin-left": "auto",
     "margin-right": "auto",
+    '&:first-letter': {
+      "text-transform": "capitalize",
+    },
   }),
   timer: props => ({
     color: props.timerColor,
@@ -73,12 +75,12 @@ const getRole = (player, gameState) => {
 
 const isSpy = role => role === "blue spy" || role === "red spy";
 
-const Prompt = ({ state }) => {
+const Prompt = ({ state, timer }) => {
   let prompt;
   const { player, gameState } = state;
-  const { turn, hint, timer } = gameState;
+  const { turn, hint } = gameState;
   const [team, teamRole] = getRole(player, gameState).split(" ");
-  const timerColor = gameState.timer < 10 ? 'red' : 'black';
+  const timerColor = timer < 10 ? 'red' : 'black';
   const classes = useStyles({promptColor: team, timerColor: timerColor});
 
   if (team !== turn) {
@@ -124,7 +126,7 @@ const Card = ({ status, color, word, onClick }) => {
   );
 };
 
-const Board = ({ state, setState, gameID, onNextMove }) => {
+const Board = ({ state, setState, timer, gameID, onNextMove }) => {
   const classes = useStyles();
   const {player, gameState} = state;
   if (gameState === undefined) {
@@ -147,7 +149,7 @@ const Board = ({ state, setState, gameID, onNextMove }) => {
 
   return (
     <div className={classes.board}>
-      <Prompt state={state} />
+      <Prompt state={state} timer={timer} />
       <Grid container spacing={3} justify="center" className={classes.grid}>
       {
         wordsGrid.map((row, rowIndex) =>
