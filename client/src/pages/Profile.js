@@ -2,12 +2,20 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { useHistory } from "react-router-dom";
 import axios from "axios";
+import PropTypes from 'prop-types';
 
-import { Button, TextField, Typography, Container } from "@material-ui/core";
+import {
+  Button,
+  CircularProgress,
+  Container,
+  TextField,
+  Typography,
+} from "@material-ui/core";
 
 import EditIcon from "@material-ui/icons/Edit";
 import SendIcon from "@material-ui/icons/Send";
 
+import Upgrade from "../components/Upgrade";
 import UploadImage from "../components/uploadImage";
 
 const useStyles = makeStyles((theme) => ({
@@ -38,13 +46,28 @@ const useStyles = makeStyles((theme) => ({
     height: "40px",
   },
   editButton: {},
+  upgradeButton: {},
 }));
 
-const Profile = () => {
+const api = {
+  "createIntent": {
+    url: name => `/stripe/${name}/intent`,
+    method: () => "GET",
+    headers: () => ({
+      Accept: "application/json",
+    }),
+    body: () => "",
+  }
+};
+
+const Profile = ({ setPrivGames, stripePubKey, }) => {
   const classes = useStyles();
   let history = useHistory();
   let textInput = useRef(null);
 
+  const [dialog, toggleDialog] = useState(false);
+  const [clientSecret, setClientSecret] = useState("");
+  const [viewState, setViewState] = useState("loading");
   const [values, setValues] = useState({
     id: "",
     name: "",
@@ -130,8 +153,55 @@ const Profile = () => {
       });
   }, [logout]);
 
+  useEffect(() => {
+    // create payment intent on page load
+    const createPaymentIntent = async () => {
+      try {
+        const res = await fetch(api["createIntent"].url(values.name), {
+          method: api["createIntent"].method(),
+          headers: api["createIntent"].headers(),
+        });
+        const { secret, error, paid } = await res.json();
+        switch (true) {
+        case paid === true:
+          setViewState("success");
+          break ;
+        case error !== undefined:
+          if (process.env.NODE_ENV !== "production") {
+            console.log(`Error retrieving intent client secret: ${error.message}`);
+          }
+          break ;
+        default:
+          setClientSecret(secret);
+          setViewState("pay");
+          if (process.env.NODE_ENV !== "production") {
+            console.log("Created secret ", secret);
+          }
+        }
+      } catch (err) {
+        if (process.env.NODE_ENV !== "production") {
+          console.log(err);
+        }
+        setViewState("error");
+      }
+    };
+
+    if (values.name !== "") {
+      createPaymentIntent();
+    }
+  }, [values.name]);
+
+
   return (
     <Container component="main" maxWidth="xs">
+      <Upgrade
+        setPrivGames={setPrivGames}
+        clientSecret={clientSecret}
+        stripePubKey={stripePubKey}
+        setViewState={setViewState}
+        viewState={viewState}
+        toggleDialog={toggleDialog}
+        toggle={dialog}/>
       <div className={classes.root}>
         <>
           {values["email"] !== "" ? (
@@ -176,12 +246,39 @@ const Profile = () => {
                 <Typography variant="subtitle1">Profile Picture:</Typography>
                 <UploadImage values={values} setValues={setValues} />
                 <br />
+                <Container align="center">
+                  {
+                    (() => {
+                      switch (viewState) {
+                      case "loading":
+                        return <CircularProgress/>;
+                      case "success":
+                        return <div>success</div>;
+                      case "error":
+                      case "pay":
+                        return (
+                          <Button
+                            onClick={() => toggleDialog(old => !old)}
+                            variant="contained"
+                            color="secondary"
+                            className={classes.upgradeButton}>
+                            Upgrade Now!
+                          </Button>
+                        );
+                      default:
+                        if (process.env.NODE_ENV !== "production") {
+                          console.log(`Unknown viewState: ${viewState}`);
+                        }
+                        return <div></div>;
+                      }
+                    })()
+                  }
+                </Container>
                 <Button
                   variant="contained"
                   color="secondary"
                   className={classes.formButton}
-                  onClick={logout}
-                >
+                  onClick={logout}>
                   Logout
                 </Button>
               </form>{" "}
@@ -194,6 +291,11 @@ const Profile = () => {
       </div>
     </Container>
   );
+};
+
+Profile.propTypes = {
+  setPrivGames: PropTypes.func.isRequired,
+  stripePubKey: PropTypes.string.isRequired,
 };
 
 export default Profile;

@@ -18,8 +18,15 @@ import Public from "./pages/Public";
 
 import "./App.css";
 
+const stripePubKey = process.env.REACT_APP_STRIPE_PUB_KEY;
+
+if (stripePubKey === "") {
+  console.log("Warning: Stripe public key undefined");
+}
+
 let socket = socketIOClient();
 function App() {
+  const [privGames, setPrivGames] = useState(false);
   const [state, setState] = useState({
     player: 'testIntent2',
     gameID: undefined,
@@ -43,7 +50,13 @@ function App() {
           <Redirect exact from="/" to="/signup" />
           <Route path="/signup" component={Signup} />
           <Route path="/login" component={Login} />
-          <PrivateRoute path="/profile/:player" component={Profile} />
+          <PrivateRoute path="/profile" component={ props => (
+            <Profile
+              stripePubKey={stripePubKey}
+              privGames={privGames}
+              setPrivGames={setPrivGames}
+              {...props}/>
+          )} />
           <Route path="/stripe/:player" component={withGameState(Upgrade)}/>
           <Route exact path="/match" render={withGameState(Match)}/>
           <Route exact path="/public" render={withGameState(Public)}/>

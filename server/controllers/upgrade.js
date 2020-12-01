@@ -12,7 +12,7 @@ if (stripeSecretKey === "") {
 const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
 
 if (endpointSecret === "") {
-  console.log("Warning: Stripe endpoint secret (\"'payment_intent.succeeded'\") not set.");
+  console.log("Warning: Stripe endpoint secret not set.");
 }
 
 const stripe = stripeConfig(stripeSecretKey);
