@@ -109,7 +109,9 @@ router.post('/add', function (req, res, next) {
   // userId1: User that is sending the friend request
   // userId2: User that is receiving the friend request
   // message: (Optional) Message associated with friend request
-  const { userId1, userId2, message } = req.body
+  const userId1 = req.body.sender
+  const userId2 = req.body.receiver
+  const message = req.body.message
 
   if (userId1 === userId2) {
     return res.status(406).send('You cannot add yourself as a friend.')
@@ -191,7 +193,8 @@ router.post('/add', function (req, res, next) {
 router.patch('/add', function (req, res, next) {
   // userId1: User that is accepting the friend request
   // userId2: User that sent the friend request
-  const { userId1, userId2 } = req.body
+  const userId1 = req.body.sender
+  const userId2 = req.body.receiver
 
   const query =
     userId1 < userId2
@@ -232,7 +235,8 @@ router.patch('/add', function (req, res, next) {
 router.delete('/remove', function (req, res, next) {
   // userId1: User that is removing a relation
   // userId2: User that is being removed from relation
-  const { userId1, userId2 } = req.body
+  const userId1 = req.body.sender
+  const userId2 = req.body.receiver
 
   const query =
     userId1 < userId2
@@ -254,7 +258,8 @@ router.delete('/remove', function (req, res, next) {
 router.patch('/blacklist', function (req, res, next) {
   // userId1: User that is blacklisting
   // userId2: User that is being blacklisted
-  const { userId1, userId2 } = req.body
+  const userId1 = req.body.sender
+  const userId2 = req.body.receiver
 
   // id1 should be lesser than id2 to preserve one relation for two users
   const id1 = userId1 < userId2 ? userId1 : userId2

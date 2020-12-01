@@ -111,8 +111,8 @@ const Friends = props => {
   const handleBlacklistSubmit = () => {
     axios
       .patch('/users/blacklist', {
-        userId1: props.accountValues.id,
-        userId2: blockUser._id
+        sender: props.accountValues.id,
+        receiver: blockUser._id
       })
       .then(() => {
         handleBlacklistModalClose()

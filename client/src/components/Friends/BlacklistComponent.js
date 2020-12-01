@@ -42,8 +42,8 @@ const BlacklistComponent = ({
     axios
       .delete('/users/remove', {
         data: {
-          userId1: accountValues.id,
-          userId2: user.id
+          sender: accountValues.id,
+          receiver: user.id
         }
       })
       .then(() => {

@@ -118,7 +118,9 @@ const Navbar = ({ location, state, accountValues, logout }) => {
                       : ''
                   }
                   alt={accountValues.name || ''}
-                />
+                >
+                  {accountValues.name[0]}
+                </Avatar>
                 <Button
                   ref={anchorRef}
                   onClick={handleMenuToggle}

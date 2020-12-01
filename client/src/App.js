@@ -71,18 +71,16 @@ function App () {
   useLayoutEffect(() => {
     // TODO: Don't run this block if user isn't logged in
     axios
-      // .get('/profile')
       .get('/account')
       .then(res => {
         setAccountValues({
-          // id: res.data.id,
           id: res.data._id,
           name: res.data.name,
           email: res.data.email,
           imageUrl: res.data.imageUrl
         })
       })
-      .catch(err => {})
+      .catch(() => {})
   }, [])
 
   return (

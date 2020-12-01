@@ -125,10 +125,10 @@ const AddFriendComponent = ({
     if (searchValue.length > 0) {
       axios
         .post('/users/add/', {
-          // userId1 uses .id because the underline is removed when initially storing (and then retrieving) this data to/from the cookie
-          // userId2 uses ._id as it is directly retrieved from MongoDB
-          userId1: accountValues.id,
-          userId2: friendRequestUser._id,
+          // sender uses .id because the underline is removed when initially storing (and then retrieving) this data
+          // receiver uses ._id as it is directly retrieved from MongoDB
+          sender: accountValues.id,
+          receiver: friendRequestUser._id,
           message: friendRequestMessage
         })
         .then(res => {

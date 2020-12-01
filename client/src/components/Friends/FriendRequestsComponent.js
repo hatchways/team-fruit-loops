@@ -42,8 +42,8 @@ const FriendRequestsComponent = ({
   const handleAcceptRequest = relation => {
     axios
       .patch('/users/add', {
-        userId1: accountValues.id,
-        userId2: relation.id
+        sender: accountValues.id,
+        receiver: relation.id
       })
       .then(() => {
         reloadRelations()
@@ -52,15 +52,12 @@ const FriendRequestsComponent = ({
   }
 
   const handleRemoveRequest = relation => {
-    const userId1 = accountValues.id
-    const userId2 = relation.id
-
     // DELETE requests have to pass to data instead of regular payload
     axios
       .delete('/users/remove', {
         data: {
-          userId1: userId1,
-          userId2: userId2
+          sender: accountValues.id,
+          receiver: relation.id
         }
       })
       .then(() => {

@@ -72,8 +72,8 @@ const FriendsComponent = ({
     axios
       .delete('/users/remove', {
         data: {
-          userId1: accountValues.id,
-          userId2: friendRemoveUser.id
+          sender: accountValues.id,
+          receiver: friendRemoveUser.id
         }
       })
       .then(() => {
