@@ -95,8 +95,6 @@ const Lobby = withStyles(gameStyles)(({ classes, state, setState, socket }) => {
 
       if (error === undefined)
         setState({player: player, gameState: gameState});
-      else
-        setErr(error);
     }
 
     socket.on("update", updateHandler);

@@ -31,6 +31,7 @@ const leave = (io, socket) => gameID => {
     if (Object.keys(activePlayers).length === 0)
       delete gameController.globalState[gameID];
   }
+  io.emit('publicGames', gameController.getPublicGames());
 };
 
 const execute = (io, room, method, params, selectedWord = undefined) => {
@@ -75,6 +76,7 @@ const start = io => gameID => {
     }, 1000);
     execute(io, room, game.start, []);
   }
+  io.emit('publicGames', gameController.getPublicGames());
 }
 
 // Propagate players chats & chat notifications to all in gameID
@@ -119,6 +121,10 @@ const restartGame = io => gameID => {
   }
 }
 
+const refresh = io => () => {
+  io.emit('publicGames', gameController.getPublicGames());
+}
+
 module.exports = {
   disconnecting,
   disconnect,
@@ -131,4 +137,5 @@ module.exports = {
   spyNextMove,
   endTurn,
   restartGame,
+  refresh
 }

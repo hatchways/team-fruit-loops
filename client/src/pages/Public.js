@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useHistory } from "react-router-dom";
 import { makeStyles } from '@material-ui/core/styles';
 import {
@@ -31,12 +31,6 @@ const api = {
     method: 'POST',
     contentType: 'application/json',
     body: (player, socketID, isPublic, maxPlayerNum) => JSON.stringify({ player, socketID, isPublic, maxPlayerNum }),
-  },
-  'publicGames' :{
-    url: () => '/game/public-games',
-    method: 'GET',
-    contentType: 'application/json',
-    body: '',
   },
   "join": {
     url: id => `/game/${id}/join`,
@@ -102,27 +96,22 @@ const Public = ({state, setState, socket}) => {
     }
   };
 
-  const getPublicGames = async () => {
-    const type = 'publicGames';
-    const res = await fetch(api[type].url(), {
-      method: api[type].method,
-      headers: {
-        'Content-Type': api[type].contentType,
-        Accept: 'application/json',
-      },
-    });
-    const nextState = await res.json();
-    return nextState.gameList;
+  const onRefresh = () => {
+    socket.emit('refreshPublic');
   }
 
-  const onRefresh = useCallback(async () => {
-    const result = await getPublicGames();
-    setGameList(result);
-  }, [setGameList]);
-
   useEffect(() => {
-    (onRefresh)();
-  }, [onRefresh]);
+    const updateHandler = ({gameList, error}) => {
+      if (error === undefined)
+        setGameList(gameList);
+    }
+    socket.emit('refreshPublic');
+    socket.on('publicGames', updateHandler);
+
+    return () => {
+      socket.off('publicGames', updateHandler);
+    }
+  }, [setState, socket]);
 
   return (
     <Container className={classes.root}>

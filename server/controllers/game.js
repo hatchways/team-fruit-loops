@@ -18,7 +18,7 @@ const display = (req, res) => {
   return res.status(200).json({games: globalState})
 }
 
-const getPublicGames = (req, res) => {
+const getPublicGames = () => {
   const gameList = [];
   try {
     for (game of Object.values(globalState)) {
@@ -34,10 +34,10 @@ const getPublicGames = (req, res) => {
         });
       }
     }
-    return res.status(200).json({gameList: gameList});
+    return {gameList: gameList};
   }
   catch (e) {
-    return res.status(400).json({error: e.message});
+    return {error: e.message};
   }
 }
 
@@ -47,7 +47,8 @@ const create = (req, res) => {
 
   try {
     const id = uuidv4();
-    const socket = req.app.get('socketio').sockets.sockets.get(socketID);
+    const io = req.app.get('socketio');
+    const socket = io.sockets.sockets.get(socketID);
     console.log(`Adding ${socket.id} to ${id}`);
     socket.join(id);
 
@@ -62,6 +63,7 @@ const create = (req, res) => {
       },
       gameEngine: game,
     };
+    io.emit('publicGames', getPublicGames());
     return res.status(201).json({id: id, gameState: game.gameState});
   }
   catch (e) {
@@ -73,7 +75,7 @@ const create = (req, res) => {
 const join = (req, res, next) => {
   const {player, socketID} = req.body;
   try {
-    const io = req.app.get('socketio')
+    const io = req.app.get('socketio');
     const socket = io.sockets.sockets.get(socketID);
     const room = globalState[req.params.id]
     const activePlayers = Object.values(room.activePlayers)
@@ -94,6 +96,7 @@ const join = (req, res, next) => {
       console.log(`Adding ${socket.id} to ${req.params.id}`);
 
       io.to(req.params.id).emit('update', {gameState: gameState});
+      io.emit('publicGames', getPublicGames());
       return res.status(200).json({gameState: gameState});
     }
   }

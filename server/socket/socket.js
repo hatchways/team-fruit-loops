@@ -12,6 +12,7 @@ const events = {
   "spyNextMove": handlers.spyNextMove,
   "endTurn": handlers.endTurn,
   "restartGame": handlers.restartGame,
+  "refreshPublic": handlers.refresh
 };
 
 const socketio = server => {
@@ -22,11 +23,6 @@ const socketio = server => {
 
   io.on('connection', socket => {
     console.log(`${socket.id} connected.`);
-
-    socket.on("join", gameID => {
-      console.log(`Adding ${socket.id} to ${gameID}`);
-      socket.join(gameID);
-    });
 
     for (let [event, handler] of Object.entries(events)) {
       socket.on(event, handler(io, socket));
