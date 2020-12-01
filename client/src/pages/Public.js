@@ -18,6 +18,11 @@ const useStyles = makeStyles((theme) => ({
     height: '80vh',
     width: '100%',
   },
+  close: {
+    position: "absolute",
+    right: theme.spacing(1),
+    top: theme.spacing(1),
+  }
 }));
 
 const api = {
@@ -113,7 +118,7 @@ const Public = ({state, setState, socket}) => {
   const onRefresh = useCallback(async () => {
     const result = await getPublicGames();
     setGameList(result);
-  }, [setGameList])
+  }, [setGameList]);
 
   useEffect(() => {
     (onRefresh)();

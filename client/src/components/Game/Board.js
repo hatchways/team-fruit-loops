@@ -17,18 +17,8 @@ const useStyles = makeStyles((theme) => ({
     textTransform: 'capitalize',
     "text-align": "center",
     whiteSpace: "nowrap",
-    backgroundColor:
+    background:
           props.status === 'covered'
-        ? 'white'
-        : props.status === 'black'
-        ? 'rgb(0, 0, 0)'
-        : props.status === 'red'
-        ? 'rgb(255, 0, 0)'
-        : props.status === 'blue'
-        ? 'rgb(0, 0, 255)'
-        : 'rgb(128, 128, 128)',
-    backgroundImage:
-      props.status === 'covered'
         ? 'white'
         : props.status === 'black'
         ? 'linear-gradient(to right, rgb(0, 0, 0), rgb(138, 138, 138))'
