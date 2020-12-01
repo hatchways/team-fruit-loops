@@ -29,6 +29,8 @@ const useStyles = makeStyles((theme) => ({
         : 'linear-gradient(to right, rgb(128, 128, 128), rgb(192, 192, 192))',
     color: props.status !== "covered" ? "white" :
            props.color === undefined ? "black" : props.color,
+    cursor: 
+      isSpy(props.playerRole) || isSpectator(props.playerRole) ? 'default' : 'pointer',
     '&:hover': {
       boxShadow: props.status === "covered"? '0 3px 5px 2px rgba(0, 0, 0, .3)'
                  : null,
@@ -54,18 +56,11 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const getRole = (player, gameState) => {
-  const {blueSpy, redSpy, blueGuessers, redGuessers} = gameState;
-  if (player === blueSpy) return "blue spy";
-  if (player === redSpy) return "red spy";
-  if (blueGuessers.includes(player)) return "blue guesser";
-  if (redGuessers.includes(player)) return "red guesser";
-}
-
 const isSpy = role => role === "blue spy" || role === "red spy";
+const isSpectator = role => role === "spectator"
 
-const Card = ({status, color, word, onClick}) => {
-  const classes = useStyles({status: status, color: color});
+const Card = ({status, color, word, onClick, playerRole}) => {
+  const classes = useStyles({status: status, color: color, playerRole: playerRole});
   const click = word => e => {
       e.preventDefault();
       onClick(word);
@@ -77,7 +72,7 @@ const Card = ({status, color, word, onClick}) => {
   );
 };
 
-const Board = ({ state, setState, gameID, onNextMove }) => {
+const Board = ({ state, setState, gameID, onNextMove, getRole }) => {
   const classes = useStyles();
   const {player, gameState} = state;
   if (gameState === undefined) {
@@ -85,14 +80,14 @@ const Board = ({ state, setState, gameID, onNextMove }) => {
   }
 
   let {cards, boardState} = gameState;
-  const playerRole = getRole(player, gameState);
+  const playerRole = getRole;
 
   // create an array for rendering board
   const words = Object.keys(boardState).map(key => {
     return ({
       word: key,
       status: boardState[key].status,
-      color: isSpy(playerRole) ? cards[key] : undefined,
+      color: isSpy(playerRole) || isSpectator(playerRole) ? cards[key] : undefined,
     });
   });
   const wordsGrid = [];
@@ -114,6 +109,7 @@ const Board = ({ state, setState, gameID, onNextMove }) => {
                   color={value.color}
                   status={value.status}
                   onClick={onNextMove}
+                  playerRole={playerRole}
                 />
               </Grid>)
           }
@@ -130,7 +126,7 @@ const Board = ({ state, setState, gameID, onNextMove }) => {
         Player: {player}
       </Paper>
       <Paper className={classes.paper}>
-        Role: {getRole(player, gameState)}
+        Role: {getRole}
       </Paper>
       <Paper className={classes.paper}>
         Remaining guess number: {gameState.guessNum}

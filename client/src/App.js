@@ -64,6 +64,7 @@ function App () {
       setState={setState}
       socket={socket}
       accountValues={accountValues}
+      logout={logout}
       {...props}
     />
   )
@@ -87,7 +88,7 @@ function App () {
     <MuiThemeProvider theme={theme}>
       <CssBaseline />
       <BrowserRouter>
-        <Navbar state={state} accountValues={accountValues} logout={logout} />
+        <Navbar accountValues={accountValues} logout={logout} />
         <Toolbar />
         <Switch>
           <Redirect exact from='/' to='/signup' />

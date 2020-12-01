@@ -21,16 +21,24 @@ const styles = theme => ({
   }
 })
 
+const getRole = ({player, gameState: {blueSpy, redSpy, blueGuessers, redGuessers}}) => {
+  if (player === blueSpy) return "blue spy";
+  if (player === redSpy) return "red spy";
+  if (blueGuessers.includes(player)) return "blue guesser";
+  if (redGuessers.includes(player)) return "red guesser";
+  else return "spectator"
+}
+
 const isSpy = ({ player, gameState: { redSpy, blueSpy } }) =>
   player === redSpy || player === blueSpy
 
 const getCurrentSpymaster = ({ gameState: { turn, redSpy, blueSpy } }) => {
-  if (turn === 'blue') return blueSpy
-  else if (turn === 'red') return redSpy
+  if (turn === 'blue' && blueSpy) return blueSpy
+  else if (turn === 'red' && redSpy) return redSpy
   else return 'N/A'
 }
 
-const GamePage = ({ classes, state, setState, socket }) => {
+const GamePage = ({ classes, state, setState, socket, accountValues, logout }) => {
   const { gameID } = useParams()
   const { gameState, player } = state
 
@@ -47,11 +55,12 @@ const GamePage = ({ classes, state, setState, socket }) => {
       else
         console.log(err)
     }
-
     socket.on('update', updateHandler)
     return () => {
       socket.off('update', updateHandler)
     }
+
+
   }, [setState, socket, gameID, player])
 
   if (gameID === undefined || gameState === undefined) {
@@ -79,6 +88,8 @@ const GamePage = ({ classes, state, setState, socket }) => {
         setState={setState}
         state={state}
         onRestart={onRestart}
+        accountValues={accountValues}
+        logout={logout}
       />
       <Finished
         setState={setState}
@@ -94,6 +105,7 @@ const GamePage = ({ classes, state, setState, socket }) => {
         countMax={5}
         token={state.gameState.hint || ''}
         setFinished={undefined}
+        getRole={getRole(state)}
         isSpy={isSpy(state)}
         getCurrentSpymaster={getCurrentSpymaster(state)}
       />
@@ -102,6 +114,7 @@ const GamePage = ({ classes, state, setState, socket }) => {
         setState={setState}
         gameID={gameID}
         onNextMove={onNextMove}
+        getRole={getRole(state)}
       />
     </Container>
   )

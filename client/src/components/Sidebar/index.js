@@ -29,20 +29,22 @@ const styles = () => ({
   },
 });
 
-const Sidebar = ({ classes, state, isSpy, countMax, gameID, socket, ...props }) => (
+const Sidebar = ({ classes, state, getRole, isSpy, countMax, gameID, socket, ...props }) => (
   <Drawer
     variant="permanent"
     className={classes.root}
     classes={{paper: classes.paper}}>
     <Toolbar className={classes.toolbar}/>
     <div className={classes.sidebar}>
-      {
+      {/* {
         isSpy === true
           ? null
           : <SidebarTop state={state} player={state.player} {...props}/>
-      }
+      } */}
+      <SidebarTop state={state} player={state.player} {...props}/>
       <SidebarChat player={state.player} socket={socket}/>
       <SidebarBottom
+        getRole={getRole}
         isSpy={isSpy}
         countMax={countMax}
         gameID={gameID}
@@ -59,6 +61,7 @@ Sidebar.propTypes = {
   player: PropTypes.string.isRequired,
   gameID: PropTypes.string.isRequired,
   state: PropTypes.object.isRequired,
+  getRole: PropTypes.string.isRequired,
   isSpy: PropTypes.bool.isRequired,
   getCurrentSpymaster: PropTypes.string.isRequired,
   countMax: PropTypes.number.isRequired,

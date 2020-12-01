@@ -69,7 +69,7 @@ const SpyBottom = ({ gameID, countMax, setFinished, player, socket, getCurrentSp
   const classes = useSpyBottomStyles();
   const [spyHint, setSpyHint] = useState("");
   const [count, setCount] = useState(1);
-  const onClickMin = () => setCount(Math.max(count - 1, 0));
+  const onClickMin = () => setCount(Math.max(count - 1, 1));
   const onClickMax = () => setCount(Math.min(count + 1, countMax));
 
   const handleSpyHintChange = (event) => {
@@ -110,8 +110,9 @@ const SpyBottom = ({ gameID, countMax, setFinished, player, socket, getCurrentSp
           value={spyHint}
           onChange={handleSpyHintChange}
           className={classes.text}
-          placeholder="Type here..."
-          onKeyDown={onKeyDown}/>
+          placeholder="Enter a hint here!"
+          onKeyDown={onKeyDown}
+          disabled={getCurrentSpymaster !== player || token !== undefined}/>
       </Grid>
       <Grid container item justify="center" xs={12} md={4}>
         <Chip
@@ -131,7 +132,8 @@ const SpyBottom = ({ gameID, countMax, setFinished, player, socket, getCurrentSp
       <Button
         onClick={handleSpyHintSubmit}
         className={classes.done}
-        variant="outlined">
+        variant="outlined"
+        disabled={getCurrentSpymaster !== player || token !== undefined}>
         Done
       </Button>
     </Grid>
@@ -158,7 +160,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const SidebarBottom = ({ setFinished, isSpy, countMax, gameID, player, socket, getCurrentSpymaster, token }) => {
+const SidebarBottom = ({ setFinished, getRole, isSpy, countMax, gameID, player, socket, getCurrentSpymaster, token }) => {
   const classes = useStyles();
   const [message, setMessage] = useState("");
 
@@ -191,7 +193,7 @@ const SidebarBottom = ({ setFinished, isSpy, countMax, gameID, player, socket, g
     <div className={classes.bottom}>
       <Divider className={classes.hDivider}/>
         <TextField
-          multiline
+          disabled={getRole === "spectator"}
           value={message}
           onChange={({ target: { value }}) => setMessage(value)}
           onKeyDown={chatHandler}

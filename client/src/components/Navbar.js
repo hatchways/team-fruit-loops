@@ -21,8 +21,6 @@ import {
 
 import { ArrowDropDown } from '@material-ui/icons'
 
-import GameNavbar from './Game/Nav'
-
 const useStyles = makeStyles(theme => ({
   root: {
     zIndex: 1300,
@@ -36,7 +34,7 @@ const useStyles = makeStyles(theme => ({
   container: {}
 }))
 
-const Navbar = ({ location, state, accountValues, logout }) => {
+const Navbar = ({ accountValues, logout }) => {
   const classes = useStyles()
   const theme = useTheme()
   const history = useHistory()
@@ -62,16 +60,6 @@ const Navbar = ({ location, state, accountValues, logout }) => {
       event.preventDefault()
       setBMenuOpen(false)
     }
-  }
-
-  if (location.pathname === '/game') {
-    return (
-      <GameNavbar
-        state={state}
-        classes={classes}
-        accountValues={accountValues}
-      />
-    )
   }
 
   return (
@@ -118,9 +106,7 @@ const Navbar = ({ location, state, accountValues, logout }) => {
                       : ''
                   }
                   alt={accountValues.name || ''}
-                >
-                  {accountValues.name[0]}
-                </Avatar>
+                ></Avatar>
                 <Button
                   ref={anchorRef}
                   onClick={handleMenuToggle}
