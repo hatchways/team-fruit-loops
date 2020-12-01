@@ -26,7 +26,7 @@ const styles = theme => ({
     margin: '0',
     maxWidth: '100vw'
   }
-})
+});
 
 const getTeam = ({ player, gameState: { redSpy, blueSpy, redGuessers, blueGuessers} }) => {
   if (player === redSpy || redGuessers.includes(player))
@@ -67,7 +67,7 @@ const GamePage = ({ classes, state, setState, socket }) => {
 
     if (err !== null) return;
 
-    if (nextState.winner !== undefined) {
+    if (state.gameState.winner === undefined && nextState.winner !== undefined) {
       if (nextState.winner === getTeam(state))
         sounds.gameWin();
       else
@@ -77,12 +77,10 @@ const GamePage = ({ classes, state, setState, socket }) => {
     }
 
     if (word !== undefined) {
-      if (nextState.boardState[word].status !== state.gameState.turn) {
+      if (nextState.boardState[word].status !== state.gameState.turn)
         sounds.incorrectGuess();
-      }
-      else {
+      else
         sounds.correctGuess();
-      }
     }
   }, [sounds, state]);
 
