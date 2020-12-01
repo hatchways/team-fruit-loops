@@ -47,7 +47,10 @@ const Sidebar = ({ classes, state, isSpy, countMax, gameID, socket, ...props }) 
         countMax={countMax}
         gameID={gameID}
         player={state.player}
-        socket={socket}/>
+        socket={socket}
+        getCurrentSpymaster={props.getCurrentSpymaster}
+        token={props.token}
+      />
     </div>
   </Drawer>
 );

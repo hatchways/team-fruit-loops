@@ -15,6 +15,7 @@ const logoutRouter = require("./routes/logout");
 const profileRouter = require("./routes/profile");
 const uploadImageRouter = require("./routes/uploadImage");
 const accountRouter = require("./routes/account");
+const userRouter = require("./routes/users")
 
 const { json, urlencoded } = express;
 
@@ -36,6 +37,7 @@ app.use("/logout", logoutRouter);
 app.use("/profile", profileRouter);
 app.use("/uploadImage", uploadImageRouter);
 app.use("/account", accountRouter);
+app.use("/users", userRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => next(createError(404)));

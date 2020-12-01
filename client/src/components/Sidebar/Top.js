@@ -39,7 +39,7 @@ const Top = ({ classes, player, token, count, getCurrentSpymaster, state }) => (
     <Typography
       className={[classes.label, classes.inline, classes.bottom].join(' ')}
     >
-      {count > 1 ? `x ${count}` : ''}
+      {count >= 1 && token ? `x ${count}` : ''}
     </Typography>
     <Divider className={classes.hDivider} />
   </div>
