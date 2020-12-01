@@ -50,6 +50,15 @@ const useStyles = makeStyles((theme) => ({
   prompt: {
     display: "flex",
   },
+  promptContent: props => ({
+    display: "block",
+    color: props.promptColor,
+    "margin-left": "auto",
+    "margin-right": "auto",
+  }),
+  timer: props => ({
+    color: props.timerColor,
+  }),
   paper: {
     padding: "5px",
     margin: "10px"
@@ -58,6 +67,44 @@ const useStyles = makeStyles((theme) => ({
 
 const isSpy = role => role === "blue spy" || role === "red spy";
 const isSpectator = role => role === "spectator"
+
+const Prompt = ({ state }) => {
+  let prompt;
+  const { player, gameState } = state;
+  const { turn, hint, timer } = gameState;
+  const [team, teamRole] = getRole(player, gameState).split(" ");
+  const timerColor = gameState.timer < 10 ? 'red' : 'black';
+  const classes = useStyles({promptColor: team, timerColor: timerColor});
+
+  if (team !== turn) {
+    prompt = `${turn} team's turn, you must wait`;
+  }
+  else {
+    if (hint === undefined) {
+      if (teamRole === 'spy')
+        prompt = 'Your turn';
+      else
+        prompt = 'Waiting for the hint from your spy';
+    }
+    else {
+      if (teamRole === 'spy')
+        prompt = 'Waiting for your guessers';
+      else
+        prompt = 'Your turn';
+    }
+  }
+
+  return (
+    <Container className={classes.prompt} spacing={3}>
+      <h1 className={classes.promptContent}>
+        {prompt}
+      </h1>
+      <h1 className={classes.timer}>
+        {timer}
+      </h1>
+    </Container>
+  );
+}
 
 const Card = ({status, color, word, onClick, playerRole}) => {
   const classes = useStyles({status: status, color: color, playerRole: playerRole});
@@ -93,10 +140,9 @@ const Board = ({ state, setState, gameID, onNextMove, getRole }) => {
   const wordsGrid = [];
   while(words.length) wordsGrid.push(words.splice(0,5));
 
-
-
   return (
     <div className={classes.board}>
+      <Prompt state={state} />
       <Grid container spacing={3} justify="center" className={classes.grid}>
       {
         wordsGrid.map((row, rowIndex) =>
@@ -117,21 +163,6 @@ const Board = ({ state, setState, gameID, onNextMove, getRole }) => {
         )
       }
       </Grid>
-      <Container className={classes.prompt} spacing={3}>
-      <Paper className={classes.paper}> Time remaining: {gameState.timer} </Paper>
-      <Paper className={classes.paper}>
-        Turn: {gameState.turn}
-      </Paper>
-      <Paper className={classes.paper}>
-        Player: {player}
-      </Paper>
-      <Paper className={classes.paper}>
-        Role: {getRole}
-      </Paper>
-      <Paper className={classes.paper}>
-        Remaining guess number: {gameState.guessNum}
-      </Paper>
-      </Container>
     </div>
   )
 }
