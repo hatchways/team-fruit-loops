@@ -5,8 +5,6 @@ const bcrypt = require("bcryptjs");
 
 const User = require("../models/User");
 
-const axios = require("axios");
-
 router.post("/", function (req, res, next) {
   let { name, email, password, confirmPassword } = req.body;
 

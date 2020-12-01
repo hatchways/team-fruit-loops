@@ -1,9 +1,14 @@
-const express = require("express");
-const router = express.Router();
+const express = require('express')
+const router = express.Router()
 
-router.get("/", function (req, res, next) {
-  res.clearCookie("token");
-  res.send({ success: true });
-});
+router.get('/', function (req, res, next) {
+  // TODO: Figure out how to prevent these console warnings:
 
-module.exports = router;
+  // Some cookies are misusing the recommended “SameSite“ attribute
+  // Cookie “token” has been rejected because it is already expired.
+
+  res.clearCookie('token')
+  res.send({ success: true })
+})
+
+module.exports = router

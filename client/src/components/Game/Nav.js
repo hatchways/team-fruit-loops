@@ -78,7 +78,7 @@ const Scorecard = ({ classes, score, team, }) => (
   </div>
 );
 
-const Navbar = ({ classes, state, setState, onRestart}) => {
+const Navbar = ({ classes, state, setState, onRestart, accountValues }) => {
   const {gameState: {bluePoints, redPoints}} = state;
   const [miniMenu, setMiniMenu] = useState(null);
   const [fullMenu, setFullMenu] = useState(null);
@@ -116,7 +116,16 @@ const Navbar = ({ classes, state, setState, onRestart}) => {
             <Button onClick={() => onRestart()} className={classes.game} variant="outlined">
               Restart
             </Button>
-            <Avatar alt="Sofia" />
+            {accountValues && accountValues.id ? <Avatar
+                  src={
+                    accountValues.imageUrl &&
+                    accountValues.imageUrl !== undefined
+                      ? `${accountValues.imageUrl}?${Date.now()}`
+                      : ''
+                  }
+                  alt={accountValues.name || ''}
+                /> : <></>}
+
             <Button
               onClick={toggleMenu("full")}
               className={classes.profile}

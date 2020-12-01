@@ -27,14 +27,13 @@ router.post("/", function (req, res, next) {
             }
             
             const payload = {
-              id: user._id,
               name: user.name,
               email: user.email,
               imageUrl: user.imageUrl,
             };
 
             // Correct credentials have been provided; create JWT
-            const access_token = createAccessToken(payload, "30m");
+            const access_token = createAccessToken(payload, "12h");
 
             jwt.verify(
               access_token,

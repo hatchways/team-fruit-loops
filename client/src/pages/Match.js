@@ -1,4 +1,4 @@
-import React, { useState }from 'react';
+import React, { useState, useEffect }from 'react';
 import { Redirect, useHistory } from "react-router-dom";
 import { withStyles } from '@material-ui/core/styles';
 import {
@@ -113,13 +113,17 @@ const api = {
   },
 };
 
-const Match = withStyles(styles)(({ classes, state, setState, socket}) => {
+const Match = withStyles(styles)(({ classes, state, setState, socket, accountValues}) => {
   const [err, setErr] = useState(undefined);
   const { player, gameID } = state;
   // local game id. used in join a game text field
   const [roomID, setRoomID] = useState('');
   const [name, setName] = useState('');
   const history = useHistory();
+
+  useEffect(() => {
+    setName(accountValues.name)
+  }, [accountValues.name])
 
   if (gameID !== undefined) {
     return <Redirect push to={`/lobby/${gameID}`}/>;
