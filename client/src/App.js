@@ -3,6 +3,8 @@ import { MuiThemeProvider, CssBaseline } from "@material-ui/core";
 import { BrowserRouter, Route, Redirect, Switch } from "react-router-dom";
 import socketIOClient from "socket.io-client";
 import { theme } from "./themes/theme";
+import { Elements, } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
 
 import PrivateRoute from "./components/PrivateRoute";
 
@@ -28,7 +30,7 @@ let socket = socketIOClient();
 function App() {
   const [privGames, setPrivGames] = useState(false);
   const [state, setState] = useState({
-    player: 'testIntent2',
+    player: "",
     gameID: undefined,
     gameState: undefined
   });
@@ -51,11 +53,13 @@ function App() {
           <Route path="/signup" component={Signup} />
           <Route path="/login" component={Login} />
           <PrivateRoute path="/profile" component={ props => (
-            <Profile
-              stripePubKey={stripePubKey}
-              privGames={privGames}
-              setPrivGames={setPrivGames}
-              {...props}/>
+            <Elements stripe={loadStripe(stripePubKey)}>
+              <Profile
+                stripePubKey={stripePubKey}
+                privGames={privGames}
+                setPrivGames={setPrivGames}
+                {...props}/>
+            </Elements>
           )} />
           <Route path="/stripe/:player" component={withGameState(Upgrade)}/>
           <Route exact path="/match" render={withGameState(Match)}/>

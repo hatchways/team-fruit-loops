@@ -3,6 +3,11 @@ import { makeStyles } from "@material-ui/core/styles";
 import { useHistory } from "react-router-dom";
 import axios from "axios";
 import PropTypes from 'prop-types';
+import {
+  CardElement,
+  useElements,
+  useStripe,
+} from '@stripe/react-stripe-js';
 
 import {
   Button,
@@ -46,7 +51,15 @@ const useStyles = makeStyles((theme) => ({
     height: "40px",
   },
   editButton: {},
-  upgradeButton: {},
+  upgradeButton: {
+    backgroundColor: "rgb(38, 182, 92)",
+    marginTop: theme.spacing(5),
+    width: "120px",
+    height: "40px",
+  },
+  paid: {
+    width: "80%",
+  },
 }));
 
 const api = {
@@ -60,10 +73,13 @@ const api = {
   }
 };
 
-const Profile = ({ setPrivGames, stripePubKey, }) => {
+const Profile = ({ setPrivGames, privGames }) => {
   const classes = useStyles();
   let history = useHistory();
   let textInput = useRef(null);
+  const stripe = useStripe();
+  const elements = useElements();
+
 
   const [dialog, toggleDialog] = useState(false);
   const [clientSecret, setClientSecret] = useState("");
@@ -134,6 +150,35 @@ const Profile = ({ setPrivGames, stripePubKey, }) => {
     }
   };
 
+  const submit = async () => {
+    try {
+      const data = {
+        payment_method: {
+          card: elements.getElement(CardElement)
+        }
+      };
+      const res = await stripe.confirmCardPayment(clientSecret, data);
+
+      if (res.error) {
+        throw new Error("Payment failed");
+      } else if (res.paymentIntent?.status !== "succeeded") {
+        if (process.env.NODE_ENV !== "production") {
+          console.log(res);
+        }
+      }
+      setViewState("success");
+      setPrivGames(true);
+      if (process.env.NODE_ENV !== "production") {
+        console.log(`Transaction succeeded: ${res.paymentIntent.id}`);
+      }
+    } catch(err) {
+      if (process.env.NODE_ENV !== "production") {
+        console.log(err);
+      }
+      setViewState("error");
+    }
+  };
+
   useEffect(() => {
     // Get account information from database
     axios
@@ -161,22 +206,27 @@ const Profile = ({ setPrivGames, stripePubKey, }) => {
           method: api["createIntent"].method(),
           headers: api["createIntent"].headers(),
         });
-        const { secret, error, paid } = await res.json();
-        switch (true) {
-        case paid === true:
+        const { type, ...response } = await res.json();
+        switch(type) {
+        case "finished":
+          if (process.env.NODE_ENV !== "production") {
+            console.log("User already paid");
+          }
           setViewState("success");
           break ;
-        case error !== undefined:
-          if (process.env.NODE_ENV !== "production") {
-            console.log(`Error retrieving intent client secret: ${error.message}`);
-          }
-          break ;
-        default:
-          setClientSecret(secret);
+        case "success":
+          setClientSecret(response.secret);
           setViewState("pay");
           if (process.env.NODE_ENV !== "production") {
-            console.log("Created secret ", secret);
+            console.log("Created secret ", response.secret);
           }
+          break ;
+        case "error":
+        default:
+          if (process.env.NODE_ENV !== "production") {
+            console.log("Error retrieving intent:", response);
+          }
+          break ;
         }
       } catch (err) {
         if (process.env.NODE_ENV !== "production") {
@@ -186,22 +236,19 @@ const Profile = ({ setPrivGames, stripePubKey, }) => {
       }
     };
 
-    if (values.name !== "") {
+    if (values.name !== "" && clientSecret === "" && viewState !== "success") {
       createPaymentIntent();
     }
-  }, [values.name]);
-
+  }, [values.name, viewState, clientSecret]);
 
   return (
     <Container component="main" maxWidth="xs">
       <Upgrade
+        submit={submit}
         setPrivGames={setPrivGames}
-        clientSecret={clientSecret}
-        stripePubKey={stripePubKey}
-        setViewState={setViewState}
         viewState={viewState}
-        toggleDialog={toggleDialog}
-        toggle={dialog}/>
+        toggle={dialog}
+        toggleDialog={toggleDialog}/>
       <div className={classes.root}>
         <>
           {values["email"] !== "" ? (
@@ -249,11 +296,16 @@ const Profile = ({ setPrivGames, stripePubKey, }) => {
                 <Container align="center">
                   {
                     (() => {
+                      if (privGames) {
+                        return (
+                          <Typography className={classes.paid}>
+                            Membership Type: Full
+                          </Typography>
+                        )
+                      }
                       switch (viewState) {
                       case "loading":
                         return <CircularProgress/>;
-                      case "success":
-                        return <div>success</div>;
                       case "error":
                       case "pay":
                         return (
@@ -295,7 +347,7 @@ const Profile = ({ setPrivGames, stripePubKey, }) => {
 
 Profile.propTypes = {
   setPrivGames: PropTypes.func.isRequired,
-  stripePubKey: PropTypes.string.isRequired,
+  privGames: PropTypes.bool.isRequired,
 };
 
 export default Profile;

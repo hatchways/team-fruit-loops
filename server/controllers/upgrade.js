@@ -21,7 +21,10 @@ const intent = async (req, res) => {
   try {
     const player = await User.findOne({ name: req.params.player }).exec();
     if (player.account.privateGames === true) {
-      const body = { error: "Error: ${player.name} already paid", paid: true, };
+      if (process.env.NODE_ENV !== "production") {
+        console.log(`player ${player.name} already paid`);
+      }
+      const body = { type: "finished", text: `Error: ${player.name} already paid`, };
       res.status(409).send(body);
     } else if (player.account.paymentSecret === undefined) {
       const intent = { amount: 500, currency: "usd" };
@@ -30,9 +33,12 @@ const intent = async (req, res) => {
       player.account.paymentSecret = paymentIntent.client_secret;
       await player.save();
       console.log(`Created ${player.name} payment intent: ${paymentIntent.id}`);
-      res.status(201).send({ secret: player.account.paymentSecret, });
+      res.status(201).send({ type: "success", secret: player.account.paymentSecret, });
     } else {
-      res.status(409).send({ secret: player.account.paymentSecret, });
+      if (process.env.NODE_ENV !== "production") {
+        console.log(`resending ${player.name} payment intent`);
+      }
+      res.status(409).send({ type: "success", secret: player.account.paymentSecret, });
     }
   } catch(err) {
     console.log(`Error creating payment intent: ${err}`);

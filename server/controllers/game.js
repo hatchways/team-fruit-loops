@@ -1,3 +1,5 @@
+const authenticate = require("./authenticate");
+
 const Game = require('../game/game');
 const { v4: uuidv4 } = require('uuid');
 const globalState = {};
@@ -64,6 +66,15 @@ const getPublicGames = (req, res) => {
 // create a new ID and game instance, register instance in global dict by ID
 const create = (req, res) => {
   const {player, name = player + '\'s game', socketID, isPublic = false, maxPlayerNum = 8} = req.body;
+
+  if (!isPublic) {
+    switch (!authenticate.privateGames(player)) {
+    case false:
+      return res.status(400).json({error: `Error: ${player} needs to upgrade their account before they may start private games`});
+    case null:
+      return res.status(500).json({error: `Error creating games`});
+    }
+  }
 
   try {
     const id = uuidv4();

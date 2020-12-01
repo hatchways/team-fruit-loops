@@ -1,6 +1,6 @@
-import React, { useState }from 'react';
+import React, { useState } from "react";
 import { Redirect, useHistory } from "react-router-dom";
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles } from "@material-ui/core/styles";
 import {
   Container,
   Card, CardContent,
@@ -10,8 +10,9 @@ import {
   Button, TextField,
   Dialog, DialogTitle, DialogContent,
   IconButton,
-} from '@material-ui/core';
-import CloseIcon from '@material-ui/icons/Close';
+} from "@material-ui/core";
+import CloseIcon from "@material-ui/icons/Close";
+import PropTypes from "prop-types";
 
 const styles = theme => ({
   header: {
@@ -89,8 +90,10 @@ const Title = ({ el, title, css, }) => (
   <Typography variant={el} className={css}>{ title }</Typography>
 );
 
-const Btn = ({ on, css, text }) => (
-  <Button onClick={on} className={css} variant="outlined">{ text }</Button>
+const Btn = ({ on, css, text, disabled = false}) => (
+  <Button disabled={disabled} onClick={on} className={css} variant="outlined">
+    { text }
+  </Button>
 );
 
 const api = {
@@ -113,7 +116,7 @@ const api = {
   },
 };
 
-const Match = withStyles(styles)(({ classes, state, setState, socket}) => {
+const MatchPage = ({ classes, state, setState, socket, privGames }) => {
   const [err, setErr] = useState(undefined);
   const { player, gameID } = state;
   // local game id. used in join a game text field
@@ -247,7 +250,7 @@ const Match = withStyles(styles)(({ classes, state, setState, socket}) => {
                 className={classes.newGame}
                 justify="center">
                 <Btn on={onPublic} css={classes.public} text="Public"/>
-                <Btn on={call("private")} css={classes.private} text="Private"/>
+                <Btn disabled={privGames} on={call("private")} css={classes.private} text="Private"/>
               </Grid>
             </Grid>
           </Grid>
@@ -255,6 +258,16 @@ const Match = withStyles(styles)(({ classes, state, setState, socket}) => {
       </Card>
     </Container>
   );
-});
+};
+
+MatchPage.propTypes = {
+  classes: PropTypes.object.isRequired,
+  privGames: PropTypes.bool.isRequired,
+  setState: PropTypes.func.isRequired,
+  socket: PropTypes.object.isRequired,
+  state: PropTypes.object.isRequired,
+};
+
+const Match = withStyles(styles)(MatchPage);
 
 export default Match;
