@@ -31,11 +31,10 @@ const initGame = () => {
 
 const isReady = (gameState) => {
   return (
-    // gameState.waitingList.length === 0 &&
-    gameState.blueSpy !== undefined 
-    // gameState.redSpy !== undefined &&
-    // gameState.blueGuessers.length !== 0 &&
-    // gameState.redGuessers.length !== 0
+    gameState.blueSpy !== undefined &&
+    gameState.redSpy !== undefined &&
+    gameState.blueGuessers.length !== 0 &&
+    gameState.redGuessers.length !== 0
   );
 }
 
