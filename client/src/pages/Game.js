@@ -57,11 +57,11 @@ const GamePage = ({ classes, state, setState, socket, accountValues, logout }) =
   const { gameState, player } = state;
   const [timer, setTimer] = useState(20);
 
-  const [tick] = useSound(tickSfx);
-  const [correctGuess] = useSound(correctGuessSfx);
-  const [incorrectGuess] = useSound(incorrectGuessSfx);
-  const [gameWin] = useSound(winSfx);
-  const [gameLose] = useSound(loseSfx);
+  const [tick] = useSound(tickSfx, {volume: 0.1});
+  const [correctGuess] = useSound(correctGuessSfx, {volume: 0.1});
+  const [incorrectGuess] = useSound(incorrectGuessSfx, {volume: 0.1});
+  const [gameWin] = useSound(winSfx, {volume: 0.1});
+  const [gameLose] = useSound(loseSfx, {volume: 0.1});
   const sounds = {
     tick,
     correctGuess,

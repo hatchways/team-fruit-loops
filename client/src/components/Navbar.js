@@ -17,10 +17,20 @@ import {
   Grow,
   ClickAwayListener,
   Divider,
-  Hidden
+  Hidden,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  MobileStepper,
 } from '@material-ui/core'
 
-import { ArrowDropDown, Search, Menu } from '@material-ui/icons'
+import {
+  ArrowDropDown,
+  Search,
+  Menu,
+  KeyboardArrowLeft,
+  KeyboardArrowRight
+} from '@material-ui/icons'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -96,6 +106,45 @@ const Navbar = ({ state, accountValues, logout }) => {
       event.preventDefault()
       setBMenuOpen(false)
     }
+  }
+
+  // How to Play Modal handlers
+  const [activeStep, setActiveStep] = useState(0)
+
+  const tutorialSteps = [
+    {
+      label: 'San Francisco – Oakland Bay Bridge, United States',
+      imgPath:
+        '../assets/33c6855690c57cf64146078caae5b4bce840e62e.png'
+    },
+    {
+      label: 'Bird',
+      imgPath:
+        'https://images.unsplash.com/photo-1538032746644-0212e812a9e7?auto=format&fit=crop&w=400&h=250&q=60'
+    },
+    {
+      label: 'Bali, Indonesia',
+      imgPath:
+        'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=400&h=250&q=80'
+    },
+    {
+      label: 'NeONBRAND Digital Marketing, Las Vegas, United States',
+      imgPath:
+        'https://images.unsplash.com/photo-1518732714860-b62714ce0c59?auto=format&fit=crop&w=400&h=250&q=60'
+    },
+    {
+      label: 'Goč, Serbia',
+      imgPath:
+        'https://images.unsplash.com/photo-1512341689857-198e7e2f3ca8?auto=format&fit=crop&w=400&h=250&q=60'
+    }
+  ]
+
+  const handleNext = () => {
+    setActiveStep(prevActiveStep => prevActiveStep + 1)
+  }
+
+  const handleBack = () => {
+    setActiveStep(prevActiveStep => prevActiveStep - 1)
   }
 
   return (
@@ -292,6 +341,57 @@ const Navbar = ({ state, accountValues, logout }) => {
           </Grid>
         </Grid>
       </Toolbar>
+      {/* Modal component for How to Play */}
+      <Dialog open={false}>
+        <div>
+          <DialogTitle id='how-to-play'>{'How to Play'}</DialogTitle>
+          <DialogContent>
+            <Paper square elevation={0} className={classes.header}>
+              <Typography>{tutorialSteps[activeStep].label}</Typography>
+            </Paper>
+            <img
+              className={classes.img}
+              src={tutorialSteps[activeStep].imgPath}
+              alt={tutorialSteps[activeStep].label}
+            />
+            <MobileStepper
+              variant='dots'
+              steps={6}
+              position='static'
+              activeStep={activeStep}
+              className={classes.root}
+              nextButton={
+                <Button
+                  size='small'
+                  onClick={handleNext}
+                  disabled={activeStep === 5}
+                >
+                  Next
+                  {theme.direction === 'rtl' ? (
+                    <KeyboardArrowLeft />
+                  ) : (
+                    <KeyboardArrowRight />
+                  )}
+                </Button>
+              }
+              backButton={
+                <Button
+                  size='small'
+                  onClick={handleBack}
+                  disabled={activeStep === 0}
+                >
+                  {theme.direction === 'rtl' ? (
+                    <KeyboardArrowRight />
+                  ) : (
+                    <KeyboardArrowLeft />
+                  )}
+                  Back
+                </Button>
+              }
+            />
+          </DialogContent>
+        </div>
+      </Dialog>
     </AppBar>
   )
 }
