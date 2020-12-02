@@ -9,6 +9,7 @@
     "deploy": "git push heroku dev",
     "web": "node server/bin/www",
     "local": "heroku local web",
+    "heroku-configs": "heroku config:push",
     "heroku-logs": "heroku logs --tail",
     "heroku-open": "heroku open",
     "heroku-restart": "heroku restart",
