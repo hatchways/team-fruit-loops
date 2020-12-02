@@ -1,18 +1,20 @@
-const handlers = require("./handlers");
+const generalHandlers = require('./generalHandlers');
+const gameHandlers = require('./gameHandlers');
+const chatHandlers = require('./chatHandlers');
 
 const events = {
-  "disconnecting": handlers.disconnecting,
-  "disconnect": handlers.disconnect,
-  "leave": handlers.leave,
-  "chat": handlers.chat,
-  "assign": handlers.assign,
-  "unassign": handlers.unassign,
-  "start": handlers.start,
-  "guesserNextMove": handlers.guesserNextMove,
-  "spyNextMove": handlers.spyNextMove,
-  "endTurn": handlers.endTurn,
-  "restartGame": handlers.restartGame,
-  "refreshPublic": handlers.refresh
+  "disconnecting": generalHandlers.disconnecting,
+  "disconnect": generalHandlers.disconnect,
+  "leave": generalHandlers.leave,
+  "refreshPublic": generalHandlers.refresh,
+  "chat": chatHandlers.chat,
+  "assign": gameHandlers.assign,
+  "unassign": gameHandlers.unassign,
+  "start": gameHandlers.start,
+  "guesserNextMove": gameHandlers.guesserNextMove,
+  "spyNextMove": gameHandlers.spyNextMove,
+  "endTurn": gameHandlers.endTurn,
+  "restartGame": gameHandlers.restartGame,
 };
 
 const socketio = server => {
@@ -28,7 +30,7 @@ const socketio = server => {
       socket.on(event, handler(io, socket));
     }
   })
-  return io
+  return io;
 }
 
-module.exports = socketio
+module.exports = socketio;

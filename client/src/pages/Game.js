@@ -54,7 +54,7 @@ const getCurrentSpymaster = ({ gameState: { turn, redSpy, blueSpy } }) => {
 const GamePage = ({ classes, state, setState, socket, accountValues, logout }) => {
   const { gameID } = useParams();
   const { gameState, player } = state;
-  const [timer, setTimer] = useState(20);
+  const [timer, setTimer] = useState(gameState !== undefined ? gameState.timer : undefined);
 
   const [tick] = useSound(tickSfx, {volume: 0.1});
   const [correctGuess] = useSound(correctGuessSfx, {volume: 0.1});
@@ -105,7 +105,7 @@ const GamePage = ({ classes, state, setState, socket, accountValues, logout }) =
     const timerHandler = ({gameState, timer}) => {
       if (timer <= 5)
         sounds.tick();
-        
+
       if (gameState)
         setState({ player: player, gameState: gameState });
 
