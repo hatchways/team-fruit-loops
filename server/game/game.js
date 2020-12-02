@@ -8,12 +8,12 @@ const INIT_GUESS_CHANCE = 1;
 const initGame = () => {
   const gameState = {
     cards: dictionary.generateCards(),
-    blueCardNum: 8,
+    blueCardNum: 9,
     redCardNum: 8,
     greyCardNum: 8,
     blackCardNum: 1,
+    bluePoints: 9,
     redPoints: 8,
-    bluePoints: 8,
     turn: 'blue',
     guessNum: INIT_GUESS_CHANCE,
     hint: undefined,
@@ -31,10 +31,10 @@ const initGame = () => {
 
 const isReady = (gameState) => {
   return (
-    gameState.blueSpy !== undefined &&
-    gameState.redSpy !== undefined &&
-    gameState.blueGuessers.length !== 0 &&
-    gameState.redGuessers.length !== 0
+    // gameState.blueSpy !== undefined &&
+    gameState.redSpy !== undefined 
+    // gameState.blueGuessers.length !== 0 &&
+    // gameState.redGuessers.length !== 0
   );
 }
 

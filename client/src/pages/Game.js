@@ -10,7 +10,6 @@ import PropTypes from 'prop-types';
 import Finished from "../components/Game/Finished";
 import GameSidebar from "../components/Sidebar";
 import Board from "../components/Game/Board";
-// import GameNavbar from "../components/Game/Nav";
 
 import useSound from 'use-sound';
 import tickSfx from '../assets/sounds/tick.mp3';
@@ -57,11 +56,11 @@ const GamePage = ({ classes, state, setState, socket, accountValues, logout }) =
   const { gameState, player } = state;
   const [timer, setTimer] = useState(20);
 
-  const [tick] = useSound(tickSfx);
-  const [correctGuess] = useSound(correctGuessSfx);
-  const [incorrectGuess] = useSound(incorrectGuessSfx);
-  const [gameWin] = useSound(winSfx);
-  const [gameLose] = useSound(loseSfx);
+  const [tick] = useSound(tickSfx, {volume: 0.1});
+  const [correctGuess] = useSound(correctGuessSfx, {volume: 0.1});
+  const [incorrectGuess] = useSound(incorrectGuessSfx, {volume: 0.1});
+  const [gameWin] = useSound(winSfx, {volume: 0.1});
+  const [gameLose] = useSound(loseSfx, {volume: 0.1});
   const sounds = {
     tick,
     correctGuess,
@@ -134,6 +133,7 @@ const GamePage = ({ classes, state, setState, socket, accountValues, logout }) =
   }
 
   // // Event handler for restarting the game
+  // // Commented out as current iteration will not be using a restart feature
   // const onRestart = () => {
   //   socket.emit('restartGame', gameID);
   // }
@@ -145,13 +145,6 @@ const GamePage = ({ classes, state, setState, socket, accountValues, logout }) =
 
   return (
     <Container className={classes.root}>
-      {/* <GameNavbar
-        setState={setState}
-        state={state}
-        onRestart={onRestart}
-        accountValues={accountValues}
-        logout={logout}
-      /> */}
       <Finished
         setState={setState}
         state={state}
@@ -163,7 +156,7 @@ const GamePage = ({ classes, state, setState, socket, accountValues, logout }) =
         socket={socket}
         player={state.player}
         count={state.gameState.guessNum}
-        countMax={5}
+        countMax={8}
         token={state.gameState.hint || undefined}
         setFinished={undefined}
         getRole={getRole(state)}

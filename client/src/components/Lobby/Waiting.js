@@ -3,8 +3,6 @@ import {
   Grid,
   List,
   ListItem,
-  // ListItemAvatar,
-  // Avatar,
   ListItemText
 } from '@material-ui/core'
 
@@ -17,9 +15,6 @@ const LobbyWaiting = ({ state }) => {
       <List>
         {waitingList.map((user, index) => (
           <ListItem key={index}>
-            {/* <ListItemAvatar>
-              <Avatar></Avatar>
-            </ListItemAvatar> */}
             <ListItemText
               style={{
                 color: player === user ? 'green' : ''

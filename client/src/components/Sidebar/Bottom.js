@@ -67,7 +67,6 @@ const useSpyBottomStyles = makeStyles(theme => ({
 const SpyBottom = ({
   gameID,
   countMax,
-  setFinished,
   player,
   socket,
   getCurrentSpymaster,
@@ -124,7 +123,7 @@ const SpyBottom = ({
           className={classes.text}
           placeholder='Enter a hint here!'
           onKeyDown={onKeyDown}
-          disabled={getCurrentSpymaster !== player || token}
+          disabled={getCurrentSpymaster !== player || token !== undefined}
         />
       </Grid>
       <Grid container item justify='center' xs={12} md={4}>
@@ -148,7 +147,7 @@ const SpyBottom = ({
         onClick={handleSpyHintSubmit}
         className={classes.done}
         variant='outlined'
-        disabled={getCurrentSpymaster !== player || token}
+        disabled={getCurrentSpymaster !== player || token !== undefined}
       >
         Done
       </Button>
@@ -177,7 +176,6 @@ const useStyles = makeStyles(theme => ({
 }))
 
 const SidebarBottom = ({
-  setFinished,
   getRole,
   isSpy,
   countMax,
@@ -204,7 +202,6 @@ const SidebarBottom = ({
   if (isSpy) {
     return (
       <SpyBottom
-        setFinished={setFinished}
         countMax={countMax}
         gameID={gameID}
         player={player}
@@ -218,14 +215,16 @@ const SidebarBottom = ({
   return (
     <div className={classes.bottom}>
       <Divider className={classes.hDivider} />
-      <TextField
-        disabled={getRole === 'spectator'}
-        value={message}
-        onChange={({ target: { value } }) => setMessage(value)}
-        onKeyDown={chatHandler}
-        className={classes.text}
-        placeholder='Type here...'
-      />
+      {getRole !== 'spectator' && (
+        <TextField
+          disabled={getRole === 'spectator'}
+          value={message}
+          onChange={({ target: { value } }) => setMessage(value)}
+          onKeyDown={chatHandler}
+          className={classes.text}
+          placeholder='Type here...'
+        />
+      )}
     </div>
   )
 }
@@ -237,7 +236,8 @@ SidebarBottom.propTypes = {
   player: PropTypes.string.isRequired,
   socket: PropTypes.object.isRequired,
   getCurrentSpymaster: PropTypes.string.isRequired,
-  token: PropTypes.string.isRequired
+  // This can be undefined
+  token: PropTypes.string
 }
 
 export default SidebarBottom

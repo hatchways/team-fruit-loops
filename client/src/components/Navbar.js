@@ -22,6 +22,8 @@ import {
 
 import { ArrowDropDown, Search, Menu } from '@material-ui/icons'
 
+import PropTypes from 'prop-types'
+
 const useStyles = makeStyles(theme => ({
   root: {
     zIndex: 1300,
@@ -294,6 +296,17 @@ const Navbar = ({ state, accountValues, logout }) => {
       </Toolbar>
     </AppBar>
   )
+}
+
+Scorecard.propTypes = {
+  score: PropTypes.number,
+  team: PropTypes.string,
+}
+
+Navbar.propTypes = {
+  state: PropTypes.object,
+  accountValues: PropTypes.object.isRequired,
+  logout: PropTypes.func.isRequired
 }
 
 export default withRouter(Navbar)
