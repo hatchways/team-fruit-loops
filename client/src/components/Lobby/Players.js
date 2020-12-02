@@ -53,12 +53,12 @@ const Player = ({ click, host, player, self, role }) => (
   </Grid>
 );
 
-const LobbyPlayers = ({ state, call, }) => {
+const LobbyPlayers = ({ state, onUnassign }) => {
   const { blueSpy, redSpy, blueGuessers, redGuessers, } = state.gameState;
   const click = role => e => {
-      e.preventDefault();
-      call("remove", role);
-    };
+    e.preventDefault();
+    onUnassign(role);
+  };
 
   return (
     <Grid container item xs={12}>

@@ -1,8 +1,8 @@
 const dictionary = require('./dictionary/dictionary');
 const shuffle = require('./utils/shuffle');
 const role = require('./role');
-const INIT_TIMER = 20;
-const INIT_GUESS_CHANCE = 1;
+const INIT_TIMER = parseInt(process.env.INIT_GAME_TIMER) || 20;
+const INIT_GUESS_CHANCE = parseInt(process.env.INIT_GUESS_CHANCE) || 1;
 
 // Initialize game with 4 players and roles are randomly assigned
 const initGame = () => {
@@ -298,10 +298,12 @@ Game.prototype.timerCountDown = function() {
   if (this.gameState.timer <= 0) {
     this.gameState.timer = INIT_TIMER;
     this.endTurn();
+    return true;
   }
   else {
     this.gameState.timer--;
   }
+  return false;
 }
 
 module.exports = Game;

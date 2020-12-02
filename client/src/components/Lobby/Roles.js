@@ -21,11 +21,11 @@ const roleStyles = {
   }
 };
 
-const Role = withStyles(roleStyles)(({ classes, call, selected, role }) => {
+const Role = withStyles(roleStyles)(({ classes, onAssign, selected, role }) => {
   const click = role => e => {
     e.preventDefault();
     if (!selected) {
-      call("assign", role);
+      onAssign(role);
     }
   };
 
@@ -38,16 +38,16 @@ const Role = withStyles(roleStyles)(({ classes, call, selected, role }) => {
   );
 });
 
-const LobbyRoles = ({ call, off, state: {gameState: { redSpy, blueSpy, }} }) => (
+const LobbyRoles = ({ onAssign, off, state: {gameState: { redSpy, blueSpy, }} }) => (
   <Grid container item justify="center">
     {
-      blueSpy === undefined && <Role role="blue spy" call={call} disabled={off} />
+      blueSpy === undefined && <Role role="blue spy" onAssign={onAssign} disabled={off} />
     }
     {
-      redSpy === undefined && <Role role="red spy" call={call} disabled={off} />
+      redSpy === undefined && <Role role="red spy" onAssign={onAssign} disabled={off} />
     }
-    <Role role="blue guesser" call={call} disabled={off} />
-    <Role role="red guesser" call={call} disabled={off} />
+    <Role role="blue guesser" onAssign={onAssign} disabled={off} />
+    <Role role="red guesser" onAssign={onAssign} disabled={off} />
   </Grid>
 );
 
