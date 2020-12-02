@@ -5,13 +5,16 @@ const disconnecting = (io, socket) => () => {
   console.log(`${socket.id} disconnecting`)
   // remove the player from room
   for (gameID of gameList) {
+    if (gameController.globalState[gameID] === undefined) {
+      console.log(`game (id: ${gameID}) does not exist.`);
+      continue;
+    }
+
     const activePlayers = gameController.globalState[gameID].activePlayers
     // remove the player from the active player list
     delete activePlayers[socket.id]
     if (Object.keys(activePlayers).length === 0)
-      // remove the game if there are no active players
       delete gameController.globalState[gameID]
-
   }
 };
 
@@ -32,7 +35,7 @@ const chat = io => (gameID, type, text, author) => {
   if (process.env.NODE_ENV !== "production") {
     console.log(`Received ${type} in game ${gameID} from ${author}: ${text}`);
   }
-  io.in(gameID).emit("chat", type, text, author);
+  io.to(gameID).emit("chat", type, text, author);
 };
 
 // Guesser's turn: Submit selected word
@@ -52,7 +55,7 @@ const guesserNextMove = io => (gameID, player, word) => {
       thrownError = err.message
     }
 
-    io.to(gameID).emit('update', gameState, thrownError)
+    io.to(gameID).emit('update', gameState, thrownError, word)
   }
 }
 
