@@ -9,6 +9,10 @@
     "deploy": "git push heroku dev",
     "web": "node server/bin/www",
     "local": "heroku local web",
+    "deploy": "git push heroku dev",
+    "heroku-logs": "heroku logs --tail",
+    "heroku-open": "heroku open",
+    "heroku-restart": "heroku restart",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
