@@ -73,8 +73,6 @@ const getRole = (player, gameState) => {
   if (redGuessers.includes(player)) return "red guesser";
 }
 
-const isSpy = role => role === "blue spy" || role === "red spy";
-
 const Prompt = ({ state, timer }) => {
   let prompt;
   const { player, gameState } = state;
@@ -84,7 +82,7 @@ const Prompt = ({ state, timer }) => {
   const classes = useStyles({promptColor: team, timerColor: timerColor});
 
   if (team !== turn) {
-    prompt = `${turn} team's turn, you must wait`;
+    prompt = `The other team is playing, please wait`;
   }
   else {
     if (hint === undefined) {
@@ -128,20 +126,19 @@ const Card = ({ status, color, word, onClick }) => {
 
 const Board = ({ state, setState, timer, gameID, onNextMove }) => {
   const classes = useStyles();
-  const {player, gameState} = state;
+  const {gameState} = state;
   if (gameState === undefined) {
     return <Redirect to={'/match'} />
   }
 
   let {cards, boardState} = gameState;
-  const playerRole = getRole(player, gameState);
 
   // create an array for rendering board
   const words = Object.keys(boardState).map(key => {
     return ({
       word: key,
       status: boardState[key].status,
-      color: isSpy(playerRole) ? cards[key] : undefined,
+      color: cards !== undefined ? cards[key] : undefined,
     });
   });
   const wordsGrid = [];

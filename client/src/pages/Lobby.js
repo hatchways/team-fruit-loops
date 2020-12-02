@@ -18,18 +18,6 @@ import { Close, Link, } from "@material-ui/icons";
 import LobbyPlayers from "../components/Lobby/Players";
 import LobbyRoles from "../components/Lobby/Roles";
 
-// copy url to system clipboard by creating dummy html element to write value
-// into. added to document.body for `document.execCommand("copy")` to read
-const copy = id => e => {
-  e.preventDefault();
-  const dummy = document.createElement("input");
-  document.body.appendChild(dummy);
-  dummy.setAttribute("value", id);
-  dummy.select();
-  document.execCommand("copy");
-  document.body.removeChild(dummy);
-};
-
 const gameStyles = theme => ({
   container: {
     marginTop: theme.spacing(3)

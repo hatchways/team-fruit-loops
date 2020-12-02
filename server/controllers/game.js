@@ -77,14 +77,21 @@ const join = (req, res, next) => {
   try {
     const io = req.app.get('socketio');
     const socket = io.sockets.sockets.get(socketID);
-    const room = globalState[req.params.id]
-    const activePlayers = Object.values(room.activePlayers)
-    const playerList = room.gameEngine.gameState.playerList
+    const room = globalState[req.params.id];
+    const activePlayers = Object.values(room.activePlayers);
+    const gameState = room.gameEngine.gameState;
+    const playerList = gameState.playerList;
 
     if (!activePlayers.includes(player) && playerList.includes(player)) {
       room.activePlayers[socketID] = player;
       socket.join(req.params.id);
-      return res.status(200).json({gameState: room.gameEngine.gameState})
+      if (gameState.blueSpy === player || gameState.redSpy === player)
+        socket.join(`${req.params.id}-spy`);
+
+      if (gameState.blueGuessers.includes(player) || gameState.redGuessers.includes(player))
+        socket.join(`${req.params.id}-guesser`);
+
+      return res.status(200).json({gameState: room.gameEngine.gameState});
     }
     else {
       if (room.maxPlayerNum <= playerList.length)
