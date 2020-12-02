@@ -1,12 +1,11 @@
 import React from "react";
 import {
   Drawer,
-  Toolbar,
+  Toolbar
 } from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
 import PropTypes from 'prop-types';
 
-import { appBarHeight } from "../../components/Game/Nav";
 import SidebarTop from "./Top";
 import SidebarBottom from "./Bottom";
 import SidebarChat from "./Chat";
@@ -18,9 +17,6 @@ const styles = () => ({
     alignItems: "center",
     width: sidebarWidth,
   },
-  toolbar: {
-    height: appBarHeight,
-  },
   paper: {
     width: sidebarWidth,
   },
@@ -29,20 +25,17 @@ const styles = () => ({
   },
 });
 
-const Sidebar = ({ classes, state, isSpy, countMax, gameID, socket, ...props }) => (
+const Sidebar = ({ classes, state, getRole, isSpy, countMax, gameID, socket, ...props }) => (
   <Drawer
     variant="permanent"
     className={classes.root}
     classes={{paper: classes.paper}}>
-    <Toolbar className={classes.toolbar}/>
+    <Toolbar />
     <div className={classes.sidebar}>
-      {
-        isSpy === true
-          ? null
-          : <SidebarTop state={state} player={state.player} {...props}/>
-      }
+      <SidebarTop state={state} player={state.player} {...props}/>
       <SidebarChat player={state.player} socket={socket}/>
       <SidebarBottom
+        getRole={getRole}
         isSpy={isSpy}
         countMax={countMax}
         gameID={gameID}
@@ -59,6 +52,7 @@ Sidebar.propTypes = {
   player: PropTypes.string.isRequired,
   gameID: PropTypes.string.isRequired,
   state: PropTypes.object.isRequired,
+  getRole: PropTypes.string.isRequired,
   isSpy: PropTypes.bool.isRequired,
   getCurrentSpymaster: PropTypes.string.isRequired,
   countMax: PropTypes.number.isRequired,

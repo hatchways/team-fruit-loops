@@ -10,7 +10,6 @@ import PropTypes from 'prop-types';
 import Finished from "../components/Game/Finished";
 import GameSidebar from "../components/Sidebar";
 import Board from "../components/Game/Board";
-import GameNavbar from "../components/Game/Nav";
 
 import useSound from 'use-sound';
 import tickSfx from '../assets/sounds/tick.mp3';
@@ -35,25 +34,33 @@ const getTeam = ({ player, gameState: { redSpy, blueSpy, redGuessers, blueGuesse
     return 'blue';
 }
 
+const getRole = ({player, gameState: {blueSpy, redSpy, blueGuessers, redGuessers}}) => {
+  if (player === blueSpy) return "blue spy";
+  if (player === redSpy) return "red spy";
+  if (blueGuessers.includes(player)) return "blue guesser";
+  if (redGuessers.includes(player)) return "red guesser";
+  else return "spectator"
+}
+
 const isSpy = ({ player, gameState: { redSpy, blueSpy } }) =>
   player === redSpy || player === blueSpy
 
 const getCurrentSpymaster = ({ gameState: { turn, redSpy, blueSpy } }) => {
-  if (turn === 'blue') return blueSpy
-  else if (turn === 'red') return redSpy
+  if (turn === 'blue' && blueSpy) return blueSpy
+  else if (turn === 'red' && redSpy) return redSpy
   else return 'N/A'
 }
 
-const GamePage = ({ classes, state, setState, socket }) => {
+const GamePage = ({ classes, state, setState, socket, accountValues, logout }) => {
   const { gameID } = useParams();
   const { gameState, player } = state;
   const [timer, setTimer] = useState(gameState !== undefined ? gameState.timer : undefined);
 
-  const [tick] = useSound(tickSfx);
-  const [correctGuess] = useSound(correctGuessSfx);
-  const [incorrectGuess] = useSound(incorrectGuessSfx);
-  const [gameWin] = useSound(winSfx);
-  const [gameLose] = useSound(loseSfx);
+  const [tick] = useSound(tickSfx, {volume: 0.1});
+  const [correctGuess] = useSound(correctGuessSfx, {volume: 0.1});
+  const [incorrectGuess] = useSound(incorrectGuessSfx, {volume: 0.1});
+  const [gameWin] = useSound(winSfx, {volume: 0.1});
+  const [gameLose] = useSound(loseSfx, {volume: 0.1});
   const sounds = {
     tick,
     correctGuess,
@@ -96,7 +103,7 @@ const GamePage = ({ classes, state, setState, socket }) => {
     }
 
     const timerHandler = ({gameState, timer}) => {
-      if (timer < 10)
+      if (timer <= 5)
         sounds.tick();
 
       if (gameState)
@@ -111,6 +118,8 @@ const GamePage = ({ classes, state, setState, socket }) => {
     return () => {
       socket.off('update', updateHandler);
       socket.off('timer', timerHandler);
+
+      // setState({ player: player, gameState: undefined });
     }
   }, [setState, setTimer, sounds, socket, player, playSoundEffects]);
 
@@ -123,10 +132,11 @@ const GamePage = ({ classes, state, setState, socket }) => {
     socket.emit('guesserNextMove', gameID, player, word);
   }
 
-  // Event handler for restarting the game
-  const onRestart = () => {
-    socket.emit('restartGame', gameID);
-  }
+  // // Event handler for restarting the game
+  // // Commented out as current iteration will not be using a restart feature
+  // const onRestart = () => {
+  //   socket.emit('restartGame', gameID);
+  // }
 
   const onNewGame = () => {
     socket.emit('leave', gameID)
@@ -135,11 +145,6 @@ const GamePage = ({ classes, state, setState, socket }) => {
 
   return (
     <Container className={classes.root}>
-      <GameNavbar
-        setState={setState}
-        state={state}
-        onRestart={onRestart}
-      />
       <Finished
         setState={setState}
         state={state}
@@ -151,9 +156,10 @@ const GamePage = ({ classes, state, setState, socket }) => {
         socket={socket}
         player={state.player}
         count={state.gameState.guessNum}
-        countMax={5}
-        token={state.gameState.hint || ''}
+        countMax={8}
+        token={state.gameState.hint || undefined}
         setFinished={undefined}
+        getRole={getRole(state)}
         isSpy={isSpy(state)}
         getCurrentSpymaster={getCurrentSpymaster(state)}
       />
@@ -163,6 +169,7 @@ const GamePage = ({ classes, state, setState, socket }) => {
         setState={setState}
         gameID={gameID}
         onNextMove={onNextMove}
+        getRole={getRole(state)}
       />
     </Container>
   )

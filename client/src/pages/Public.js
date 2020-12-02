@@ -40,7 +40,7 @@ const api = {
   },
 }
 
-const Public = ({state, setState, socket}) => {
+const Public = ({state, setState, socket, accountValues}) => {
   const classes = useStyles();
   const history = useHistory();
   const [player, setPlayer] = useState('player1');
@@ -101,6 +101,10 @@ const Public = ({state, setState, socket}) => {
   }
 
   useEffect(() => {
+    if (accountValues.name) {
+      setPlayer(accountValues.name)
+    }
+
     const updateHandler = ({gameList, error}) => {
       if (error === undefined)
         setGameList(gameList);
@@ -111,7 +115,7 @@ const Public = ({state, setState, socket}) => {
     return () => {
       socket.off('publicGames', updateHandler);
     }
-  }, [setState, socket]);
+  }, [setState, socket, accountValues.name]);
 
   return (
     <Container className={classes.root}>
@@ -139,6 +143,7 @@ const Public = ({state, setState, socket}) => {
         playerName={player}
         setPlayerName={setPlayer}
         onCreateGame={onCreateGame}
+        accountValues={accountValues}
       />
     </Container>
   );

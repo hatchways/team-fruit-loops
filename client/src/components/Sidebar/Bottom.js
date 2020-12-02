@@ -1,52 +1,51 @@
-import React, { useState } from "react";
-import { makeStyles } from "@material-ui/core/styles";
+import React, { useState } from 'react'
+import { makeStyles } from '@material-ui/core/styles'
 import {
   Button,
   Chip,
   Divider,
   Grid,
   TextField,
-  Typography,
-} from "@material-ui/core";
-import PropTypes from 'prop-types';
+  Typography
+} from '@material-ui/core'
+import PropTypes from 'prop-types'
 
 const useSpyBottomStyles = makeStyles(theme => ({
   bottom: {
-    width: "100%",
-    height: "auto",
-    marginTop: theme.spacing(1),
+    width: '100%',
+    height: 'auto',
+    marginTop: theme.spacing(1)
   },
   done: {
     marginTop: theme.spacing(1),
-    display: "block",
-    backgroundColor: "rgb(38, 182, 92)",
-    color: "white",
-    width: "50%",
+    display: 'block',
+    backgroundColor: 'rgb(38, 182, 92)',
+    color: 'white',
+    width: '50%'
   },
   text: {
-    width: "100%",
+    width: '100%',
     marginLeft: theme.spacing(1),
-    marginRight: theme.spacing(1),
+    marginRight: theme.spacing(1)
   },
   chip: {
-    borderRadius: "8px",
-    display: "inline-block",
+    borderRadius: '8px',
+    display: 'inline-block',
     marginLeft: theme.spacing(0.5),
     marginRight: theme.spacing(0.5),
-    paddingTop: "3px;",
-    color: "rgb(183, 183, 183);",
+    paddingTop: '3px;',
+    color: 'rgb(183, 183, 183);'
   },
-  count: {
-  },
+  count: {},
   prompt: {
-    backgroundColor: "rgb(75, 75, 75);",
-    color: "white",
+    backgroundColor: 'rgb(75, 75, 75);',
+    color: 'white',
     marginTop: theme.spacing(1),
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
-    borderRadius: "8px",
+    borderRadius: '8px'
   },
   triangle: {
     content: ' ',
@@ -55,128 +54,154 @@ const useSpyBottomStyles = makeStyles(theme => ({
     border: theme.spacing(0),
     borderLeft: `${theme.spacing(1)}px solid transparent;`,
     borderRight: `${theme.spacing(1)}px solid transparent;`,
-    borderTop: `${theme.spacing(1)}px solid rgb(75, 75, 75);`,
+    borderTop: `${theme.spacing(1)}px solid rgb(75, 75, 75);`
   },
   hDivider: {
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
-    width: "100%",
-    height: "1px;",
+    width: '100%',
+    height: '1px;'
   }
-}));
+}))
 
-const SpyBottom = ({ gameID, countMax, setFinished, player, socket, getCurrentSpymaster, token}) => {
-  const classes = useSpyBottomStyles();
-  const [spyHint, setSpyHint] = useState("");
-  const [count, setCount] = useState(1);
-  const onClickMin = () => setCount(Math.max(count - 1, 0));
-  const onClickMax = () => setCount(Math.min(count + 1, countMax));
+const SpyBottom = ({
+  gameID,
+  countMax,
+  player,
+  socket,
+  getCurrentSpymaster,
+  token
+}) => {
+  const classes = useSpyBottomStyles()
+  const [spyHint, setSpyHint] = useState('')
+  const [count, setCount] = useState(1)
+  const onClickMin = () => setCount(Math.max(count - 1, 1))
+  const onClickMax = () => setCount(Math.min(count + 1, countMax))
 
-  const handleSpyHintChange = (event) => {
+  const handleSpyHintChange = event => {
     // Spy can only submit one "word", with no spaces
-    setSpyHint(event.target.value.split(" ").join(""));
-  };
+    setSpyHint(event.target.value.split(' ').join(''))
+  }
 
   const handleSpyHintSubmit = () => {
-    socket.emit(
-      "spyNextMove",
-      gameID,
-      player,
-      spyHint,
-      count
-    );
+    if (spyHint !== '') {
+      socket.emit('spyNextMove', gameID, player, spyHint, count)
 
-    setSpyHint("");
-    setCount(1);
+      setSpyHint('')
+      setCount(1)
+    }
   }
 
-  const onKeyDown = ({ key }) => (
-    (key === "Enter" || key === "NumpadEnter") && handleSpyHintSubmit()
-  );
+  const onKeyDown = ({ key }) =>
+    (key === 'Enter' || key === 'NumpadEnter') && handleSpyHintSubmit()
 
   return (
-    <Grid container justify="center" className={classes.bottom}>
-      <Grid container item xs={12}
-        direction="column"
-        alignContent="center"
-        alignItems="center"
-        align="center">
-        <div className={classes.prompt}>{getCurrentSpymaster === player ? (!token ? "Make your move!" : "Your team is guessing!") : ("Waiting for other team...")}</div>
+    <Grid container justify='center' className={classes.bottom}>
+      <Grid
+        container
+        item
+        xs={12}
+        direction='column'
+        alignContent='center'
+        alignItems='center'
+        align='center'
+      >
+        <div className={classes.prompt}>
+          {getCurrentSpymaster === player
+            ? !token
+              ? 'Make your move!'
+              : 'Your team is guessing!'
+            : 'Waiting for other team...'}
+        </div>
         <div className={classes.triangle}></div>
       </Grid>
-      <Divider className={classes.hDivider}/>
+      <Divider className={classes.hDivider} />
       <Grid item xs={12} md={8}>
         <TextField
           value={spyHint}
           onChange={handleSpyHintChange}
           className={classes.text}
-          placeholder="Type here..."
-          onKeyDown={onKeyDown}/>
+          placeholder='Enter a hint here!'
+          onKeyDown={onKeyDown}
+          disabled={getCurrentSpymaster !== player || token !== undefined}
+        />
       </Grid>
-      <Grid container item justify="center" xs={12} md={4}>
+      <Grid container item justify='center' xs={12} md={4}>
         <Chip
-          variant="outlined"
-          size="small"
+          variant='outlined'
+          size='small'
           className={classes.chip}
           onClick={onClickMin}
-          label="-"/>
-        <Typography className={classes.count}>{ count }</Typography>
+          label='-'
+        />
+        <Typography className={classes.count}>{count}</Typography>
         <Chip
-          variant="outlined"
-          size="small"
+          variant='outlined'
+          size='small'
           className={classes.chip}
           onClick={onClickMax}
-          label="+"/>
+          label='+'
+        />
       </Grid>
       <Button
         onClick={handleSpyHintSubmit}
         className={classes.done}
-        variant="outlined">
+        variant='outlined'
+        disabled={getCurrentSpymaster !== player || token !== undefined}
+      >
         Done
       </Button>
     </Grid>
-  );
-};
+  )
+}
 
 SpyBottom.propTypes = {
   countMax: PropTypes.number.isRequired,
-  socket: PropTypes.object.isRequired,
-};
+  socket: PropTypes.object.isRequired
+}
 
 const useStyles = makeStyles(theme => ({
   bottom: {},
   hDivider: {
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
-    width: "100%",
-    height: "1px;",
+    width: '100%',
+    height: '1px;'
   },
   text: {
-    width: "100%",
+    width: '100%',
     paddingLeft: theme.spacing(2),
-    paddingRight: theme.spacing(2),
-  },
-}));
+    paddingRight: theme.spacing(2)
+  }
+}))
 
-const SidebarBottom = ({ setFinished, isSpy, countMax, gameID, player, socket, getCurrentSpymaster, token }) => {
-  const classes = useStyles();
-  const [message, setMessage] = useState("");
+const SidebarBottom = ({
+  getRole,
+  isSpy,
+  countMax,
+  gameID,
+  player,
+  socket,
+  getCurrentSpymaster,
+  token
+}) => {
+  const classes = useStyles()
+  const [message, setMessage] = useState('')
 
   const chatHandler = ({ keyCode }) => {
-    if (keyCode !== 13 || message === "") {
-      return ;
+    if (keyCode !== 13 || message === '') {
+      return
     }
-    if (process.env.NODE_ENV !== "production") {
-      console.log(`Emitting chat: ${player} - ${message}`);
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`Emitting chat: ${player} - ${message}`)
     }
-    socket.emit("chat", gameID, "chat", message, player);
-    setMessage("");
-  };
+    socket.emit('chat', gameID, 'chat', message, player)
+    setMessage('')
+  }
 
   if (isSpy) {
     return (
       <SpyBottom
-        setFinished={setFinished}
         countMax={countMax}
         gameID={gameID}
         player={player}
@@ -189,17 +214,20 @@ const SidebarBottom = ({ setFinished, isSpy, countMax, gameID, player, socket, g
 
   return (
     <div className={classes.bottom}>
-      <Divider className={classes.hDivider}/>
+      <Divider className={classes.hDivider} />
+      {getRole !== 'spectator' && (
         <TextField
-          multiline
+          disabled={getRole === 'spectator'}
           value={message}
-          onChange={({ target: { value }}) => setMessage(value)}
+          onChange={({ target: { value } }) => setMessage(value)}
           onKeyDown={chatHandler}
           className={classes.text}
-          placeholder="Type here..."/>
+          placeholder='Type here...'
+        />
+      )}
     </div>
-  );
-};
+  )
+}
 
 SidebarBottom.propTypes = {
   isSpy: PropTypes.bool.isRequired,
@@ -208,7 +236,8 @@ SidebarBottom.propTypes = {
   player: PropTypes.string.isRequired,
   socket: PropTypes.object.isRequired,
   getCurrentSpymaster: PropTypes.string.isRequired,
-  token: PropTypes.string.isRequired,
-};
+  // This can be undefined
+  token: PropTypes.string
+}
 
-export default SidebarBottom;
+export default SidebarBottom

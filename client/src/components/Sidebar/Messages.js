@@ -177,7 +177,7 @@ const SpymasterHint = ({ classes, text, inline = false, direction = "bottomRight
 
 SpymasterHint.propTypes = {
   classes: PropTypes.object.isRequired,
-  text: PropTypes.string.isRequired,
+  text: PropTypes.string,
   inline: PropTypes.bool,
   direction: PropTypes.string,
 };

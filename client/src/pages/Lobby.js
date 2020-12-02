@@ -17,6 +17,7 @@ import { Close, Link, } from "@material-ui/icons";
 
 import LobbyPlayers from "../components/Lobby/Players";
 import LobbyRoles from "../components/Lobby/Roles";
+import LobbyWaiting from "../components/Lobby/Waiting"
 
 const gameStyles = theme => ({
   container: {
@@ -56,7 +57,7 @@ const gameStyles = theme => ({
     position: "absolute",
     right: theme.spacing(1),
     top: theme.spacing(1),
-  }
+  },
 });
 
 // isOff checks if player has already selected a role
@@ -160,7 +161,13 @@ const Lobby = withStyles(gameStyles)(({ classes, state, setState, socket }) => {
               <LobbyRoles onAssign={onAssign} off={off} state={state}/>
             </Grid>
             <Grid item container xs={12} align="center" direction="row">
-              <Grid item xs={8}>
+              <Grid item xs={4}>
+                <Typography variant="h5" className={classes.player}>
+                  Waiting Room (Spectators):
+                </Typography>
+                <LobbyWaiting state={state}/>
+              </Grid>
+              <Grid item xs={5}>
                 <Typography variant="h5" className={classes.player}>
                   Players ready for match:
                 </Typography>
@@ -169,7 +176,7 @@ const Lobby = withStyles(gameStyles)(({ classes, state, setState, socket }) => {
               <Grid item xs={1}>
                 <Divider orientation="vertical" className={classes.vDivider}/>
               </Grid>
-              <Grid item align="center" xs={3}>
+              <Grid item align="center" xs={2}>
                 <Typography variant="h5" className={classes.copy}>
                   Share match id:
                 </Typography>
@@ -185,7 +192,7 @@ const Lobby = withStyles(gameStyles)(({ classes, state, setState, socket }) => {
             </Grid>
             <Grid item xs={12} align="center">
               <Button disabled={!(gameState.isReady && isHost)} onClick={onStart} variant="outlined">
-                Start Match
+              {!(gameState.isReady) ? 'Waiting for Players' : isHost ? 'Start Match' : 'Waiting for Host' }
               </Button>
             </Grid>
           </Grid>

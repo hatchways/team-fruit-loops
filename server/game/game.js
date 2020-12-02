@@ -8,12 +8,12 @@ const INIT_GUESS_CHANCE = parseInt(process.env.INIT_GUESS_CHANCE) || 1;
 const initGame = () => {
   const gameState = {
     cards: dictionary.generateCards(),
-    blueCardNum: 8,
+    blueCardNum: 9,
     redCardNum: 8,
     greyCardNum: 8,
     blackCardNum: 1,
+    bluePoints: 9,
     redPoints: 8,
-    bluePoints: 8,
     turn: 'blue',
     guessNum: INIT_GUESS_CHANCE,
     hint: undefined,
@@ -31,9 +31,8 @@ const initGame = () => {
 
 const isReady = (gameState) => {
   return (
-    gameState.waitingList.length === 0 &&
     gameState.blueSpy !== undefined &&
-    gameState.redSpy !== undefined &&
+    gameState.redSpy !== undefined && 
     gameState.blueGuessers.length !== 0 &&
     gameState.redGuessers.length !== 0
   );
@@ -200,6 +199,9 @@ Game.prototype.guesserNextMove = function(player, word) {
 
       if (this.gameState.turn === 'red') {
         return this.endTurn();
+      } else {
+          // Reset game timer between each move
+          this.gameState.timer = INIT_TIMER;
       }
 
       this.gameState.turn = 'blue';
@@ -222,7 +224,11 @@ Game.prototype.guesserNextMove = function(player, word) {
       if (this.gameState.redPoints === 0) {
         this.gameState.isEnd = true;
         this.gameState.winner = 'red';
+      } else {
+        // Reset game timer between each move
+        this.gameState.timer = INIT_TIMER;
       }
+
       break;
     // if select a grey card(innocent card), make turn to the opponent
     case 'grey':

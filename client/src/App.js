@@ -64,12 +64,12 @@ function App () {
       setState={setState}
       socket={socket}
       accountValues={accountValues}
+      logout={logout}
       {...props}
     />
   )
 
   useLayoutEffect(() => {
-    // TODO: Don't run this block if user isn't logged in
     axios
       .get('/account')
       .then(res => {
@@ -78,6 +78,12 @@ function App () {
           name: res.data.name,
           email: res.data.email,
           imageUrl: res.data.imageUrl
+        })
+
+        setState({
+          player: res.data.name,
+          gameID: undefined,
+          gameState: undefined
         })
       })
       .catch(() => {})
