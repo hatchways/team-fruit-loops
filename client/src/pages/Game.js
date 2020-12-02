@@ -10,7 +10,7 @@ import PropTypes from 'prop-types';
 import Finished from "../components/Game/Finished";
 import GameSidebar from "../components/Sidebar";
 import Board from "../components/Game/Board";
-import GameNavbar from "../components/Game/Nav";
+// import GameNavbar from "../components/Game/Nav";
 
 import useSound from 'use-sound';
 import tickSfx from '../assets/sounds/tick.mp3';
@@ -104,7 +104,7 @@ const GamePage = ({ classes, state, setState, socket, accountValues, logout }) =
     }
 
     const timerHandler = ({gameState, timer}) => {
-      if (timer < 10)
+      if (timer <= 5)
         sounds.tick();
         
       if (gameState)
@@ -119,6 +119,8 @@ const GamePage = ({ classes, state, setState, socket, accountValues, logout }) =
     return () => {
       socket.off('update', updateHandler);
       socket.off('timer', timerHandler);
+
+      // setState({ player: player, gameState: undefined });
     }
   }, [setState, setTimer, sounds, socket, player, playSoundEffects]);
 
@@ -131,10 +133,10 @@ const GamePage = ({ classes, state, setState, socket, accountValues, logout }) =
     socket.emit('guesserNextMove', gameID, player, word);
   }
 
-  // Event handler for restarting the game
-  const onRestart = () => {
-    socket.emit('restartGame', gameID);
-  }
+  // // Event handler for restarting the game
+  // const onRestart = () => {
+  //   socket.emit('restartGame', gameID);
+  // }
 
   const onNewGame = () => {
     socket.emit('leave', gameID)
@@ -143,13 +145,13 @@ const GamePage = ({ classes, state, setState, socket, accountValues, logout }) =
 
   return (
     <Container className={classes.root}>
-      <GameNavbar
+      {/* <GameNavbar
         setState={setState}
         state={state}
         onRestart={onRestart}
         accountValues={accountValues}
         logout={logout}
-      />
+      /> */}
       <Finished
         setState={setState}
         state={state}
@@ -162,7 +164,7 @@ const GamePage = ({ classes, state, setState, socket, accountValues, logout }) =
         player={state.player}
         count={state.gameState.guessNum}
         countMax={5}
-        token={state.gameState.hint || ''}
+        token={state.gameState.hint || undefined}
         setFinished={undefined}
         getRole={getRole(state)}
         isSpy={isSpy(state)}

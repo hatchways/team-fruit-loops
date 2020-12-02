@@ -70,7 +70,6 @@ function App () {
   )
 
   useLayoutEffect(() => {
-    // TODO: Don't run this block if user isn't logged in
     axios
       .get('/account')
       .then(res => {
@@ -80,6 +79,12 @@ function App () {
           email: res.data.email,
           imageUrl: res.data.imageUrl
         })
+
+        setState({
+          player: res.data.name,
+          gameID: undefined,
+          gameState: undefined
+        })
       })
       .catch(() => {})
   }, [])
@@ -88,7 +93,7 @@ function App () {
     <MuiThemeProvider theme={theme}>
       <CssBaseline />
       <BrowserRouter>
-        <Navbar accountValues={accountValues} logout={logout} />
+        <Navbar state={state} accountValues={accountValues} logout={logout} />
         <Toolbar />
         <Switch>
           <Redirect exact from='/' to='/signup' />

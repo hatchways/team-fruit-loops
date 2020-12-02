@@ -38,8 +38,8 @@ const useStyles = makeStyles((theme) => ({
   }),
   board: {
     margin: 'auto',
-    padding: "20px",
-    height: "85vh",
+    padding: "10px",
+    height: "75vh",
     width: "100vw",
   },
   grid: {
@@ -70,23 +70,23 @@ const useStyles = makeStyles((theme) => ({
 const isSpy = role => role === "blue spy" || role === "red spy";
 const isSpectator = role => role === "spectator"
 
-const Prompt = ({ state, timer }) => {
+const Prompt = ({ state, timer, getRole }) => {
   let prompt;
-  const { player, gameState } = state;
+  const { gameState } = state;
   const { turn, hint } = gameState;
-  const [team, teamRole] = getRole(player, gameState).split(" ");
+  const [team, teamRole] = getRole.split(" ");
   const timerColor = timer < 10 ? 'red' : 'black';
   const classes = useStyles({promptColor: team, timerColor: timerColor});
 
   if (team !== turn) {
-    prompt = `${turn} team's turn, you must wait`;
+    prompt = `${turn} team's turn`;
   }
   else {
     if (hint === undefined) {
       if (teamRole === 'spy')
         prompt = 'Your turn';
       else
-        prompt = 'Waiting for the hint from your spy';
+        prompt = "Waiting for your spymaster's hint";
     }
     else {
       if (teamRole === 'spy')
@@ -98,12 +98,13 @@ const Prompt = ({ state, timer }) => {
 
   return (
     <Container className={classes.prompt} spacing={3}>
-      <h1 className={classes.promptContent}>
+      <h2>Role: {getRole}</h2>
+      <h2 className={classes.promptContent}>
         {prompt}
-      </h1>
-      <h1 className={classes.timer}>
+      </h2>
+      <h2 className={classes.timer}>
         {timer}
-      </h1>
+      </h2>
     </Container>
   );
 }
@@ -123,7 +124,7 @@ const Card = ({status, color, word, onClick, playerRole}) => {
 
 const Board = ({ state, setState, timer, gameID, onNextMove, getRole }) => {
   const classes = useStyles();
-  const {player, gameState} = state;
+  const {gameState} = state;
   if (gameState === undefined) {
     return <Redirect to={'/match'} />
   }
@@ -144,7 +145,7 @@ const Board = ({ state, setState, timer, gameID, onNextMove, getRole }) => {
 
   return (
     <div className={classes.board}>
-      <Prompt state={state} timer={timer} />
+      <Prompt state={state} timer={timer} getRole={getRole}/>
       <Grid container spacing={3} justify="center" className={classes.grid}>
       {
         wordsGrid.map((row, rowIndex) =>

@@ -200,6 +200,9 @@ Game.prototype.guesserNextMove = function(player, word) {
 
       if (this.gameState.turn === 'red') {
         return this.endTurn();
+      } else {
+          // Reset game timer between each move
+          this.gameState.timer = INIT_TIMER;
       }
 
       this.gameState.turn = 'blue';
@@ -222,7 +225,11 @@ Game.prototype.guesserNextMove = function(player, word) {
       if (this.gameState.redPoints === 0) {
         this.gameState.isEnd = true;
         this.gameState.winner = 'red';
+      } else {
+        // Reset game timer between each move
+        this.gameState.timer = INIT_TIMER;
       }
+
       break;
     // if select a grey card(innocent card), make turn to the opponent
     case 'grey':

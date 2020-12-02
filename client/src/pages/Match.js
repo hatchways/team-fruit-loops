@@ -122,7 +122,7 @@ const Match = withStyles(styles)(({ classes, state, setState, socket, accountVal
   const history = useHistory();
 
   useEffect(() => {
-    setName(accountValues.name)
+    setName((accountValues.name !== "" && accountValues.name)|| "Guest_" + Math.floor(Math.random() * (10000 - 1000) + 1000))
   }, [accountValues.name])
 
   if (gameID !== undefined) {
@@ -221,29 +221,25 @@ const Match = withStyles(styles)(({ classes, state, setState, socket, accountVal
                       Join Game
                     </Button>
                   )}}/>
-                  <TextField
-                    fullWidth
-                    value={name}
-                    onChange={({ target: { value }}) => setName(value)}
-                    variant="outlined"
-                    className={classes.text}
-                    placeholder="Enter name"
-                    />
               </form>
-              <Title css={classes.or} title="Or" el="h6"/>
+              {/* Don't show this because it's not implemented (yet) */}
+              {/* <Title css={classes.or} title="Or" el="h6"/>
               <Button
                 onClick={() => setErr("not implemented")}
                 className={classes.random}
                 variant="outlined">
                 Join Random
-              </Button>
+              </Button> */}
             </Grid>
             <Grid item xs={1}>
               <Divider orientation="vertical" className={classes.vDivider}/>
             </Grid>
             <Grid item container xs={3}>
-              <Grid item container xs={12}>
+              {/* <Grid item container xs={12}>
                 <Title css={classes.new} title="New Game:" el="h6"/>
+              </Grid> */}
+              <Grid item container xs={12}>
+                <Title className={classes.new} title="New Game:" el="h6"/>
               </Grid>
               <Grid item container
                 xs={12}

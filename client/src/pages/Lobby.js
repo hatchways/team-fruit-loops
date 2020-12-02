@@ -19,18 +19,6 @@ import LobbyPlayers from "../components/Lobby/Players";
 import LobbyRoles from "../components/Lobby/Roles";
 import LobbyWaiting from "../components/Lobby/Waiting"
 
-// copy url to system clipboard by creating dummy html element to write value
-// into. added to document.body for `document.execCommand("copy")` to read
-const copy = id => e => {
-  e.preventDefault();
-  const dummy = document.createElement("input");
-  document.body.appendChild(dummy);
-  dummy.setAttribute("value", id);
-  dummy.select();
-  document.execCommand("copy");
-  document.body.removeChild(dummy);
-};
-
 const gameStyles = theme => ({
   container: {
     marginTop: theme.spacing(3)
@@ -69,7 +57,7 @@ const gameStyles = theme => ({
     position: "absolute",
     right: theme.spacing(1),
     top: theme.spacing(1),
-  }
+  },
 });
 
 // isOff checks if player has already selected a role
@@ -204,7 +192,7 @@ const Lobby = withStyles(gameStyles)(({ classes, state, setState, socket }) => {
             </Grid>
             <Grid item xs={12} align="center">
               <Button disabled={!(gameState.isReady && isHost)} onClick={onStart} variant="outlined">
-                Start Match
+              {!(gameState.isReady) ? 'Waiting for Players' : isHost ? 'Start Match' : 'Waiting for Host' }
               </Button>
             </Grid>
           </Grid>
