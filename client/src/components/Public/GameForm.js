@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   TextField,
@@ -28,7 +28,7 @@ const Btn = ({ on, css, text }) => (
   <Button onClick={on} className={css} variant="outlined">{ text }</Button>
 );
 
-const GameForm = ({ onCreateGame, playerName, setPlayerName }) => {
+const GameForm = ({ onCreateGame, playerName, setPlayerName, accountValues }) => {
   const classes = useStyles()
   const [gameRoomName, setGameRoomName] = useState('player1\'s game');
   const [playerNum, setPlayerNum] = useState(4);
@@ -55,11 +55,17 @@ const GameForm = ({ onCreateGame, playerName, setPlayerName }) => {
     setPlayerNum(e.target.value);
   }
 
+  useEffect(() => {
+    if (accountValues.name) {
+      setGameRoomName(accountValues.name + '\'s game')
+    }
+  }, [accountValues.name])
+
   return (
     <div>
       <h1 className={classes.title}>Create a public game</h1>
       <form className={classes.form} noValidate autoComplete='off'>
-        <TextField required id='playerName' label='Name (for testing)' variant='outlined' value={playerName} onChange={onPlayerNameChange}/>
+        <TextField required id='playerName' label='Name' variant='outlined' value={playerName} onChange={onPlayerNameChange}/>
         <TextField id='gameName' label='Game name' variant='outlined' value={gameRoomName} onChange={onGameNameChange}/>
         <TextField
           id='playerNumber'

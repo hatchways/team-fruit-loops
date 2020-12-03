@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useHistory } from "react-router-dom";
 import { makeStyles } from '@material-ui/core/styles';
 import {
@@ -32,12 +32,6 @@ const api = {
     contentType: 'application/json',
     body: (player, socketID, isPublic, maxPlayerNum) => JSON.stringify({ player, socketID, isPublic, maxPlayerNum }),
   },
-  'publicGames' :{
-    url: () => '/game/public-games',
-    method: 'GET',
-    contentType: 'application/json',
-    body: '',
-  },
   "join": {
     url: id => `/game/${id}/join`,
     method: "PUT",
@@ -46,7 +40,7 @@ const api = {
   },
 }
 
-const Public = ({state, setState, socket}) => {
+const Public = ({state, setState, socket, accountValues}) => {
   const classes = useStyles();
   const history = useHistory();
   const [player, setPlayer] = useState('player1');
@@ -102,27 +96,26 @@ const Public = ({state, setState, socket}) => {
     }
   };
 
-  const getPublicGames = async () => {
-    const type = 'publicGames';
-    const res = await fetch(api[type].url(), {
-      method: api[type].method,
-      headers: {
-        'Content-Type': api[type].contentType,
-        Accept: 'application/json',
-      },
-    });
-    const nextState = await res.json();
-    return nextState.gameList;
+  const onRefresh = () => {
+    socket.emit('refreshPublic');
   }
 
-  const onRefresh = useCallback(async () => {
-    const result = await getPublicGames();
-    setGameList(result);
-  }, [setGameList]);
-
   useEffect(() => {
-    (onRefresh)();
-  }, [onRefresh]);
+    if (accountValues.name) {
+      setPlayer(accountValues.name)
+    }
+
+    const updateHandler = ({gameList, error}) => {
+      if (error === undefined)
+        setGameList(gameList);
+    }
+    socket.emit('refreshPublic');
+    socket.on('publicGames', updateHandler);
+
+    return () => {
+      socket.off('publicGames', updateHandler);
+    }
+  }, [setState, socket, accountValues.name]);
 
   return (
     <Container className={classes.root}>
@@ -150,6 +143,7 @@ const Public = ({state, setState, socket}) => {
         playerName={player}
         setPlayerName={setPlayer}
         onCreateGame={onCreateGame}
+        accountValues={accountValues}
       />
     </Container>
   );

@@ -72,7 +72,7 @@ const FinishedComponent = ({ classes, setState, state, onNewGame }) => {
             </Typography>
           </div>
           <Button className={classes.newGame} onClick={onNewGame}>
-              New Game
+              Leave Game
           </Button>
         </Grid>
       </DialogContent>

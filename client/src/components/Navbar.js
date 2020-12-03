@@ -16,12 +16,13 @@ import {
   Popper,
   Grow,
   ClickAwayListener,
-  Divider
+  Divider,
+  Hidden
 } from '@material-ui/core'
 
-import { ArrowDropDown } from '@material-ui/icons'
+import { ArrowDropDown, Search, Menu } from '@material-ui/icons'
 
-import GameNavbar from './Game/Nav'
+import PropTypes from 'prop-types'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -33,13 +34,48 @@ const useStyles = makeStyles(theme => ({
     textDecoration: 'none'
   },
   navEnd: {},
-  container: {}
+  container: {},
+
+  red: {
+    color: 'rgb(233, 97, 94)'
+  },
+  hDivider: {
+    height: '2px',
+    width: theme.spacing(2),
+    backgroundColor: 'black'
+  },
+  blue: {
+    color: 'rgb(99, 176, 244)'
+  },
+  points: {
+    fontWeight: 'bold'
+  }
 }))
 
-const Navbar = ({ location, state, accountValues, logout }) => {
+const Scorecard = ({ score, team }) => {
+  const classes = useStyles()
+
+  return (
+    <div
+      className={Object.entries({
+        [classes.points]: true,
+        [classes.red]: team === 'Red Team',
+        [classes.blue]: team === 'Blue Team'
+      }).reduce((css, [k, v]) => css + (v === true ? k + ' ' : ''), '')}
+    >
+      <Typography align='center' className={classes.points}>
+        {score}
+      </Typography>
+      <Typography className={classes.points}>{team}</Typography>
+    </div>
+  )
+}
+
+const Navbar = ({ state, accountValues, logout }) => {
   const classes = useStyles()
   const theme = useTheme()
   const history = useHistory()
+
   const bBreakpointUpSm = useMediaQuery(theme.breakpoints.up('sm'))
 
   const anchorRef = useRef(null)
@@ -64,69 +100,123 @@ const Navbar = ({ location, state, accountValues, logout }) => {
     }
   }
 
-  if (location.pathname === '/game') {
-    return (
-      <GameNavbar
-        state={state}
-        classes={classes}
-        accountValues={accountValues}
-      />
-    )
-  }
-
   return (
     <AppBar className={classes.root}>
       <Toolbar>
         <Grid container justify='space-between' alignItems='center'>
+          {!state.gameState || !state.gameState.isStart ? (
+            <>
+              <Grid
+                item
+                container
+                xs={'auto'}
+                sm={4}
+                className={classes.container}
+              ></Grid>
+              <Grid
+                item
+                container
+                xs={6}
+                sm={4}
+                className={`${classes.container} ${classes.brand}`}
+                justify={bBreakpointUpSm ? 'center' : 'flex-start'}
+              >
+                <Link
+                  to={accountValues.id ? '/match' : '/login'}
+                  className={classes.brandTitle}
+                >
+                  <Typography variant='h1'>CLUEWORDS</Typography>
+                </Link>
+              </Grid>
+            </>
+          ) : (
+            <>
+              <Grid
+                item
+                container
+                xs={2}
+                sm={4}
+                className={`${classes.container} ${classes.brand}`}
+                justify='flex-start'
+              >
+                <Hidden smUp>
+                  <Search />
+                </Hidden>
+                <Hidden xsDown>
+                  <Typography variant='h1'>CLUEWORDS</Typography>
+                </Hidden>
+              </Grid>
+              <Grid
+                item
+                container
+                xs={8}
+                sm={4}
+                className={classes.container}
+                justify='center'
+              >
+                <Grid item container justify='center'>
+                  <Typography className={classes.points}>
+                    Words remaining
+                  </Typography>
+                </Grid>
+                <Grid item container justify='center'>
+                  <Scorecard
+                    score={state.gameState.bluePoints}
+                    team='Blue Team'
+                  />
+                  <Typography variant='h1'>-</Typography>
+                  <Scorecard
+                    score={state.gameState.redPoints}
+                    team='Red Team'
+                  />
+                </Grid>
+              </Grid>
+            </>
+          )}
+
           <Grid
             item
             container
-            xs={'auto'}
-            sm={4}
-            className={classes.container}
-          ></Grid>
-          <Grid
-            item
-            container
-            xs={6}
-            sm={4}
-            className={`${classes.container} ${classes.brand}`}
-            justify={bBreakpointUpSm ? 'center' : 'flex-start'}
-          >
-            <Link
-              to={accountValues.id ? '/match' : '/login'}
-              className={classes.brandTitle}
-            >
-              <Typography variant='h1'>CLUEWORDS</Typography>
-            </Link>
-          </Grid>
-          <Grid
-            item
-            container
-            xs={6}
+            xs={!state.gameState || !state.gameState.isStart ? 6 : 2}
             sm={4}
             className={`${classes.navEnd} ${classes.container}`}
             justify='flex-end'
           >
             {accountValues.id ? (
               <>
-                <Avatar
-                  src={
-                    accountValues.imageUrl &&
-                    accountValues.imageUrl !== undefined
-                      ? `${accountValues.imageUrl}?${Date.now()}`
-                      : ''
-                  }
-                  alt={accountValues.name || ''}
-                >
-                  {accountValues.name[0]}
-                </Avatar>
+                {!state.gameState ||
+                !state.gameState.isStart ||
+                bBreakpointUpSm ? (
+                  <Avatar
+                    src={
+                      accountValues.imageUrl &&
+                      accountValues.imageUrl !== undefined
+                        ? `${accountValues.imageUrl}?${Date.now()}`
+                        : ''
+                    }
+                    alt={accountValues.name || ''}
+                  ></Avatar>
+                ) : (
+                  <></>
+                )}
                 <Button
                   ref={anchorRef}
                   onClick={handleMenuToggle}
-                  endIcon={<ArrowDropDown />}
+                  endIcon={
+                    !state.gameState ||
+                    !state.gameState.isStart ||
+                    bBreakpointUpSm ? (
+                      <ArrowDropDown />
+                    ) : (
+                      <Menu />
+                    )
+                  }
                 >
-                  My Profile
+                  {!state.gameState ||
+                  !state.gameState.isStart ||
+                  bBreakpointUpSm
+                    ? 'My Profile'
+                    : ''}
                 </Button>
                 <Popper
                   open={bMenuOpen}
@@ -155,6 +245,11 @@ const Navbar = ({ location, state, accountValues, logout }) => {
                             <MenuItem
                               component={Link}
                               to={'/profile'}
+                              target={
+                                !state.gameState || !state.gameState.isStart
+                                  ? undefined
+                                  : '_target'
+                              }
                               onClick={handleMenuClose}
                             >
                               Profile
@@ -162,6 +257,11 @@ const Navbar = ({ location, state, accountValues, logout }) => {
                             <MenuItem
                               component={Link}
                               to={'/friends'}
+                              target={
+                                !state.gameState || !state.gameState.isStart
+                                  ? undefined
+                                  : '_target'
+                              }
                               onClick={handleMenuClose}
                             >
                               Friends
@@ -196,6 +296,17 @@ const Navbar = ({ location, state, accountValues, logout }) => {
       </Toolbar>
     </AppBar>
   )
+}
+
+Scorecard.propTypes = {
+  score: PropTypes.number,
+  team: PropTypes.string,
+}
+
+Navbar.propTypes = {
+  state: PropTypes.object,
+  accountValues: PropTypes.object.isRequired,
+  logout: PropTypes.func.isRequired
 }
 
 export default withRouter(Navbar)
