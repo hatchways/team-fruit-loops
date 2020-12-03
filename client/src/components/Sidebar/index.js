@@ -1,12 +1,11 @@
 import React from "react";
 import {
   Drawer,
-  Toolbar,
+  Toolbar
 } from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
 import PropTypes from 'prop-types';
 
-import { appBarHeight } from "../../components/Game/Nav";
 import SidebarTop from "./Top";
 import SidebarBottom from "./Bottom";
 import SidebarChat from "./Chat";
@@ -17,9 +16,6 @@ const styles = () => ({
   root: {
     alignItems: "center",
     width: sidebarWidth,
-  },
-  toolbar: {
-    height: appBarHeight,
   },
   paper: {
     width: sidebarWidth,
@@ -34,13 +30,8 @@ const Sidebar = ({ classes, state, getRole, isSpy, countMax, gameID, socket, ...
     variant="permanent"
     className={classes.root}
     classes={{paper: classes.paper}}>
-    <Toolbar className={classes.toolbar}/>
+    <Toolbar />
     <div className={classes.sidebar}>
-      {/* {
-        isSpy === true
-          ? null
-          : <SidebarTop state={state} player={state.player} {...props}/>
-      } */}
       <SidebarTop state={state} player={state.player} {...props}/>
       <SidebarChat player={state.player} socket={socket}/>
       <SidebarBottom

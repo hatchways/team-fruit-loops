@@ -1,19 +1,19 @@
 const dictionary = require('./dictionary/dictionary');
 const shuffle = require('./utils/shuffle');
 const role = require('./role');
-const INIT_TIMER = 20;
-const INIT_GUESS_CHANCE = 1;
+const INIT_TIMER = parseInt(process.env.INIT_GAME_TIMER) || 20;
+const INIT_GUESS_CHANCE = parseInt(process.env.INIT_GUESS_CHANCE) || 1;
 
 // Initialize game with 4 players and roles are randomly assigned
 const initGame = () => {
   const gameState = {
     cards: dictionary.generateCards(),
-    blueCardNum: 8,
+    blueCardNum: 9,
     redCardNum: 8,
     greyCardNum: 8,
     blackCardNum: 1,
+    bluePoints: 9,
     redPoints: 8,
-    bluePoints: 8,
     turn: 'blue',
     guessNum: INIT_GUESS_CHANCE,
     hint: undefined,

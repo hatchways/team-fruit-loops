@@ -48,7 +48,7 @@ const Top = ({ classes, player, token, count, getCurrentSpymaster, state }) => (
 Top.propTypes = {
   classes: PropTypes.object.isRequired,
   player: PropTypes.string.isRequired,
-  token: PropTypes.string.isRequired,
+  token: PropTypes.string,
   count: PropTypes.number.isRequired
 }
 
