@@ -215,7 +215,7 @@ const Navbar = ({ state, accountValues, logout }) => {
                   {!state.gameState ||
                   !state.gameState.isStart ||
                   bBreakpointUpSm
-                    ? 'My Profile'
+                    ? 'Menu'
                     : ''}
                 </Button>
                 <Popper
@@ -242,6 +242,19 @@ const Navbar = ({ state, accountValues, logout }) => {
                             autoFocusItem={bMenuOpen}
                             onKeyDown={handleListKeyDown}
                           >
+                            {!state.gameState || !state.gameState.isStart ? (
+                              <MenuItem
+                                component={Link}
+                                to={'/match'}
+                                onClick={handleMenuClose}
+                              >
+                                Start Game
+                              </MenuItem>
+                            ) : (
+                              <></>
+                            )}
+
+                            <Divider />
                             <MenuItem
                               component={Link}
                               to={'/profile'}
@@ -300,7 +313,7 @@ const Navbar = ({ state, accountValues, logout }) => {
 
 Scorecard.propTypes = {
   score: PropTypes.number,
-  team: PropTypes.string,
+  team: PropTypes.string
 }
 
 Navbar.propTypes = {

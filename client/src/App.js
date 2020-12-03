@@ -36,7 +36,8 @@ function App () {
     id: '',
     name: '',
     email: '',
-    imageURL: ''
+    imageURL: '',
+    viewedTutorial: undefined
   })
 
   const handleAccountValuesChange = values => {
@@ -77,7 +78,8 @@ function App () {
           id: res.data._id,
           name: res.data.name,
           email: res.data.email,
-          imageUrl: res.data.imageUrl
+          imageUrl: res.data.imageUrl,
+          viewedTutorial: res.data.viewedTutorial
         })
 
         setState({

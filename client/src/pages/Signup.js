@@ -102,7 +102,7 @@ const Signup = () => {
           axios
             .post("/login", values)
             .then((res) => {
-              history.push("/profile");
+              history.push("/match");
             })
             .catch((err) => {
               setSnackBarMessage(err.response.data.errors);
