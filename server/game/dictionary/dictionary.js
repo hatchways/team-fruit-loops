@@ -17,7 +17,7 @@ const wordList = data.trim().split(/\s+/);
  * @returns {dict} A dict where keys are words and value is
                    identity of the word.
  */
-const generateCards = (size = 25, blue = 8, red = 8, black = 1) => {
+const generateCards = (size = 25, blue = 9, red = 8, black = 1) => {
   if (blue + red + black > size) {
     throw new Error('Invalid number of blue, red or black cards.');
   }
