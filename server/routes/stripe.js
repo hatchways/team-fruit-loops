@@ -12,4 +12,6 @@ router.use('/:player', authenticate.player);
 
 router.get('/:player/intent', upgrade.intent);
 
+router.get('/:player/private-enabled', upgrade.privateGamesEnabled);
+
 module.exports = router;

@@ -1,15 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Redirect, useHistory } from "react-router-dom";
 import { withStyles } from "@material-ui/core/styles";
 import {
-  Container,
+  Button,
   Card, CardContent,
+  Container,
+  Dialog, DialogTitle, DialogContent,
   Divider,
   Grid,
-  Typography,
-  Button, TextField,
-  Dialog, DialogTitle, DialogContent,
   IconButton,
+  TextField,
+  Tooltip,
+  Typography,
 } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
 import PropTypes from "prop-types";
@@ -73,7 +75,6 @@ const styles = theme => ({
   },
   private: {
     marginTop: theme.spacing(1),
-    marginLeft: "25%",
     width: "50%",
   },
   newGame: {
@@ -114,19 +115,23 @@ const api = {
       throw new Error("Error: not implemented");
     },
   },
+  "checkPrivate": {
+    url: player => `/stripe/${player}/private-enabled`,
+    method: () => "GET",
+    headers: () => ({
+      Accept: "application/json",
+    }),
+  }
 };
 
-const MatchPage = ({ classes, state, setState, socket, privGames }) => {
+const MatchPage = ({ classes, state, setState, socket }) => {
   const [err, setErr] = useState(undefined);
   const { player, gameID } = state;
+  const [privGames, setPrivGames] = useState(false);
   // local game id. used in join a game text field
   const [roomID, setRoomID] = useState('');
   const [name, setName] = useState('');
   const history = useHistory();
-
-  if (gameID !== undefined) {
-    return <Redirect push to={`/lobby/${gameID}`}/>;
-  }
 
   const call = type => async () => {
     const res = await fetch(api[type].url(gameID), {
@@ -177,6 +182,28 @@ const MatchPage = ({ classes, state, setState, socket, privGames }) => {
   const onPublic = () => {
     history.push('public/');
   }
+
+  useEffect(() => {
+    // ask backend if player has private games enabled
+    const privHandler = async () => {
+      const res = await fetch(api["checkPrivate"].url(player), {
+        method: api["checkPrivate"].method(),
+        headers: api["checkPrivate"].headers(),
+      });
+
+      try {
+        const { enabled } = await res.json();
+        if (enabled) {
+          console.log("DELETE: ", enabled);
+          setPrivGames(true);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    privHandler();
+  });
 
   return gameID !== undefined
     ? <Redirect push to={`/lobby/${gameID}`}/>
@@ -250,7 +277,16 @@ const MatchPage = ({ classes, state, setState, socket, privGames }) => {
                 className={classes.newGame}
                 justify="center">
                 <Btn on={onPublic} css={classes.public} text="Public"/>
-                <Btn disabled={privGames} on={call("private")} css={classes.private} text="Private"/>
+                <Tooltip title="To Play Private Games, pleas upgrade your account on the profile page">
+                  <div>
+                    <Btn
+                      disableHoverListener={privGames}
+                      disabled={!privGames}
+                      on={call("private")}
+                      css={classes.private}
+                      text="Private"/>
+                  </div>
+                </Tooltip>
               </Grid>
             </Grid>
           </Grid>
@@ -262,7 +298,6 @@ const MatchPage = ({ classes, state, setState, socket, privGames }) => {
 
 MatchPage.propTypes = {
   classes: PropTypes.object.isRequired,
-  privGames: PropTypes.bool.isRequired,
   setState: PropTypes.func.isRequired,
   socket: PropTypes.object.isRequired,
   state: PropTypes.object.isRequired,

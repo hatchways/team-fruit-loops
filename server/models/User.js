@@ -23,16 +23,19 @@ let userSchema = new Schema(
     },
     account: {
       privateGames: {
-        type: Boolean,
-        default: false,
+        payment: {
+          date: Date,
+          piID: {
+            type: String,
+            unique: true
+          },
+          piSecret: String,
+        },
+        enabled: {
+          type: Boolean,
+          default: false,
+        },
       },
-      paymentID: {
-        type: String,
-        unique: true
-      },
-      paymentSecret: {
-        type: String,
-      }
     },
   },
   {

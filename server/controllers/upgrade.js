@@ -3,47 +3,62 @@ const stripeConfig = require("stripe");
 const User = require("../models/User");
 
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
-
 if (stripeSecretKey === "") {
   console.log("Error: Stripe secret key not found: exiting.");
   process.exit(1);
 }
 
 const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
-
 if (endpointSecret === "") {
-  console.log("Warning: Stripe endpoint secret not set.");
+  console.log("Warning: STRIPE_ENDPOINT_SECRET not set, cannot verify signatures.");
 }
 
 const stripe = stripeConfig(stripeSecretKey);
 
-const intent = async (req, res) => {
+const monthAbbrevs = [
+  "Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"
+];
+
+const milliSecondsinSeconds = 1000;
+
+const createPaymentIntent = async (user, res) => {
+  const intent = { amount: 500, currency: "usd" };
+  const paymentIntent = await stripe.paymentIntents.create(intent);
+  user.account.privateGames.payment.piID = paymentIntent.id;
+  user.account.privateGames.payment.piSecret = paymentIntent.client_secret;
+
   try {
-    const player = await User.findOne({ name: req.params.player }).exec();
-    if (player.account.privateGames === true) {
-      if (process.env.NODE_ENV !== "production") {
-        console.log(`player ${player.name} already paid`);
-      }
-      const body = { type: "finished", text: `Error: ${player.name} already paid`, };
-      res.status(409).send(body);
-    } else if (player.account.paymentSecret === undefined) {
-      const intent = { amount: 500, currency: "usd" };
-      const paymentIntent = await stripe.paymentIntents.create(intent);
-      player.account.paymentID = paymentIntent.id;
-      player.account.paymentSecret = paymentIntent.client_secret;
-      await player.save();
-      console.log(`Created ${player.name} payment intent: ${paymentIntent.id}`);
-      res.status(201).send({ type: "success", secret: player.account.paymentSecret, });
-    } else {
-      if (process.env.NODE_ENV !== "production") {
-        console.log(`resending ${player.name} payment intent`);
-      }
-      res.status(409).send({ type: "success", secret: player.account.paymentSecret, });
-    }
+    await user.save();
+    console.log(`Created ${user.name} payment intent: ${paymentIntent.id}`);
+    const body = { type: "success", secret: user.account.privateGames.payment.piSecret, };
+    return res.status(201).send(body);
   } catch(err) {
     console.log(`Error creating payment intent: ${err}`);
-    res.status(500).send({ error: "Error processing payment" });
+    return res.status(500).send({ error: "Error processing payment" });
   }
+};
+
+const intent = async (req, res) => {
+  const user = res.locals.user;
+
+  if (user.account.privateGames.payment.piSecret === undefined) {
+    return createPaymentIntent(user, res);
+  } else if (user.account.privateGames.enabled === false) {
+    const body = { type: "success", secret: user.account.privateGames.payment.piSecret, };
+    return res.status(409).send(body);
+  }
+  const date = user.account.privateGames.payment.date;
+  const text = `Joined: ${monthAbbrevs[date.getMonth()]} ${date.getFullYear()}`
+  return res.status(409).send({ type: "finished", text, });
+};
+
+const privateGamesEnabled = async (req, res, next) => {
+  const user = res.locals.user;
+
+  if (user.account.privateGames.enabled) {
+    return res.send({ enabled: true });
+  }
+  return res.status(400).json({ error: `${user.name} has not upgraded ` });
 };
 
 // listen for stripe & process compeleted payments
@@ -51,16 +66,19 @@ const webhook = async (req, res) => {
   let event;
 
   try {
-    if (process.env.NODE_ENV !== "production") {
+    switch (true) {
+    case process.env.NODE_ENV === "production" && endpointSecret !== "":
+      event = stripe.webhooks.constructEvent(
+          request.body,
+          req.headers["stripe-signature"],
+          endpointSecret
+        );
+      break ;
+    case process.env.NODE_ENV === "production" && endpointSecret === "":
+    case process.env.NODE_ENV !== "production":
       event = req.body;
     }
-    if (process.env.NODE_ENV === "production") {
-      event = stripe.webhooks.constructEvent(
-        request.body,
-        req.headers["stripe-signature"],
-        endpointSecret
-      );
-    }
+
     res.send({ received: true });
   } catch (err) {
     console.log(`Webhook Error: ${err.message}`);
@@ -69,22 +87,25 @@ const webhook = async (req, res) => {
   }
 
   switch (event.type) {
-  case "charge.succeeded":
   case "payment_intent.succeeded":
-    const intent = event.data.object.payment_intent;
-    try {
-      const player = await User.findOne({ "account.paymentID": intent }).exec();
+    const intent = event.data.object;
 
-      if (player === null) {
-        throw new Error(`Player containing ${intent} not found`);
-      } else if (player.account.privateGames === false) {
-        player.account.privateGames = true;
-        player.account.paymentSecret = undefined;
-        await player.save();
+    try {
+      const user = await User
+        .findOne({ "account.privateGames.payment.piID": intent.id })
+        .exec();
+
+      if (user === null) {
+        throw new Error(`Player containing ${intent.id} not found`);
+      } else if (user.account.privateGames.enabled === false) {
+        user.account.privateGames.enabled = true;
+        const epochTime = intent.created * milliSecondsinSeconds;
+        user.account.privateGames.payment.date = Date(epochTime);
+        await user.save();
       }
-      console.log(`Payment Intent ${intent} was saved`);
+      console.log(`Payment Intent ${intent.id} was saved`);
     } catch (err) {
-      console.log(`Webhook Error updating player intent ${intent}: ${err}`);
+      console.log(`Webhook Error updating player intent ${intent.id}: ${err}`);
     }
     break ;
   default:
@@ -94,5 +115,6 @@ const webhook = async (req, res) => {
 
 module.exports = {
   intent,
+  privateGamesEnabled,
   webhook,
 }

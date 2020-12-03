@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { useHistory } from "react-router-dom";
 import axios from "axios";
-import PropTypes from 'prop-types';
+// import PropTypes from 'prop-types';
 import {
   CardElement,
   useElements,
@@ -58,7 +58,9 @@ const useStyles = makeStyles((theme) => ({
     height: "40px",
   },
   paid: {
-    width: "80%",
+    height: "40px",
+    backgroundColor: "rgb(38, 182, 92)",
+    color: "white",
   },
 }));
 
@@ -73,14 +75,15 @@ const api = {
   }
 };
 
-const Profile = ({ setPrivGames, privGames }) => {
+const Profile = () => {
   const classes = useStyles();
   let history = useHistory();
   let textInput = useRef(null);
   const stripe = useStripe();
   const elements = useElements();
 
-
+  const [privGames, setPrivGames] = useState(false);
+  const [date, setDate] = useState("");
   const [dialog, toggleDialog] = useState(false);
   const [clientSecret, setClientSecret] = useState("");
   const [viewState, setViewState] = useState("loading");
@@ -212,6 +215,7 @@ const Profile = ({ setPrivGames, privGames }) => {
           if (process.env.NODE_ENV !== "production") {
             console.log("User already paid");
           }
+          setDate(response.text);
           setViewState("success");
           break ;
         case "success":
@@ -298,12 +302,18 @@ const Profile = ({ setPrivGames, privGames }) => {
                     (() => {
                       if (privGames) {
                         return (
-                          <Typography className={classes.paid}>
-                            Membership Type: Full
-                          </Typography>
+                          <Button className={classes.paid} variant="outlined">
+                              Payment Successful!
+                          </Button>
                         )
                       }
                       switch (viewState) {
+                      case "success":
+                        return (
+                          <Button className={classes.paid} variant="outlined">
+                            { date }
+                          </Button>
+                        )
                       case "loading":
                         return <CircularProgress/>;
                       case "error":
@@ -346,8 +356,6 @@ const Profile = ({ setPrivGames, privGames }) => {
 };
 
 Profile.propTypes = {
-  setPrivGames: PropTypes.func.isRequired,
-  privGames: PropTypes.bool.isRequired,
 };
 
 export default Profile;

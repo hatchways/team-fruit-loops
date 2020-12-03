@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "nodemon -r dotenv/config ./bin/www",
-    "debug": "nodemon -r dotenv/config --inspect ./bin/www",
+    "dev": "nodemon -r dotenv/config ./bin/www dotenv_config_path=../.env",
+    "debug": "nodemon -r dotenv/config --inspect ./bin/www dotenv_config_path=../.env",
     "test": "NODE_ENV=test ./node_modules/.bin/mocha --exit --timeout 30000"
   },
   "dependencies": {

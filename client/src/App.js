@@ -28,7 +28,6 @@ if (stripePubKey === "") {
 
 let socket = socketIOClient();
 function App() {
-  const [privGames, setPrivGames] = useState(false);
   const [state, setState] = useState({
     player: "",
     gameID: undefined,
@@ -54,11 +53,7 @@ function App() {
           <Route path="/login" component={Login} />
           <PrivateRoute path="/profile" component={ props => (
             <Elements stripe={loadStripe(stripePubKey)}>
-              <Profile
-                stripePubKey={stripePubKey}
-                privGames={privGames}
-                setPrivGames={setPrivGames}
-                {...props}/>
+              <Profile stripePubKey={stripePubKey} {...props}/>
             </Elements>
           )} />
           <Route path="/stripe/:player" component={withGameState(Upgrade)}/>

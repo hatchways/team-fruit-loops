@@ -24,33 +24,34 @@ const token = (req, res, next) => {
   });
 };
 
-const player = (req, res, next) => {
-  const id = req.params.player;
-  req.id = id;
-  const validatePlayerCallback = (err, user) => {
-    if (err) {
-      console.log(err);
-      res.status(400).send({ error: `Error fetching ${user}`});
-      return ;
-    }
-    next();
-  };
+const player = async (req, res, next) => {
+  let user = null;
+  const name = req.params.player;
 
-  User.findOne({ name: id }, validatePlayerCallback);
+  try {
+    user = await User.findOne({ name });
+  } catch(err) {
+    console.log(`Error retrieving user: ${err.message}`);
+  }
+  if (user === null) {
+      return res.status(500).send({ error: `Error fetching user`});
+  }
+  res.locals.user = user;
+  next();
 };
 
-const privateGames = async (name) => {
+const playerHasPrivateGames = async (name) => {
   try {
     const user = await User.findOne({ name });
-    return user.account.privateGames;
+    return user?.account.privateGames.enabled;
   } catch (err) {
     console.log(err);
-    return null;
+    return undefined;
   }
 };
 
 module.exports = {
   token,
   player,
-  privateGames,
+  playerHasPrivateGames,
 };
