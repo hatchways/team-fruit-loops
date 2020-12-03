@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "nodemon -r dotenv/config ./bin/www",
-    "debug": "nodemon -r dotenv/config --inspect ./bin/www",
+    "dev": "nodemon -r dotenv/config ./bin/www dotenv_config_path=../.env",
+    "debug": "nodemon -r dotenv/config --inspect ./bin/www dotenv_config_path=../.env",
     "test": "NODE_ENV=test ./node_modules/.bin/mocha --exit --timeout 30000"
   },
   "dependencies": {
@@ -17,6 +17,7 @@
     "debug": "~2.6.9",
     "dotenv": "^8.0.0",
     "express": "~4.16.1",
+    "express-csp-header": "^4.0.0",
     "http-errors": "~1.6.3",
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^3.6.3",

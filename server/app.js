@@ -4,6 +4,10 @@ const express = require("express");
 const { join } = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
+const {
+  expressCspHeader,
+  SELF
+} = require('express-csp-header');
 
 const indexRouter = require("./routes/index");
 const pingRouter = require("./routes/ping");
@@ -25,7 +29,12 @@ app.use(logger("dev"));
 app.use(json());
 app.use(urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(join(__dirname, "public")));
+app.use(express.static(join(__dirname, "..", "client", "build")));
+app.use(expressCspHeader({
+    directives: {
+        'default-src': [SELF],
+    }
+}));
 
 app.use("/", indexRouter);
 app.use("/ping", pingRouter);
