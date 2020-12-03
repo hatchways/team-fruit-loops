@@ -23,3 +23,5 @@ yarn-error.log*
 client/.env
 server/.env
 .vscode/launch.json
+.env
+client/build/*
