@@ -3,6 +3,8 @@ import { withRouter, Link, useHistory } from 'react-router-dom'
 import { makeStyles, useTheme } from '@material-ui/core/styles'
 import useMediaQuery from '@material-ui/core/useMediaQuery'
 
+import TutorialComponent from './TutorialComponent'
+
 import {
   AppBar,
   Toolbar,
@@ -49,6 +51,12 @@ const useStyles = makeStyles(theme => ({
   },
   points: {
     fontWeight: 'bold'
+  },
+  tutorialHeader: {
+    textAlign: 'center'
+  },
+  tutorialImage: {
+    width: '100%'
   }
 }))
 
@@ -98,6 +106,17 @@ const Navbar = ({ state, accountValues, logout }) => {
       event.preventDefault()
       setBMenuOpen(false)
     }
+  }
+
+  // How to Play Modal handlers
+  const [bModalOpen, setBModalOpen] = useState(false)
+
+  const handleModalOpen = () => {
+    setBModalOpen(true)
+  }
+
+  const handleModalClose = () => {
+    setBModalOpen(false)
   }
 
   return (
@@ -281,6 +300,15 @@ const Navbar = ({ state, accountValues, logout }) => {
                             </MenuItem>
                             <Divider />
                             <MenuItem
+                              onClick={(event) => {
+                                handleModalOpen()
+                                handleMenuClose(event)
+                              }}
+                            >
+                              How to Play
+                            </MenuItem>
+                            <Divider />
+                            <MenuItem
                               onClick={event => {
                                 logout()
                                   .then(() => {})
@@ -307,6 +335,12 @@ const Navbar = ({ state, accountValues, logout }) => {
           </Grid>
         </Grid>
       </Toolbar>
+      {/* Modal component for How to Play */}
+      <TutorialComponent
+        bModalOpen={bModalOpen}
+        handleModalOpen={handleModalOpen}
+        handleModalClose={handleModalClose}
+      />
     </AppBar>
   )
 }
