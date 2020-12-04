@@ -6,7 +6,6 @@ const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const {
   expressCspHeader,
-  SELF
 } = require('express-csp-header');
 
 const indexRouter = require("./routes/index");
@@ -33,7 +32,7 @@ app.use(cookieParser());
 app.use(express.static(join(__dirname, "..", "client", "build")));
 app.use(expressCspHeader({
     directives: {
-        'default-src': [SELF],
+        'default-src': ["*"],
     }
 }));
 
