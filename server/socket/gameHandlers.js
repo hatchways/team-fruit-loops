@@ -17,6 +17,7 @@ const execute = (io, room, {method, params, word, callback}) => {
       const {cards, ...guesserState} = gameState;
       io.to(`${id}-spy`).emit('update', {gameState: gameState, word: word});
       io.to(`${id}-guesser`).emit('update', {gameState: guesserState, word: word});
+      io.to(`${id}-spectator`).emit('update', {gameState: gameState, word: word});
     }
   }
   catch (e) {
@@ -55,6 +56,15 @@ const unassign = (io, socket) => (gameID, player, role) => {
 const start = io => gameID => {
   const room = gameController.globalState[gameID];
   if (room) {
+    // put players who are neither spy nor guesser in the spectator room.
+    const allRooms = io.sockets.adapter.rooms;
+    const spectators = Array.from(allRooms.get(gameID))
+      .filter(x => !allRooms.get(`${gameID}-spy`).has(x) &&
+                   !allRooms.get(`${gameID}-guesser`).has(x));
+
+    for (socket of spectators)
+      io.sockets.sockets.get(socket).join(`${gameID}-spectator`);
+
     const game = room.gameEngine;
     const timer = setInterval(() => {
       if (game.gameState.isEnd)
@@ -64,6 +74,7 @@ const start = io => gameID => {
         const {cards, ...guesserState} = game.gameState;
         io.to(`${gameID}-spy`).emit('timer', {gameState: game.gameState, timer: game.gameState.timer});
         io.to(`${gameID}-guesser`).emit('timer', {gameState: guesserState, timer: game.gameState.timer});
+        io.to(`${gameID}-spectator`).emit('timer', {gameState: game.gameState, timer: game.gameState.timer});
       }
       else {
         io.to(gameID).emit('timer', {timer: game.gameState.timer});
