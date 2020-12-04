@@ -6,10 +6,12 @@ let userSchema = new Schema(
     name: {
       type: String,
       required: true,
+      unique: true,
     },
     email: {
       type: String,
       required: true,
+      unique: true,
     },
     password: {
       type: String,
@@ -18,6 +20,22 @@ let userSchema = new Schema(
     // Profile Picture
     imageUrl: {
       type: String,
+    },
+    account: {
+      privateGames: {
+        payment: {
+          date: Date,
+          piID: {
+            type: String,
+            unique: true
+          },
+          piSecret: String,
+        },
+        enabled: {
+          type: Boolean,
+          default: false,
+        },
+      },
     },
   },
   {

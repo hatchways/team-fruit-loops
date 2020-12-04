@@ -1,4 +1,5 @@
 const Game = require('../game/game');
+const authenticate = require('./authenticate');
 const { v4: uuidv4 } = require('uuid');
 const globalState = {};
 
@@ -42,10 +43,16 @@ const getPublicGames = () => {
 }
 
 // create a new ID and game instance, register instance in global dict by ID
-const create = (req, res) => {
+const create = async (req, res) => {
   const {player, name = player + '\'s game', socketID, isPublic = false, maxPlayerNum = 8} = req.body;
 
   try {
+    const canCreatePrivate = !isPublic && await authenticate.playerHasPrivateGames(player);
+    console.log(isPublic, canCreatePrivate);
+    if (!canCreatePrivate) {
+      return res.status(500).json({ err: "Error creating game" });
+    }
+
     const id = uuidv4();
     const io = req.app.get('socketio');
     const socket = io.sockets.sockets.get(socketID);

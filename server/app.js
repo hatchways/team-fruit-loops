@@ -20,6 +20,7 @@ const profileRouter = require("./routes/profile");
 const uploadImageRouter = require("./routes/uploadImage");
 const accountRouter = require("./routes/account");
 const userRouter = require("./routes/users")
+const stripeRouter = require("./routes/stripe")
 
 const { json, urlencoded } = express;
 
@@ -47,6 +48,7 @@ app.use("/profile", profileRouter);
 app.use("/uploadImage", uploadImageRouter);
 app.use("/account", accountRouter);
 app.use("/users", userRouter);
+app.use("/stripe", stripeRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => next(createError(404)));

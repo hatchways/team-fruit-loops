@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
+import PropTypes from 'prop-types';
 import axios from 'axios'
 
 import { Button, TextField, Typography, Container } from '@material-ui/core'
@@ -7,7 +8,12 @@ import { Button, TextField, Typography, Container } from '@material-ui/core'
 import EditIcon from '@material-ui/icons/Edit'
 import SendIcon from '@material-ui/icons/Send'
 
-import UploadImage from '../components/uploadImage'
+import UploadImage from '../components/Profile/uploadImage'
+import {
+  Upgrade,
+  UpgradeButton,
+  useFetchPaymentIntent,
+} from '../components/Profile/Upgrade'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -34,7 +40,10 @@ const useStyles = makeStyles(theme => ({
   editButton: {
     minWidth: '40px',
     maxWidth: '40px'
-  }
+  },
+  upgradeButton: {
+    marginTop: theme.spacing(6),
+  },
 }))
 
 const Profile = ({ accountValues, handleAccountValuesChange }) => {
@@ -112,8 +121,37 @@ const Profile = ({ accountValues, handleAccountValuesChange }) => {
     setSavedName(accountValues.name)
   }, [accountValues])
 
+  const [upgradeToggle, setUpgradeToggle] = useState(false);
+  const upgradeClose = () => setUpgradeToggle(old => !old);
+  const {
+    view = "loading",
+    intent = "",
+    text = "",
+    transitionPaid,
+    transitionError,
+  } = useFetchPaymentIntent(accountValues.name);
+
+  const onSuccess = () => {
+    if (transitionPaid) {
+      transitionPaid();
+    }
+  }
+
+  const onError = () => {
+    if (transitionError) {
+      transitionError();
+    }
+  }
+
   return (
     <Container component='main' maxWidth='xs'>
+      <Upgrade
+        intent={intent}
+        open={upgradeToggle}
+        close={upgradeClose}
+        onError={onError}
+        onSuccess={onSuccess}
+      />
       <div className={classes.root}>
         <>
           {values['email'] !== '' ? (
@@ -160,6 +198,12 @@ const Profile = ({ accountValues, handleAccountValuesChange }) => {
                   accountValues={accountValues}
                   handleAccountValuesChange={handleAccountValuesChange}
                 />
+                <Container className={classes.upgradeButton} align="center">
+                  <UpgradeButton
+                    text={text}
+                    view={view}
+                    upgradeClose={upgradeClose}/>
+                </Container>
               </form>{' '}
               <br />
             </>
@@ -171,5 +215,10 @@ const Profile = ({ accountValues, handleAccountValuesChange }) => {
     </Container>
   )
 }
+
+Profile.propTypes = {
+  accountValues: PropTypes.object.isRequired,
+  handleAccountValuesChange: PropTypes.func.isRequired,
+};
 
 export default Profile

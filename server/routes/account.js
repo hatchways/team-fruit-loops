@@ -3,11 +3,11 @@
 const express = require('express')
 const router = express.Router()
 
-const { authenticateToken } = require('../controllers/auth')
+const authenticate = require('../controllers/authenticate')
 
 const User = require('../models/User')
 
-router.get('/', authenticateToken, (req, res) => {
+router.get('/', authenticate.token, (req, res) => {
   let user = req.user
 
   if (user) {

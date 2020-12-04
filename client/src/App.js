@@ -4,10 +4,14 @@ import {
   BrowserRouter,
   Route,
   Redirect,
-  Switch
+  Switch,
+  useHistory,
 } from 'react-router-dom'
 import socketIOClient from 'socket.io-client'
 import { theme } from './themes/theme'
+import { Elements, } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+import axios from 'axios'
 
 import PrivateRoute from './components/PrivateRoute'
 
@@ -22,10 +26,15 @@ import Lobby from './pages/Lobby'
 import Game from './pages/Game'
 import Public from './pages/Public'
 
-import axios from 'axios'
+const stripePubKey = process.env.REACT_APP_STRIPE_PUB_KEY;
+if (stripePubKey === "") {
+  console.log("Warning: Stripe public key undefined");
+}
 
 let socket = socketIOClient()
 function App () {
+  const history = useHistory();
+  const [stripePromise,] = useState(() => loadStripe(stripePubKey));
   const [state, setState] = useState({
     player: 'Bonnie',
     gameID: undefined,
@@ -91,42 +100,44 @@ function App () {
 
   return (
     <MuiThemeProvider theme={theme}>
-      <CssBaseline />
-      <BrowserRouter>
-        <Navbar state={state} accountValues={accountValues} logout={logout} />
-        <Toolbar />
-        <Switch>
-          <Redirect exact from='/' to='/signup' />
-          <Route path='/signup' render={props => <Signup {...props} />} />
-          <Route
-            path='/login'
-            render={props => (
-              <Login
-                {...props}
-                accountValues={accountValues}
-                setAccountValues={setAccountValues}
-                handleAccountValueChange={handleAccountValuesChange}
-              />
-            )}
-          />
-          <PrivateRoute
-            path='/profile'
-            component={Profile}
-            accountValues={accountValues}
-            setAccountValues={setAccountValues}
-            handleAccountValuesChange={handleAccountValuesChange}
-          />
-          <PrivateRoute
-            path='/friends'
-            component={Friends}
-            accountValues={accountValues}
-          />
-          <Route exact path='/match' render={withGameState(Match)} />
-          <Route exact path='/public' render={withGameState(Public)} />
-          <Route path='/lobby/:gameID' render={withGameState(Lobby)} />
-          <Route path='/game/:gameID' render={withGameState(Game)} />
-        </Switch>
-      </BrowserRouter>
+      <Elements stripe={stripePromise}>
+        <CssBaseline />
+        <BrowserRouter history={history}>
+          <Navbar state={state} accountValues={accountValues} logout={logout} />
+          <Toolbar />
+          <Switch>
+            <Redirect exact from='/' to='/signup' />
+            <Route path='/signup' render={props => <Signup {...props} />} />
+            <Route
+              path='/login'
+              render={props => (
+                <Login
+                  {...props}
+                  accountValues={accountValues}
+                  setAccountValues={setAccountValues}
+                  handleAccountValueChange={handleAccountValuesChange}
+                />
+              )}
+            />
+            <PrivateRoute
+              path='/profile'
+              component={Profile}
+              accountValues={accountValues}
+              setAccountValues={setAccountValues}
+              handleAccountValuesChange={handleAccountValuesChange}
+            />
+            <PrivateRoute
+              path='/friends'
+              component={Friends}
+              accountValues={accountValues}
+            />
+            <Route exact path='/match' render={withGameState(Match)} />
+            <Route exact path='/public' render={withGameState(Public)} />
+            <Route path='/lobby/:gameID' render={withGameState(Lobby)} />
+            <Route path='/game/:gameID' render={withGameState(Game)} />
+          </Switch>
+        </BrowserRouter>
+      </Elements>
     </MuiThemeProvider>
   )
 }
