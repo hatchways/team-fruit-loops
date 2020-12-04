@@ -73,19 +73,7 @@ const webhook = async (req, res) => {
   let event;
 
   try {
-    switch (true) {
-    case process.env.NODE_ENV === "production" && endpointSecret !== "":
-      event = stripe.webhooks.constructEvent(
-          req.body,
-          req.headers["stripe-signature"],
-          endpointSecret
-        );
-      break ;
-    case process.env.NODE_ENV === "production" && endpointSecret === "":
-    case process.env.NODE_ENV !== "production":
-      event = req.body;
-    }
-
+    event = req.body;
     res.send({ received: true });
   } catch (err) {
     console.log(`Webhook Error: ${err.message}`);
