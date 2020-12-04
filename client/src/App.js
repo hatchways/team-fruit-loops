@@ -5,7 +5,6 @@ import {
   Route,
   Redirect,
   Switch,
-  useHistory,
 } from 'react-router-dom'
 import socketIOClient from 'socket.io-client'
 import { theme } from './themes/theme'
@@ -33,7 +32,6 @@ if (stripePubKey === "") {
 
 let socket = socketIOClient()
 function App () {
-  const history = useHistory();
   const [stripePromise,] = useState(() => loadStripe(stripePubKey));
   const [state, setState] = useState({
     player: 'Bonnie',
@@ -102,7 +100,7 @@ function App () {
     <MuiThemeProvider theme={theme}>
       <Elements stripe={stripePromise}>
         <CssBaseline />
-        <BrowserRouter history={history}>
+        <BrowserRouter>
           <Navbar state={state} accountValues={accountValues} logout={logout} />
           <Toolbar />
           <Switch>
