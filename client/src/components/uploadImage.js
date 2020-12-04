@@ -42,7 +42,8 @@ const UploadImage = props => {
           id: props.accountValues.id,
           name: props.accountValues.name,
           email: props.accountValues.email,
-          imageUrl: res.data.imageUrl
+          imageUrl: res.data.imageUrl,
+          viewedTutorial: res.data.viewedTutorial,
         })
       })
       .catch(() => {})

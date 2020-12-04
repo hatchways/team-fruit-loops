@@ -22,7 +22,7 @@ import axios from 'axios'
 let socket = socketIOClient()
 function App () {
   const [state, setState] = useState({
-    player: 'Bonnie',
+    player: '',
     gameID: undefined,
     gameState: undefined
   })
