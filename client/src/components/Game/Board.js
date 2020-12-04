@@ -96,6 +96,7 @@ const Prompt = ({ state, timer, getRole }) => {
       prompt = 'Waiting for guesser(s)'
       break
     default:
+      prompt = "error";
   }
 
   return (
@@ -138,8 +139,7 @@ const Board = ({ state, timer, onNextMove, getRole }) => {
     return {
       word: key,
       status: boardState[key].status,
-      color:
-        isSpy(getRole) || isSpectator(getRole) ? cards[key] : undefined
+      color: isSpy(getRole) || isSpectator(getRole) ? cards[key] : undefined
     }
   })
   const wordsGrid = []
@@ -179,7 +179,7 @@ const Board = ({ state, timer, onNextMove, getRole }) => {
 Prompt.propTypes = {
   state: PropTypes.object.isRequired,
   timer: PropTypes.number.isRequired,
-  getRole: PropTypes.string.isRequired,
+  getRole: PropTypes.string.isRequired
 }
 
 Card.propTypes = {

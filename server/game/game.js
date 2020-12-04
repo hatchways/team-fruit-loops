@@ -10,7 +10,7 @@ const initGame = () => {
     cards: dictionary.generateCards(),
     blueCardNum: 9,
     redCardNum: 8,
-    greyCardNum: 8,
+    greyCardNum: 7,
     blackCardNum: 1,
     bluePoints: 9,
     redPoints: 8,
@@ -32,7 +32,7 @@ const initGame = () => {
 const isReady = (gameState) => {
   return (
     gameState.blueSpy !== undefined &&
-    gameState.redSpy !== undefined && 
+    gameState.redSpy !== undefined &&
     gameState.blueGuessers.length !== 0 &&
     gameState.redGuessers.length !== 0
   );
@@ -68,6 +68,31 @@ Game.prototype.join = function(player) {
 
   this.gameState.playerList.push(player);
   this.gameState.waitingList.push(player);
+  return this.gameState;
+}
+
+Game.prototype.leave = function(player) {
+  const gameState = this.gameState;
+  if (gameState.isStart) return gameState;
+
+  if (player !== undefined && gameState.playerList.includes(player)) {
+    if (gameState.waitingList.includes(player)) {
+      this.gameState.waitingList.splice(gameState.waitingList.indexOf(player), 1);
+    }
+    else {
+      if (gameState.blueSpy === player) this.gameState.blueSpy = undefined;
+      if (gameState.redSpy === player) this.gameState.redSpy = undefined;
+      if (gameState.blueGuessers.includes(player))
+        this.gameState.blueGuessers.splice(gameState.blueGuessers.indexOf(player), 1);
+      if (gameState.redGuessers.includes(player))
+        this.gameState.redGuessers.splice(gameState.redGuessers.indexOf(player), 1);
+    }
+    this.gameState.playerList.splice(gameState.playerList.indexOf(player), 1);
+    if (!this.gameState.playerList.includes(this.gameState.host)) {
+      if (this.gameState.playerList.length > 0)
+        this.gameState.host = this.gameState.playerList[0];
+    }
+  }
   return this.gameState;
 }
 
@@ -259,7 +284,10 @@ Game.prototype.spyNextMove = function(player, hint, hintNum) {
   if (hintNum <= 0)
     throw new Error('Invalid number of hints');
 
-  this.gameState.hint = hint;
+  if (this.gameState.cards[hint.toLowerCase()])
+    throw new Error('Cannot give a card word as a hint');
+
+  this.gameState.hint = hint.toLowerCase();
   this.gameState.guessNum = hintNum + this.gameState.guessNum;
 
   // Reset game timer for guessers
