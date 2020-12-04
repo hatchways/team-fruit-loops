@@ -34,7 +34,7 @@ let socket = socketIOClient()
 function App () {
   const [stripePromise,] = useState(() => loadStripe(stripePubKey));
   const [state, setState] = useState({
-    player: 'Bonnie',
+    player: "",
     gameID: undefined,
     gameState: undefined
   })
