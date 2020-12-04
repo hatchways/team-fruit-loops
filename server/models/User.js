@@ -19,6 +19,9 @@ let userSchema = new Schema(
     imageUrl: {
       type: String,
     },
+    viewedTutorial: {
+      type: Boolean,
+    }
   },
   {
     timestamps: true,

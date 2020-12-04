@@ -1,11 +1,6 @@
 import React, { useState, useLayoutEffect } from 'react'
 import { MuiThemeProvider, CssBaseline, Toolbar } from '@material-ui/core'
-import {
-  BrowserRouter,
-  Route,
-  Redirect,
-  Switch
-} from 'react-router-dom'
+import { BrowserRouter, Route, Redirect, Switch } from 'react-router-dom'
 import socketIOClient from 'socket.io-client'
 import { theme } from './themes/theme'
 
@@ -33,10 +28,11 @@ function App () {
   })
 
   const [accountValues, setAccountValues] = useState({
-    id: '',
-    name: '',
-    email: '',
-    imageURL: ''
+    id: undefined,
+    name: undefined,
+    email: undefined,
+    imageURL: undefined,
+    viewedTutorial: undefined
   })
 
   const handleAccountValuesChange = values => {
@@ -53,8 +49,11 @@ function App () {
           id: '',
           name: '',
           email: '',
-          imageURL: ''
+          imageUrl: '',
+          viewedTutorial: undefined
         })
+
+
       })
   }
 
@@ -77,7 +76,8 @@ function App () {
           id: res.data._id,
           name: res.data.name,
           email: res.data.email,
-          imageUrl: res.data.imageUrl
+          imageUrl: res.data.imageUrl,
+          viewedTutorial: res.data.viewedTutorial
         })
 
         setState({
@@ -86,29 +86,55 @@ function App () {
           gameState: undefined
         })
       })
-      .catch(() => {})
+      .catch(() => {
+        setAccountValues({
+          id: '',
+          name: '',
+          email: '',
+          imageUrl: '',
+          viewedTutorial: undefined
+        })
+      })
   }, [])
 
   return (
     <MuiThemeProvider theme={theme}>
       <CssBaseline />
       <BrowserRouter>
-        <Navbar state={state} accountValues={accountValues} logout={logout} />
+        <Navbar
+          state={state}
+          accountValues={accountValues}
+          logout={logout}
+          handleAccountValueChange={handleAccountValuesChange}
+        />
         <Toolbar />
         <Switch>
           <Redirect exact from='/' to='/signup' />
-          <Route path='/signup' render={props => <Signup {...props} />} />
-          <Route
-            path='/login'
-            render={props => (
-              <Login
-                {...props}
-                accountValues={accountValues}
-                setAccountValues={setAccountValues}
-                handleAccountValueChange={handleAccountValuesChange}
-              />
-            )}
-          />
+          {!accountValues.id || accountValues.id === '' ? (
+            <Route
+              path='/signup'
+              render={props => (
+                <Signup {...props} accountValues={accountValues} />
+              )}
+            />
+          ) : (
+            <Redirect from='/signup' to='/match' />
+          )}
+          {!accountValues.id || accountValues.id === '' ? (
+            <Route
+              path='/login'
+              render={props => (
+                <Login
+                  {...props}
+                  accountValues={accountValues}
+                  handleAccountValueChange={handleAccountValuesChange}
+                />
+              )}
+            />
+          ) : (
+            <Redirect from='/login' to='/match' />
+          )}
+
           <PrivateRoute
             path='/profile'
             component={Profile}
@@ -121,10 +147,17 @@ function App () {
             component={Friends}
             accountValues={accountValues}
           />
-          <Route exact path='/match' render={withGameState(Match)} />
-          <Route exact path='/public' render={withGameState(Public)} />
-          <Route path='/lobby/:gameID' render={withGameState(Lobby)} />
-          <Route path='/game/:gameID' render={withGameState(Game)} />
+          <PrivateRoute exact path='/match' component={withGameState(Match)} />
+          <PrivateRoute
+            exact
+            path='/public'
+            component={withGameState(Public)}
+          />
+          <PrivateRoute
+            path='/lobby/:gameID'
+            component={withGameState(Lobby)}
+          />
+          <PrivateRoute path='/game/:gameID' component={withGameState(Game)} />
         </Switch>
       </BrowserRouter>
     </MuiThemeProvider>

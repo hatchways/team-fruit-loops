@@ -32,7 +32,7 @@ app.use(cookieParser());
 app.use(express.static(join(__dirname, "..", "client", "build")));
 app.use(expressCspHeader({
     directives: {
-        'default-src': [SELF],
+        'default-src': ["*"],
     }
 }));
 

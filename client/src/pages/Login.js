@@ -55,7 +55,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const Login = ({setAccountValues}) => {
+const Login = ({ accountValues, handleAccountValueChange }) => {
   const classes = useStyles();
   let history = useHistory();
 
@@ -79,18 +79,21 @@ const Login = ({setAccountValues}) => {
       .post("/login", values)
       .then((res) => {
         // If login is successful, save info to global state variable and redirect to profile page
-        setAccountValues({
+        handleAccountValueChange({
           id: res.data.user._id,
           name: res.data.user.name,
           email: res.data.user.email,
-          imageUrl: res.data.user.imageUrl
+          imageUrl: res.data.user.imageUrl,
+          viewedTutorial: res.data.user.viewedTutorial,
         })
 
         history.push("/match");
       })
       .catch((err) => {
-        setSnackBarMessage(err.response.data.errors);
-        setSnackbarOpen(true);
+        if (err.response) {
+          setSnackBarMessage(err.response.data.errors);
+          setSnackbarOpen(true);
+        }
       });
   };
 
@@ -101,6 +104,8 @@ const Login = ({setAccountValues}) => {
 
     setSnackbarOpen(false);
   };
+
+  if (accountValues.id === undefined) return <></>
 
   return (
     <Container component="main" maxWidth="xs">
