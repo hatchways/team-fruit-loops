@@ -43,7 +43,9 @@ const player = async (req, res, next) => {
 const playerHasPrivateGames = async (name) => {
   try {
     const user = await User.findOne({ name });
-    return user?.account.privateGames.enabled;
+    return user === null
+      ? undefined
+      : user.account.privateGames.enabled;
   } catch (err) {
     console.log(err);
     return undefined;
