@@ -6,7 +6,6 @@ router.get('/', function (req, res, next) {
 
   // Some cookies are misusing the recommended “SameSite“ attribute
   // Cookie “token” has been rejected because it is already expired.
-
   res.clearCookie('token')
   res.send({ success: true })
 })
