@@ -5,7 +5,6 @@ const leaveRoom = (room, socketID) => {
     const activePlayers = room.activePlayers;
     const game = room.gameEngine;
     const newGameState = game.leave(activePlayers[socketID]);
-    console.log(room, newGameState)
     room.gameName = `${newGameState.host}\'s game`;
     delete activePlayers[socketID];
     // remove the game if there are no active players
