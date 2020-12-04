@@ -94,6 +94,9 @@ const Prompt = ({ state, timer, getRole }) => {
       break
     case hint !== undefined && teamRole === 'spy':
       prompt = 'Waiting for guesser(s)'
+      break
+    default:
+      prompt = "error";
   }
 
   return (

@@ -30,7 +30,7 @@ const Btn = ({ on, css, text }) => (
 
 const GameForm = ({ onCreateGame, playerName, setPlayerName, accountValues }) => {
   const classes = useStyles()
-  const [gameRoomName, setGameRoomName] = useState(`${playerName}\'s game`);
+  const [gameRoomName, setGameRoomName] = useState(`${playerName}'s game`);
   const [playerNum, setPlayerNum] = useState(4);
 
   const selectItems = [];
