@@ -46,8 +46,10 @@ const intent = async (req, res) => {
   if (user.account.privateGames.payment.piSecret === undefined) {
     return createPaymentIntent(user, res);
   } else if (user.account.privateGames.enabled === false) {
-    const body = { type: "success", intent: user.account.privateGames.payment.piSecret, };
-    return res.status(409).send(body);
+    return res.status(409).send({
+      type: "success",
+      intent: user.account.privateGames.payment.piSecret,
+    });
   }
   const date = user.account.privateGames.payment.date;
   return res.status(409).send({

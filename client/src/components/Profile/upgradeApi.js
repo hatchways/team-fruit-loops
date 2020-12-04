@@ -60,7 +60,6 @@ const useFetchPaymentIntent = name => {
   }, [name]);
 
   if (intentNotLoaded(name, state.intent, state.view, state.text)) {
-    console.log(name, state.intent, state.view)
     return createPaymentIntent();
   }
 

@@ -48,7 +48,6 @@ const create = async (req, res) => {
 
   try {
     const canCreatePrivate = !isPublic && await authenticate.playerHasPrivateGames(player);
-    console.log(isPublic, canCreatePrivate);
     if (!canCreatePrivate) {
       return res.status(500).json({ err: "Error creating game" });
     }
