@@ -10,7 +10,7 @@ const initGame = () => {
     cards: dictionary.generateCards(),
     blueCardNum: 9,
     redCardNum: 8,
-    greyCardNum: 8,
+    greyCardNum: 7,
     blackCardNum: 1,
     bluePoints: 9,
     redPoints: 8,
@@ -284,7 +284,10 @@ Game.prototype.spyNextMove = function(player, hint, hintNum) {
   if (hintNum <= 0)
     throw new Error('Invalid number of hints');
 
-  this.gameState.hint = hint;
+  if (this.gameState.cards[hint.toLowerCase()])
+    throw new Error('Cannot give a card word as a hint');
+
+  this.gameState.hint = hint.toLowerCase();
   this.gameState.guessNum = hintNum + this.gameState.guessNum;
 
   // Reset game timer for guessers
