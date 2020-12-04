@@ -1,12 +1,12 @@
 import { useReducer, useCallback } from 'react';
 
-const upgradeButtonInitialState = {
+const intentInitial = {
   view: "loading",
   intent: "",
   text: "",
 };
 
-const upgradeButtonReducer = (state, action) => {
+const intentReducer = (state, action) => {
   switch(action.type) {
   case "success":
     return { ...state, view: "pay", intent: action.intent };
@@ -37,9 +37,7 @@ const intentNotLoaded = (name, intent, view, text) => (
 );
 
 const useFetchPaymentIntent = name => {
-  const reducer = upgradeButtonReducer;
-  const initial = upgradeButtonInitialState;
-  const [state, dispatch] = useReducer(reducer, initial)
+  const [state, dispatch] = useReducer(intentReducer, intentInitial);
 
   // create payment intent on page load
   const createPaymentIntent = useCallback(async () => {

@@ -143,10 +143,9 @@ const upgradeButtonStyles = theme => ({
 });
 
 const UpgradeButtonComponent = ({ classes, upgradeClose, view, text }) => {
-  if (view === undefined) {
-    return <div>empty</div>
-  }
   switch (view) {
+  case undefined:
+    return <div></div>;
   case "loading":
     return (
       <div>
