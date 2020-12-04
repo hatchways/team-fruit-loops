@@ -43,7 +43,7 @@ const api = {
 const Public = ({state, setState, socket, accountValues}) => {
   const classes = useStyles();
   const history = useHistory();
-  const [player, setPlayer] = useState('player1');
+  const [player, setPlayer] = useState((accountValues.name !== "" && accountValues.name)|| "Guest_" + Math.floor(Math.random() * (10000 - 1000) + 1000));
   const [gameList, setGameList] = useState([]);
   const [err, setErr] = useState(undefined);
 

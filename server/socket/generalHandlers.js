@@ -1,20 +1,33 @@
 const gameController = require('../controllers/game');
 
+const leaveRoom = (room, socketID) => {
+  if (room) {
+    const activePlayers = room.activePlayers;
+    const game = room.gameEngine;
+    const newGameState = game.leave(activePlayers[socketID]);
+    console.log(room, newGameState)
+    room.gameName = `${newGameState.host}\'s game`;
+    delete activePlayers[socketID];
+    // remove the game if there are no active players
+    if (Object.keys(activePlayers).length === 0)
+      delete gameController.globalState[room.id];
+
+    return newGameState;
+  }
+  return undefined;
+}
+
 const disconnecting = (io, socket) => () => {
   const gameList = Array.from(socket.rooms).filter(item => item!=socket.id);
   console.log(`${socket.id} disconnecting`);
   // remove the player from room
   for (gameID of gameList) {
-    if (gameController.globalState[gameID] === undefined) {
-      console.log(`game (id: ${gameID}) does not exist.`);
-      continue;
+    const room = gameController.globalState[gameID];
+    const newGameState = leaveRoom(room, socket.id);
+    if (newGameState) {
+      io.to(gameID).emit('update', {gameState: newGameState});
+      io.emit('publicGames', gameController.getPublicGames());
     }
-
-    const activePlayers = gameController.globalState[gameID].activePlayers;
-    // remove the player from the active player list
-    delete activePlayers[socket.id];
-    if (Object.keys(activePlayers).length === 0)
-      delete gameController.globalState[gameID];
   }
 };
 
@@ -24,14 +37,10 @@ const disconnect = (io, socket) => () => {
 
 const leave = (io, socket) => gameID => {
   const room = gameController.globalState[gameID];
-  if (room) {
-    const activePlayers = room.activePlayers;
-    delete activePlayers[socket.id];
-    // remove the game if there are no active players
-    if (Object.keys(activePlayers).length === 0)
-      delete gameController.globalState[gameID];
-  }
+  const newGameState = leaveRoom(room, socket.id);
   io.emit('publicGames', gameController.getPublicGames());
+  if (newGameState)
+    io.to(gameID).emit('update', {gameState: newGameState});
 };
 
 const refresh = io => () => {

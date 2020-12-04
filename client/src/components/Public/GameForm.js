@@ -30,18 +30,12 @@ const Btn = ({ on, css, text }) => (
 
 const GameForm = ({ onCreateGame, playerName, setPlayerName, accountValues }) => {
   const classes = useStyles()
-  const [gameRoomName, setGameRoomName] = useState('player1\'s game');
+  const [gameRoomName, setGameRoomName] = useState(`${playerName}\'s game`);
   const [playerNum, setPlayerNum] = useState(4);
 
   const selectItems = [];
   for (let i = 4; i <= 8; i++) {
     selectItems.push(<option key={i}>{i}</option>);
-  }
-
-  const onPlayerNameChange = (e) => {
-    setPlayerName(e.target.value.trim());
-    if (gameRoomName.trim() === '' || gameRoomName.trim() === playerName + '\'s game')
-      setGameRoomName(e.target.value.trim() + '\'s game');
   }
 
   const onGameNameChange = (e) => {
@@ -65,7 +59,6 @@ const GameForm = ({ onCreateGame, playerName, setPlayerName, accountValues }) =>
     <div>
       <h1 className={classes.title}>Create a public game</h1>
       <form className={classes.form} noValidate autoComplete='off'>
-        <TextField required id='playerName' label='Name' variant='outlined' value={playerName} onChange={onPlayerNameChange}/>
         <TextField id='gameName' label='Game name' variant='outlined' value={gameRoomName} onChange={onGameNameChange}/>
         <TextField
           id='playerNumber'
