@@ -53,16 +53,16 @@ const useStyles = makeStyles(theme => ({
     display: 'flex'
   },
   promptContent: props => ({
+    display: 'block',
     color: props.promptColor,
-    margin: 'auto',
-    'text-align': 'center',
+    'margin-left': 'auto',
+    'margin-right': 'auto',
     '&:first-letter': {
       'text-transform': 'capitalize'
     }
   }),
   timer: props => ({
-    color: props.timerColor,
-    'text-align': 'right',
+    color: props.timerColor
   }),
   paper: {
     padding: '5px',
@@ -101,11 +101,8 @@ const Prompt = ({ state, timer, getRole }) => {
 
   return (
     <Container className={classes.prompt} spacing={3}>
-      <div>
-        <h2>Role: {getRole}</h2>
-        <h2>Reamining guesses: {gameState.guessNum}</h2>
-      </div>
-      <h1 className={classes.promptContent}>{prompt}</h1>
+      <h2>Role: {getRole}</h2>
+      <h2 className={classes.promptContent}>{prompt}</h2>
       <h2 className={classes.timer}>{timer}</h2>
     </Container>
   )
