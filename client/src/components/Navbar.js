@@ -1,7 +1,9 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { withRouter, Link, useHistory } from 'react-router-dom'
 import { makeStyles, useTheme } from '@material-ui/core/styles'
 import useMediaQuery from '@material-ui/core/useMediaQuery'
+
+import axios from 'axios'
 
 import TutorialComponent from './TutorialComponent'
 
@@ -79,7 +81,12 @@ const Scorecard = ({ score, team }) => {
   )
 }
 
-const Navbar = ({ state, accountValues, logout }) => {
+const Navbar = ({
+  state,
+  accountValues,
+  logout,
+  handleAccountValuesChange
+}) => {
   const classes = useStyles()
   const theme = useTheme()
   const history = useHistory()
@@ -93,11 +100,7 @@ const Navbar = ({ state, accountValues, logout }) => {
     setBMenuOpen(prevOpen => !prevOpen)
   }
 
-  const handleMenuClose = event => {
-    if (anchorRef.current && anchorRef.current.contains(event.target)) {
-      return
-    }
-
+  const handleMenuClose = () => {
     setBMenuOpen(false)
   }
 
@@ -117,7 +120,27 @@ const Navbar = ({ state, accountValues, logout }) => {
 
   const handleModalClose = () => {
     setBModalOpen(false)
+
+    axios
+      .post('/account/updateTutorialFlag', { id: accountValues.id })
+      .then(res => {
+        handleAccountValuesChange({
+          id: res.data._id,
+          name: res.data.name,
+          email: res.data.email,
+          imageUrl: res.data.imageUrl,
+          viewedTutorial: res.data.viewedTutorial
+        })
+      })
+      .catch(() => {})
   }
+
+  useEffect(() => {
+    // Open the 'How to Play' component on first login
+    if (accountValues.name && !accountValues.viewedTutorial) {
+      setBModalOpen(true)
+    }
+  }, [accountValues])
 
   return (
     <AppBar className={classes.root}>
@@ -234,7 +257,7 @@ const Navbar = ({ state, accountValues, logout }) => {
                   {!state.gameState ||
                   !state.gameState.isStart ||
                   bBreakpointUpSm
-                    ? 'My Profile'
+                    ? 'Menu'
                     : ''}
                 </Button>
                 <Popper
@@ -261,6 +284,19 @@ const Navbar = ({ state, accountValues, logout }) => {
                             autoFocusItem={bMenuOpen}
                             onKeyDown={handleListKeyDown}
                           >
+                            {!state.gameState || !state.gameState.isStart ? (
+                              <MenuItem
+                                component={Link}
+                                to={'/match'}
+                                onClick={handleMenuClose}
+                              >
+                                Start Game
+                              </MenuItem>
+                            ) : (
+                              <></>
+                            )}
+
+                            <Divider />
                             <MenuItem
                               component={Link}
                               to={'/profile'}
@@ -287,7 +323,7 @@ const Navbar = ({ state, accountValues, logout }) => {
                             </MenuItem>
                             <Divider />
                             <MenuItem
-                              onClick={(event) => {
+                              onClick={event => {
                                 handleModalOpen()
                                 handleMenuClose(event)
                               }}
@@ -340,7 +376,8 @@ Scorecard.propTypes = {
 Navbar.propTypes = {
   state: PropTypes.object,
   accountValues: PropTypes.object.isRequired,
-  logout: PropTypes.func.isRequired
+  logout: PropTypes.func.isRequired,
+  handleAccountValueChange: PropTypes.func.isRequired
 }
 
 export default withRouter(Navbar)

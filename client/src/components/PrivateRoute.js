@@ -9,7 +9,7 @@ const PrivateRoute = ({ component: Component, ...rest }) => {
 
   useEffect(() => {
     axios
-      .get("/profile")
+      .get("/account")
       .then((res) => {
         setIsAuthenticated(true);
       })

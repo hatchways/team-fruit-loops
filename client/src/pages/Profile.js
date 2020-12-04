@@ -106,7 +106,8 @@ const Profile = ({ accountValues, handleAccountValuesChange }) => {
             id: res.data._id,
             name: res.data.name,
             email: res.data.email,
-            imageUrl: res.data.imageUrl
+            imageUrl: res.data.imageUrl,
+            viewedTutorial: res.data.viewedTutorial,
           })
           setSavedName(values['name'])
         })

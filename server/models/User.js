@@ -37,6 +37,9 @@ let userSchema = new Schema(
         },
       },
     },
+    viewedTutorial: {
+      type: Boolean,
+    }
   },
   {
     timestamps: true,

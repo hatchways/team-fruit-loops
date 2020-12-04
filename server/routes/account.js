@@ -36,4 +36,16 @@ router.post('/update', (req, res) => {
   })
 })
 
+// Set tutorial flag to true to not automatically show modal again
+router.post('/updateTutorialFlag', (req, res) => {
+  User.findById(req.body.id).then(user => {
+    if (!user) return res.sendStatus(404)
+
+    user.viewedTutorial = true
+    user.save()
+
+    return res.status(200).json(user)
+  })
+})
+
 module.exports = router
