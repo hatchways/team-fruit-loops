@@ -3,6 +3,9 @@ import { MuiThemeProvider, CssBaseline, Toolbar } from '@material-ui/core'
 import { BrowserRouter, Route, Redirect, Switch } from 'react-router-dom'
 import socketIOClient from 'socket.io-client'
 import { theme } from './themes/theme'
+import { Elements, } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+import axios from 'axios'
 
 import PrivateRoute from './components/PrivateRoute'
 
@@ -17,12 +20,15 @@ import Lobby from './pages/Lobby'
 import Game from './pages/Game'
 import Public from './pages/Public'
 
-import axios from 'axios'
+const stripePubKey = process.env.REACT_APP_STRIPE_PUB_KEY;
+if (stripePubKey === "") {
+  console.log("Warning: Stripe public key undefined");
+}
 
 let socket = socketIOClient()
 function App () {
   const [state, setState] = useState({
-    player: 'Bonnie',
+    player: "",
     gameID: undefined,
     gameState: undefined
   })
@@ -99,67 +105,69 @@ function App () {
 
   return (
     <MuiThemeProvider theme={theme}>
-      <CssBaseline />
-      <BrowserRouter>
-        <Navbar
-          state={state}
-          accountValues={accountValues}
-          logout={logout}
-          handleAccountValueChange={handleAccountValuesChange}
-        />
-        <Toolbar />
-        <Switch>
-          <Redirect exact from='/' to='/signup' />
-          {!accountValues.id || accountValues.id === '' ? (
-            <Route
-              path='/signup'
-              render={props => (
-                <Signup {...props} accountValues={accountValues} />
-              )}
-            />
-          ) : (
-            <Redirect from='/signup' to='/match' />
-          )}
-          {!accountValues.id || accountValues.id === '' ? (
-            <Route
-              path='/login'
-              render={props => (
-                <Login
-                  {...props}
-                  accountValues={accountValues}
-                  handleAccountValueChange={handleAccountValuesChange}
-                />
-              )}
-            />
-          ) : (
-            <Redirect from='/login' to='/match' />
-          )}
+      <Elements stripe={loadStripe(stripePubKey)}>
+        <CssBaseline />
+        <BrowserRouter>
+          <Navbar
+            state={state}
+            accountValues={accountValues}
+            logout={logout}
+            handleAccountValueChange={handleAccountValuesChange}
+          />
+          <Toolbar />
+          <Switch>
+            <Redirect exact from='/' to='/signup' />
+            {!accountValues.id || accountValues.id === '' ? (
+              <Route
+                path='/signup'
+                render={props => (
+                  <Signup {...props} accountValues={accountValues} />
+                )}
+              />
+            ) : (
+              <Redirect from='/signup' to='/match' />
+            )}
+            {!accountValues.id || accountValues.id === '' ? (
+              <Route
+                path='/login'
+                render={props => (
+                  <Login
+                    {...props}
+                    accountValues={accountValues}
+                    handleAccountValueChange={handleAccountValuesChange}
+                  />
+                )}
+              />
+            ) : (
+              <Redirect from='/login' to='/match' />
+            )}
 
-          <PrivateRoute
-            path='/profile'
-            component={Profile}
-            accountValues={accountValues}
-            setAccountValues={setAccountValues}
-            handleAccountValuesChange={handleAccountValuesChange}
-          />
-          <PrivateRoute
-            path='/friends'
-            component={Friends}
-            accountValues={accountValues}
-          />
-          <PrivateRoute exact path='/match' component={withGameState(Match)} />
-          <PrivateRoute
-            exact
-            path='/public'
-            component={withGameState(Public)}
-          />
-          <PrivateRoute
-            path='/lobby/:gameID'
-            component={withGameState(Lobby)}
-          />
-          <PrivateRoute path='/game/:gameID' component={withGameState(Game)} />
-        </Switch>
-      </BrowserRouter>
+            <PrivateRoute
+              path='/profile'
+              component={Profile}
+              accountValues={accountValues}
+              setAccountValues={setAccountValues}
+              handleAccountValuesChange={handleAccountValuesChange}
+            />
+            <PrivateRoute
+              path='/friends'
+              component={Friends}
+              accountValues={accountValues}
+            />
+            <PrivateRoute exact path='/match' component={withGameState(Match)} />
+            <PrivateRoute
+              exact
+              path='/public'
+              component={withGameState(Public)}
+            />
+            <PrivateRoute
+              path='/lobby/:gameID'
+              component={withGameState(Lobby)}
+            />
+            <PrivateRoute path='/game/:gameID' component={withGameState(Game)} />
+          </Switch>
+        </BrowserRouter>
+      </Elements>
     </MuiThemeProvider>
   )
 }
