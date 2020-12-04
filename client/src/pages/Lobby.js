@@ -58,6 +58,12 @@ const gameStyles = theme => ({
     right: theme.spacing(1),
     top: theme.spacing(1),
   },
+  exit: {
+    fontWeight: "bold",
+    margin: '10px',
+    position: "relative",
+    float: "right",
+  }
 });
 
 // isOff checks if player has already selected a role
@@ -128,10 +134,16 @@ const Lobby = withStyles(gameStyles)(({ classes, state, setState, socket }) => {
     socket.emit('start', gameID);
   }
 
+  const onExit = () => {
+    socket.emit('leave', gameID);
+    setState({player: player, gameState: undefined})
+  }
+
   return state.gameState.isStart ?
     <Redirect push to={`/game/${gameID}`}/> :
     (
     <Container component="h1" className={classes.container}>
+
       <Dialog open={err !== undefined} onClose={() => setErr(undefined)}>
         <DialogTitle>
           <Typography align="center">Error</Typography>
@@ -148,10 +160,17 @@ const Lobby = withStyles(gameStyles)(({ classes, state, setState, socket }) => {
         </DialogContent>
       </Dialog>
       <Card>
+        <Button
+          onClick={onExit}
+          className={classes.exit}
+          variant="outlined">
+          Exit
+        </Button>
         <CardContent className={classes.content}>
           <Typography variant="h3" className={classes.header}>
             New Game
           </Typography>
+
           <Divider className={classes.hDivider} variant="middle"/>
           <Grid container spacing={1}>
             <Grid item container xs={12} justify="center">
@@ -188,6 +207,7 @@ const Lobby = withStyles(gameStyles)(({ classes, state, setState, socket }) => {
                   Copy
                 </Button>
                 </Tooltip>
+
               </Grid>
             </Grid>
             <Grid item xs={12} align="center">

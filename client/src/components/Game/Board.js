@@ -96,6 +96,7 @@ const Prompt = ({ state, timer, getRole }) => {
       prompt = 'Waiting for guesser(s)'
       break
     default:
+      prompt = "error";
   }
 
   return (
