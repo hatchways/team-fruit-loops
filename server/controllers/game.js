@@ -47,9 +47,11 @@ const create = async (req, res) => {
   const {player, name = player + '\'s game', socketID, isPublic = false, maxPlayerNum = 8} = req.body;
 
   try {
-    const canCreatePrivate = !isPublic && await authenticate.playerHasPrivateGames(player);
-    if (!canCreatePrivate) {
-      return res.status(500).json({ err: "Error creating game" });
+    if (!isPublic) {
+      const canCreatePrivate = await authenticate.playerHasPrivateGames(player);
+      if (!canCreatePrivate) {
+        return res.status(500).json({ err: "Error creating game" });
+      }
     }
 
     const id = uuidv4();
