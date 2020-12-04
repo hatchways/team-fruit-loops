@@ -32,7 +32,6 @@ if (stripePubKey === "") {
 
 let socket = socketIOClient()
 function App () {
-  const [stripePromise,] = useState(() => loadStripe(stripePubKey));
   const [state, setState] = useState({
     player: "",
     gameID: undefined,
@@ -98,7 +97,7 @@ function App () {
 
   return (
     <MuiThemeProvider theme={theme}>
-      <Elements stripe={stripePromise}>
+      <Elements stripe={loadStripe(stripePubKey)}>
         <CssBaseline />
         <BrowserRouter>
           <Navbar state={state} accountValues={accountValues} logout={logout} />
