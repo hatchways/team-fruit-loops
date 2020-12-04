@@ -76,7 +76,7 @@ const webhook = async (req, res) => {
     switch (true) {
     case process.env.NODE_ENV === "production" && endpointSecret !== "":
       event = stripe.webhooks.constructEvent(
-          request.body,
+          req.body,
           req.headers["stripe-signature"],
           endpointSecret
         );
