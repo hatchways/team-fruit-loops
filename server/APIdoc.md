@@ -7,23 +7,29 @@
 Creates an instance of game and returns json data about the game id and game state.
 
 * **URL**
+*
   /game
 
 * **Method:**
+
   `POST`
 
 *  **URL Params**
+
    None
 
 * **Data Params**
+
     * **Required:**
-    `player=[string]`
-    `socketID=[string]`
+
+      `player=[string]`
+      `socketID=[string]`
 
    * **Optional:**
-   `name=[string]`
-   `isPublic=[boolean]`
-   `maxPlayerNum=[integer]`
+
+     `name=[string]`
+     `isPublic=[boolean]`
+     `maxPlayerNum=[integer]`
 
 * **Success Response:**
   * **Code:** 200
@@ -39,7 +45,6 @@ Creates an instance of game and returns json data about the game id and game sta
     **Content:** `{ err : "Your account is not upgraded." }`
 
 * **Sample Call:**
-
   ```javascript
     const res = await fetch("/game", {
       method: "POST",
@@ -59,19 +64,23 @@ Creates an instance of game and returns json data about the game id and game sta
 Joins in a game and returns json data about the game state.
 
 * **URL**
+
   /game/:id/join
 
 * **Method:**
+
   `PUT`
 
 *  **URL Params**
     * **Required:**
-    `id=[string]`
+
+      `id=[string]`
 
 * **Data Params**
     * **Required:**
-    `player=[string]`
-    `socketID=[string]`
+
+      `player=[string]`
+      `socketID=[string]`
 
 * **Success Response:**
   * **Code:** 200
