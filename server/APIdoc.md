@@ -179,7 +179,8 @@ Rreturns json data about the game state of a specific game with its ID.
   ```
   [Return top](#Contents)
 ---
-## Asssign role `(Deprecated)`
+## assign role
+`(Deprecated)`
 
 Assigns a player to a specific role in the game and returns json data about the game state.
 
@@ -239,7 +240,8 @@ Assigns a player to a specific role in the game and returns json data about the 
   [Return top](#Contents)
 
 ---
-## Unasssign role `(Deprecated)`
+## Unassign role
+`(Deprecated)`
 
 Unassigns a player from a specific role in the game and returns json data about the game state.
 
@@ -298,7 +300,8 @@ Unassigns a player from a specific role in the game and returns json data about 
   [Return top](#Contents)
 
 ---
-## Start game `(Deprecated)`
+## Start game
+`(Deprecated)`
 
 Lets the game start and returns json data about the game state.
 
@@ -349,7 +352,8 @@ Lets the game start and returns json data about the game state.
   [Return top](#Contents)
 
 ---
-## Next move `(Deprecated)`
+## Next move
+`(Deprecated)`
 
 Make a move (by either a spy or a guesser) in the game and returns json data about the game state. If a hint is given, it indicates the move is made by a spy. If a word is given, it indicates the move is made by a guesser.
 
@@ -430,7 +434,8 @@ Make a move (by either a spy or a guesser) in the game and returns json data abo
   [Return top](#Contents)
 
 ---
-## Restart game `(Deprecated)`
+## Restart game
+`(Deprecated)`
 
 Restarts the game and returns json data about the game state.
 
