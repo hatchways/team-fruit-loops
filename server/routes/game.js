@@ -4,7 +4,6 @@ const game = require('../controllers/game');
 
 router.post('/', game.create);
 router.get('/ping', game.display);
-router.get('/public-games', game.getPublicGames);
 // This middleware validates game id for
 // any type of HTTP request to the /:id path.
 router.use('/:id', game.validateGameId);
