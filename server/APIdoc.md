@@ -179,7 +179,7 @@ Rreturns json data about the game state of a specific game with its ID.
   ```
   [Return top](#Contents)
 ---
-## assign role
+## Assign role
 `(Deprecated)`
 
 Assigns a player to a specific role in the game and returns json data about the game state.
