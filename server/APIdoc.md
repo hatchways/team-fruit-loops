@@ -34,13 +34,16 @@ Creates an instance of game and returns json data about the game id and game sta
 
 * **Success Response:**
   * **Code:** 200
+
     **Content:** `{ id : [string], gameState : [Object] }`
 
 * **Error Response:**
-  * **Code:** 400  
+  * **Code:** 400 Bad Request
+
     **Content:** `{ error : "Player is not provided." }`
 
   * **Code:** 401 Unauthorized
+
     **Content:** `{ err : "Your account is not upgraded." }`
 
 * **Sample Call:**
@@ -89,16 +92,19 @@ Joins in a game and returns json data about the game state.
 
 * **Success Response:**
   * **Code:** 200
+
     **Content:** `{ gameState : [Object] }`
 
 * **Error Response:**
-  * **Code:** 400  
+  * **Code:** 400 Bad Request
+
     **Content:**
     * `{ error : "Player is not provided." }`
     * ``{ error : `${player} has already joined in the game.` }``
     * `{ error : "Game has already started." }`
 
-  * **Code:** 404  
+  * **Code:** 404 Not found
+
     **Content:** ``{ error : `Game id ${id} not found` }``
 
 * **Sample Call:**
@@ -143,10 +149,12 @@ Rreturns json data about the game state of a specific game with its ID.
 
 * **Success Response:**
   * **Code:** 200
+
     **Content:** `{ gameState : [Object] }`
 
 * **Error Response:**
-  * **Code:** 404  
+  * **Code:** 404 Not found
+
     **Content:**  ``{ error : `Game id ${id} not found` }``
 
 * **Sample Call:**
