@@ -112,7 +112,7 @@ function App () {
             state={state}
             accountValues={accountValues}
             logout={logout}
-            handleAccountValueChange={handleAccountValuesChange}
+            handleAccountValuesChange={handleAccountValuesChange}
           />
           <Toolbar />
           <Switch>
