@@ -99,15 +99,7 @@ const Signup = ({ accountValues }) => {
         .post('/register', values)
         .then(res => {
           // After registering, automatically log in
-          axios
-            .post('/login', values)
-            .then(res => {
-              history.push('/match')
-            })
-            .catch(err => {
-              setSnackBarMessage(err.response.data.errors)
-              setSnackbarOpen(true)
-            })
+          history.push('/login')
         })
         .catch(err => {
           setSnackBarMessage(err.response.data.errors)

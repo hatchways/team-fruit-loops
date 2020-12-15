@@ -11,10 +11,12 @@ import {
 
 const styles = theme => ({
   window: {
-    overflowY: "scroll",
+    overflowY: "auto",
     height: "auto",
     maxHeight: "45vh",
     marginTop: theme.spacing(1),
+    display: "flex",
+    "flex-direction": "column-reverse",
   },
   nopadding: {
     paddingTop: 0,
@@ -22,11 +24,22 @@ const styles = theme => ({
   },
   floatRight: {
     float: "right",
-  }
+  },
 });
 
-const Chat = ({ player, classes, socket }) => {
-  const [chats, setChats] = useState([]);
+const chat = [];
+let id = undefined;
+
+const Chat = ({ gameID, player, classes, socket }) => {
+  if (id === undefined)
+    id = gameID;
+
+  if (id !== gameID) {
+    id = gameID;
+    chat.splice(0, chat.length);
+  }
+
+  const [chats, setChats] = useState(chat);
   const isSelf = author => author === player ? "You" : author;
 
   useEffect(() => {
@@ -34,16 +47,20 @@ const Chat = ({ player, classes, socket }) => {
       if (process.env.NODE_ENV !== "production") {
         console.log(`Received (${type}): ${author} ${text}`);
       }
-      setChats([...chats, {type, text, author}]);
+      chat.push({type, text, author});
+      setChats(chat);
     }
+    socket.on("chat", newChatHandler);
 
-    socket.on("chat", newChatHandler)
+    return () => {
+      socket.off('chat', newChatHandler);
+    }
   }, [setChats, socket, chats]);
 
   return (
-    <List className={classes.window}>
+    <List className={classes.window} >
       {
-        chats
+        chats.slice().reverse()
           .map(({ type, author, text }, i) => {
             const props = { key: i, text };
             if (type === "chat" && player === author) {

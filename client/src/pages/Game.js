@@ -112,8 +112,10 @@ const GamePage = ({ classes, state, setState, socket, accountValues, logout }) =
       setTimer(timer);
     }
 
-    socket.on('update', updateHandler);
-    socket.on('timer', timerHandler);
+    if (state.gameState && !state.gameState.isEnd) {
+      socket.on('update', updateHandler);
+      socket.on('timer', timerHandler);
+    }
 
     return () => {
       socket.off('update', updateHandler);
@@ -121,7 +123,7 @@ const GamePage = ({ classes, state, setState, socket, accountValues, logout }) =
 
       // setState({ player: player, gameState: undefined });
     }
-  }, [setState, setTimer, sounds, socket, player, playSoundEffects]);
+  }, [setState, setTimer, sounds, socket, player, playSoundEffects, state]);
 
   if (gameID === undefined || gameState === undefined) {
     return <Redirect to='/match' />
@@ -139,7 +141,7 @@ const GamePage = ({ classes, state, setState, socket, accountValues, logout }) =
   // }
 
   const onNewGame = () => {
-    socket.emit('leave', gameID)
+    socket.emit('leave', gameID);
     setState({ player: state.player, gameID: undefined, gameState: undefined });
   }
 

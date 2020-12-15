@@ -339,6 +339,13 @@ const Navbar = ({
                                   .finally(() => {
                                     handleMenuClose(event)
                                     // Redirect to login page
+                                    handleAccountValuesChange({
+                                      id: '',
+                                      name: '',
+                                      email: '',
+                                      imageUrl: '',
+                                      viewedTutorial: undefined
+                                    });
                                     history.push('/login')
                                   })
                               }}

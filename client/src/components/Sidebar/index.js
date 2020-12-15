@@ -33,7 +33,7 @@ const Sidebar = ({ classes, state, getRole, isSpy, countMax, gameID, socket, ...
     <Toolbar />
     <div className={classes.sidebar}>
       <SidebarTop state={state} player={state.player} {...props}/>
-      <SidebarChat player={state.player} socket={socket}/>
+      <SidebarChat gameID={gameID} player={state.player} socket={socket}/>
       <SidebarBottom
         getRole={getRole}
         isSpy={isSpy}
