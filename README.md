@@ -34,6 +34,7 @@
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
+![Starting a Public Game](client/src/assets/public_lobby_demo.gif)
 ![Spymaster Screenshot](client/src/assets/tutorial/Game_1.png)
 ![Field Agent Screenshot](client/src/assets/tutorial/Game_3.png)
 ![Game Over Screenshot](client/src/assets/tutorial/Game_5.png)
